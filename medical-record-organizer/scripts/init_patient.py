@@ -38,6 +38,7 @@ def create_directory_tree(patient_dir: Path) -> None:
         "06_治疗决策历史",
         "07_合并症与用药",
         "08_出院小结",
+        "08_出院小结/入院小结",
         "09_Apple_Health",
         "10_原始文件/未分类",
         "10_原始文件/门诊记录",

@@ -6,18 +6,19 @@
 
 | 文档类型 | 目标目录 | 关键词 | 提取字段 |
 |----------|----------|--------|----------|
-| 出院小结 | `08_出院小结/` | 出院小结、入院诊断、出院诊断、住院号 | admission_date, discharge_date, diagnosis, treatment_during_stay, discharge_instructions |
-| CT报告 | `04_影像学/CT/` | CT、计算机断层、增强CT、平扫 | scan_date, scan_region, findings, impression |
-| MRI报告 | `04_影像学/MRI/` | MRI、磁共振、核磁 | scan_date, scan_region, findings, impression |
-| PET-CT报告 | `04_影像学/PET-CT/` | PET、PET-CT、PET/CT、代谢 | scan_date, findings, SUVmax, impression |
-| 超声报告 | `04_影像学/超声/` | 超声、B超、彩超、腹部超声 | scan_date, scan_region, findings, impression |
-| 血常规 | `05_检验检查/血常规/` | 血常规、CBC、白细胞、红细胞、血红蛋白、血小板 | test_date, WBC, RBC, HGB, PLT, abnormal_items |
-| 生化/肝肾功能 | `05_检验检查/生化肝肾功/` | 生化、肝功能、肾功能、ALT、AST、肌酐、尿素氮 | test_date, ALT, AST, creatinine, BUN, abnormal_items |
-| 肿瘤标志物 | `05_检验检查/肿瘤标志物/` | 肿瘤标志物、CEA、CA-199、CA199、AFP、CA-125、CA125 | test_date, CEA, CA199, AFP, CA125, other_markers |
-| 基因检测/NGS | `03_分子病理/基因检测/` | 基因检测、NGS、二代测序、KRAS、EGFR、BRCA、突变、MSI、TMB | test_date, mutations, MSI_status, TMB, drug_sensitivity |
-| 免疫组化 | `03_分子病理/免疫组化/` | 免疫组化、IHC、PD-L1、HER2、Ki-67、MLH1、MSH2 | test_date, markers, expression_levels |
-| 病理报告 | `02_诊断与分期/病理报告/` | 病理、活检、组织学、腺癌、鳞癌、分化 | biopsy_date, specimen_source, histology, grade, stage, margins |
-| 处方/门诊记录 | `10_原始文件/门诊记录/` | 处方、门诊、Rx、用法用量 | visit_date, doctor, diagnosis, prescriptions |
+| 出院小结 | `08_出院小结/` | 出院小结、入院诊断、出院诊断、住院号 等 | admission_date, discharge_date, diagnosis, treatment_during_stay, discharge_instructions |
+| 入院小结 | `08_出院小结/入院小结/` | 入院小结、入院记录、入院病历、主诉、现病史 等（不含"出院小结"） | admission_date, chief_complaint, admission_diagnosis, history_of_present_illness, initial_treatment_plan |
+| CT报告 | `04_影像学/CT/` | CT、计算机断层、增强CT、平扫 等 | scan_date, scan_region, findings, impression |
+| MRI报告 | `04_影像学/MRI/` | MRI、磁共振、核磁 等 | scan_date, scan_region, findings, impression |
+| PET-CT报告 | `04_影像学/PET-CT/` | PET、PET-CT、PET/CT、代谢 等 | scan_date, findings, SUVmax, impression |
+| 超声报告 | `04_影像学/超声/` | 超声、B超、彩超、腹部超声 等 | scan_date, scan_region, findings, impression |
+| 血常规 | `05_检验检查/血常规/` | 血常规、CBC、白细胞、红细胞、血红蛋白、血小板 等 | test_date, WBC, RBC, HGB, PLT, abnormal_items |
+| 生化/肝肾功能 | `05_检验检查/生化肝肾功/` | 生化、肝功能、肾功能、ALT、AST、肌酐、尿素氮 等 | test_date, ALT, AST, creatinine, BUN, abnormal_items |
+| 肿瘤标志物 | `05_检验检查/肿瘤标志物/` | 肿瘤标志物、CEA、CA-199、CA199、AFP、CA-125、CA125 等 | test_date, CEA, CA199, AFP, CA125, other_markers |
+| 基因检测/NGS | `03_分子病理/基因检测/` | 基因检测、NGS、二代测序、KRAS、EGFR、BRCA、突变、MSI、TMB 等 | test_date, mutations, MSI_status, TMB, drug_sensitivity |
+| 免疫组化 | `03_分子病理/免疫组化/` | 免疫组化、IHC、PD-L1、HER2、Ki-67、MLH1、MSH2 等 | test_date, markers, expression_levels |
+| 病理报告 | `02_诊断与分期/病理报告/` | 病理、活检、组织学、腺癌、鳞癌、分化 等 | biopsy_date, specimen_source, histology, grade, stage, margins |
+| 处方/门诊记录 | `10_原始文件/门诊记录/` | 处方、门诊、Rx、用法用量 等 | visit_date, doctor, diagnosis, prescriptions |
 
 ## 分类优先级规则
 
@@ -25,9 +26,15 @@
 
 ### 规则 1：出院小结优先
 
-如果文档中包含"出院小结"、"入院记录"、"住院病历"等字样，**直接归类为出院小结**，即使文档中附带了检验结果或影像报告。
+如果文档中包含"出院小结"、"出院诊断"字样，**直接归类为出院小结**，即使文档中附带了检验结果或影像报告。
 
 > 理由：出院小结是综合性文档，通常包含患者住院期间所有检查结果的摘要。
+
+### 规则 1b：入院小结识别
+
+如果文档包含"入院小结"或"入院记录"字样，但**不含**"出院小结"，归类为**入院小结**。
+
+> 理由：入院小结记录患者入院时的初始状态和诊断，与出院小结是独立文档类型。
 
 ### 规则 2：完整病理报告 > 单独免疫组化
 
@@ -70,6 +77,15 @@
 - 住院期间治疗经过（手术、化疗、放疗等）
 - 出院医嘱、随访建议
 - 出院带药
+
+### 入院小结
+
+需提取的关键信息：
+- 入院日期
+- 主诉（chief complaint）
+- 入院诊断
+- 现病史（起病经过、症状演变）
+- 初步治疗方案（入院后拟定）
 
 ### 影像报告（CT / MRI / PET-CT / 超声）
 

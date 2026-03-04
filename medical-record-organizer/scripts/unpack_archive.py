@@ -10,7 +10,7 @@ import zipfile
 import subprocess
 from pathlib import Path
 
-MEDICAL_EXTENSIONS = {".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx"}
+MEDICAL_EXTENSIONS = {".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx", ".txt", ".xlsx"}
 
 
 def make_tmp_dir() -> str:
