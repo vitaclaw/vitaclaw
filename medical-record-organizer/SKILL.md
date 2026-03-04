@@ -36,19 +36,23 @@ metadata:
 
 ---
 
-## Step 1 — 初始化患者目录
+## Step 1 — 初始化匿名患者目录（默认隐私模式开启）
 
-如果用户未提供患者姓名，先询问：
+默认**隐私模式开启**：
+- 目录名、文件名、INDEX、timeline、profile 等生成内容中，禁止写入真实姓名、身份证号、手机号、详细地址等PII。
+- 若用户提供真实姓名，只用于当前会话内映射，不得写入归档文件。
 
-> "请问患者姓名是？"
+如果用户未提供患者代号，先询问：
 
-获取姓名后，运行初始化脚本：
+> "请提供患者代号（如 PT-001）。如仅提供真实姓名，系统会自动转换为匿名ID。"
+
+获取代号（或姓名）后，运行初始化脚本：
 
 ```bash
-python3 ~/.openclaw/skills/medical-record-organizer/scripts/init_patient.py "[患者姓名]"
+python3 ~/.openclaw/skills/medical-record-organizer/scripts/init_patient.py "[患者代号或姓名]"
 ```
 
-脚本会在 `~/.openclaw/patients/[患者姓名]/` 下创建完整的目录树，并输出患者目录路径。如果目录已存在，脚本会直接返回路径（幂等操作）。
+脚本会自动生成匿名患者ID（例如 `PT-1A2B3C4D5E`）并在 `~/.openclaw/patients/[匿名ID]/` 下创建完整目录树；若目录已存在会直接返回路径（幂等）。
 
 记住输出的患者目录路径，后续步骤中用 `$PATIENT_DIR` 表示。
 
@@ -236,7 +240,7 @@ YYYY-MM-DD_[doc_type]_[brief_desc].[原始扩展名]
 
 - `YYYY-MM-DD`：来自 Step 4 的 `date` 字段
 - `[doc_type]`：来自 Step 4 的 `doc_type` 字段（如 `CT报告`、`肿瘤标志物`）
-- `[brief_desc]`：来自 Step 4 的 `summary` 字段中最关键的2–4个中文词（如 `腹部增强`、`CEA升高`）
+- `[brief_desc]`：来自 Step 4 的 `summary` 字段中最关键的2–4个中文词（如 `腹部增强`、`CEA升高`），且禁止包含任何PII
 - 扩展名保留原始文件扩展名（`.pdf`、`.jpg`、`.png` 等）
 
 示例：`2024-03-15_CT报告_腹部增强.pdf`、`2024-03-15_肿瘤标志物_CEA升高.jpg`
@@ -281,7 +285,7 @@ cp "[原始文件路径]" "$PATIENT_DIR/[目标目录]/YYYY-MM-DD_[doc_type]_[br
 cp ~/.openclaw/skills/medical-record-organizer/assets/templates/INDEX-template.md $PATIENT_DIR/INDEX.md
 ```
 
-并将 `{{PATIENT_NAME}}` 替换为患者姓名，`{{UPDATE_DATE}}` 替换为当前日期。
+并将 `{{PATIENT_ID}}` 替换为匿名患者ID，`{{UPDATE_DATE}}` 替换为当前日期。
 
 ---
 
@@ -329,15 +333,20 @@ cp ~/.openclaw/skills/medical-record-organizer/assets/templates/INDEX-template.m
 
 ---
 
-## 隐私保护模式
+## 隐私保护（默认开启，强制执行）
 
-**触发短语**：「保护隐私」「马赛克处理」「遮挡个人信息」「隐私模式」「privacy mode」
+> 不再需要触发短语。除非用户明确说“关闭隐私模式”，否则始终启用。
 
-触发后对当前会话所有后续文件生效，**默认关闭**，不影响正常归档流程。
+### 强制规则（适用于所有步骤）
 
-### 文本隐私遮蔽
+1. **目录匿名化**：患者目录必须使用匿名ID（如 `PT-XXXXXXXXXX`），禁止使用真实姓名。
+2. **文件名去隐私**：`brief_desc` 中禁止出现姓名、身份证号、手机号、具体地址、住院号、床号等PII。
+3. **文本去隐私**：写入 `INDEX.md`、`timeline.md`、`当前状态.md`、`profile.json` 时，所有可识别个人信息必须先遮蔽。
+4. **最小化暴露**：医疗必要信息可保留（诊断、指标、疗效）；身份识别信息必须脱敏或删除。
 
-在 Step 6 写入 INDEX.md 之前，对 `summary` 和 `key_values` 字段执行以下遮蔽规则：
+### 文本隐私遮蔽规则（默认执行）
+
+在 Step 6/Step 7 以及任何摘要写入前，先对文本应用下列遮蔽：
 
 | 信息类型 | 识别特征 | 遮蔽格式 |
 |---------|---------|---------|
@@ -345,31 +354,46 @@ cp ~/.openclaw/skills/medical-record-organizer/assets/templates/INDEX-template.m
 | 手机号 | `1[3-9]` 开头11位数字 | 保留前3位+后4位：`138****5678` |
 | 详细地址 | 路/街/弄/号/室前后数字 | 保留至区县级：`XX区 ****` |
 | 患者/联系人姓名 | 「姓名：」「患者：」标签后2–4字中文 | 保留姓，遮蔽名：`张**` |
+| 住院号/床号/申请号 | 医院单据编号字段 | 仅保留后2–4位，其余 `*` |
 
-### 图片/扫描件隐私遮挡
+### 图片/扫描件隐私遮挡（默认执行，避免过度遮挡）
 
 适用于图片文件（`.jpg`、`.png`）或扫描件 PDF：
 
-1. 使用视觉能力定位包含 PII 的区域，记录坐标（以图片宽高的**百分比** 0–100 表示：`x1,y1,x2,y2`）
-2. 调用遮挡脚本：
+1. **优先使用版式预设**（先保留医疗正文，再遮挡身份区）。脚本默认 `--anchor content`，会先识别纸张内容区域再按比例遮挡，避免相机黑边导致误遮挡：
 
 ```bash
+# 检验单/化验单（推荐）
 python3 ~/.openclaw/skills/medical-record-organizer/scripts/redact_privacy.py \
   "[原始文件路径]" \
-  --regions "x1,y1,x2,y2;x1,y1,x2,y2" \
+  --preset cn_lab_report_v1 \
+  --output "[输出路径]"
+
+# CT报告（推荐）
+python3 ~/.openclaw/skills/medical-record-organizer/scripts/redact_privacy.py \
+  "[原始文件路径]" \
+  --preset cn_ct_report_v1 \
   --output "[输出路径]"
 ```
 
-3. 输出文件命名为 `[原文件名]_redacted.[ext]`，原文件**保留不改动**
-4. 通知用户已生成遮挡版本，并告知路径
+2. 若预设后仍残留PII，再**增量补充小区域**，禁止一次性大面积覆盖中部正文：
 
-### 默认行为说明
+```bash
+python3 ~/.openclaw/skills/medical-record-organizer/scripts/redact_privacy.py \
+  "[预设输出文件路径]" \
+  --regions "x1,y1,x2,y2" \
+  --output "[最终输出路径]"
+```
 
-- 患者目录中**保留未遮挡的原始文件**（供医疗查阅）
-- `_redacted` 版本为共享/对外使用版本
-- 隐私模式激活后，直至用户明确关闭前，对该会话所有后续文档生效
+3. **质量门禁（必须执行）**：遮挡后检查以下内容是否仍清晰可读；若被误遮挡，回到原图用更小区域重做。
+   - CT：`检查所见`、`印象`段落
+   - 检验单：检验项目、数值、参考区间
 
----
+4. 归档与索引默认指向 `_redacted` 版本；原始文件保留在受限目录，不写入共享索引。
+
+### 关闭隐私模式（显式指令才允许）
+
+仅当用户明确说出“关闭隐私模式/disable privacy mode”时，才允许不遮蔽处理；执行前需再次确认风险。
 
 ## 错误处理
 

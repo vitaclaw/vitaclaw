@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Initialize a patient directory structure for medical record intake."""
+"""Initialize an anonymized patient directory structure for medical record intake."""
 
 import sys
 import json
+import hashlib
+import re
 from pathlib import Path
 from datetime import date
 
@@ -20,6 +22,20 @@ def get_templates_dir() -> Path:
         / "assets"
         / "templates"
     )
+
+
+def build_patient_id(raw_input: str) -> str:
+    """Return an anonymized patient id (never persist real name)."""
+    value = re.sub(r"\s+", "", (raw_input or "").strip())
+    if not value:
+        raise ValueError("patient identifier cannot be empty")
+
+    # If user already provides an anonymized id, reuse it
+    if re.fullmatch(r"[A-Za-z0-9_-]{4,40}", value) and not re.search(r"[\u4e00-\u9fff]", value):
+        return value.upper()
+
+    digest = hashlib.sha256(value.encode("utf-8")).hexdigest()[:10].upper()
+    return f"PT-{digest}"
 
 
 def create_directory_tree(patient_dir: Path) -> None:
@@ -47,31 +63,33 @@ def create_directory_tree(patient_dir: Path) -> None:
         (patient_dir / d).mkdir(parents=True, exist_ok=True)
 
 
-def create_index(patient_dir: Path, patient_name: str) -> None:
+def create_index(patient_dir: Path, patient_id: str) -> None:
     index_path = patient_dir / "INDEX.md"
     if index_path.exists():
         return
     template_path = get_templates_dir() / "INDEX-template.md"
     if template_path.exists():
         content = template_path.read_text(encoding="utf-8")
-        content = content.replace("{{PATIENT_NAME}}", patient_name)
+        content = content.replace("{{PATIENT_NAME}}", patient_id)
+        content = content.replace("{{PATIENT_ID}}", patient_id)
         content = content.replace("{{UPDATE_DATE}}", date.today().isoformat())
     else:
-        content = f"# 病历索引 — {patient_name}\n\n> 最近更新：{date.today().isoformat()}\n"
+        content = f"# 病历索引 — {patient_id}\n\n> 最近更新：{date.today().isoformat()}\n"
     index_path.write_text(content, encoding="utf-8")
 
 
-def create_timeline(patient_dir: Path, patient_name: str) -> None:
+def create_timeline(patient_dir: Path, patient_id: str) -> None:
     timeline_path = patient_dir / "timeline.md"
     if timeline_path.exists():
         return
     template_path = get_templates_dir() / "timeline-template.md"
     if template_path.exists():
         content = template_path.read_text(encoding="utf-8")
-        content = content.replace("{{PATIENT_NAME}}", patient_name)
+        content = content.replace("{{PATIENT_NAME}}", patient_id)
+        content = content.replace("{{PATIENT_ID}}", patient_id)
     else:
         content = (
-            f"# 病历时间线 — {patient_name}\n\n"
+            f"# 病历时间线 — {patient_id}\n\n"
             "> 按时间倒序排列。每次录入新文档自动追加。\n\n"
             "| 日期 | 文档类型 | 摘要 | 文件路径 |\n"
             "|------|----------|------|--------|\n"
@@ -79,12 +97,13 @@ def create_timeline(patient_dir: Path, patient_name: str) -> None:
     timeline_path.write_text(content, encoding="utf-8")
 
 
-def create_profile(patient_dir: Path, patient_name: str) -> None:
+def create_profile(patient_dir: Path, patient_id: str) -> None:
     profile_path = patient_dir / "profile.json"
     if profile_path.exists():
         return
     profile = {
-        "name": patient_name,
+        "patient_id": patient_id,
+        "name": "REDACTED",
         "age": None,
         "diagnosis": None,
         "diagnosis_date": None,
@@ -92,6 +111,7 @@ def create_profile(patient_dir: Path, patient_name: str) -> None:
         "doctor": None,
         "allergies": [],
         "notes": "",
+        "privacy_mode": "ON",
     }
     profile_path.write_text(
         json.dumps(profile, ensure_ascii=False, indent=2), encoding="utf-8"
@@ -124,12 +144,12 @@ def create_treatment_history(patient_dir: Path) -> None:
     history_path.write_text(content, encoding="utf-8")
 
 
-def create_current_status(patient_dir: Path, patient_name: str) -> None:
+def create_current_status(patient_dir: Path, patient_id: str) -> None:
     status_path = patient_dir / "01_当前状态" / "当前状态.md"
     if status_path.exists():
         return
     content = (
-        f"# 当前状态快照 — {patient_name}\n"
+        f"# 当前状态快照 — {patient_id}\n"
         "\n"
         f"> 最近更新：{date.today().isoformat()}\n"
         "\n"
@@ -167,26 +187,32 @@ def create_current_status(patient_dir: Path, patient_name: str) -> None:
 
 def main() -> None:
     if len(sys.argv) < 2:
-        print("Usage: python3 init_patient.py [patient_name]", file=sys.stderr)
+        print("Usage: python3 init_patient.py [patient_name_or_alias]", file=sys.stderr)
         sys.exit(1)
 
-    patient_name = sys.argv[1].strip()
-    if not patient_name:
-        print("Error: patient name cannot be empty", file=sys.stderr)
+    raw_identifier = sys.argv[1].strip()
+    if not raw_identifier:
+        print("Error: patient identifier cannot be empty", file=sys.stderr)
         sys.exit(1)
 
-    patient_dir = get_patients_base() / patient_name
+    try:
+        patient_id = build_patient_id(raw_identifier)
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    patient_dir = get_patients_base() / patient_id
 
     # Create directory tree
     create_directory_tree(patient_dir)
 
     # Create template files (idempotent — skip if already exist)
-    create_index(patient_dir, patient_name)
-    create_timeline(patient_dir, patient_name)
-    create_profile(patient_dir, patient_name)
+    create_index(patient_dir, patient_id)
+    create_timeline(patient_dir, patient_id)
+    create_profile(patient_dir, patient_id)
     create_tumor_marker_trend(patient_dir)
     create_treatment_history(patient_dir)
-    create_current_status(patient_dir, patient_name)
+    create_current_status(patient_dir, patient_id)
 
     # Print the patient directory path to stdout
     print(str(patient_dir))
