@@ -58,6 +58,7 @@ def create_directory_tree(patient_dir: Path) -> None:
         "09_Apple_Health",
         "10_原始文件/未分类",
         "10_原始文件/门诊记录",
+        "10_原始文件/原始未遮挡",
     ]
     for d in dirs:
         (patient_dir / d).mkdir(parents=True, exist_ok=True)

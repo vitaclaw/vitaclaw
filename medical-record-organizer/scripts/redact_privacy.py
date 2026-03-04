@@ -4,6 +4,7 @@ redact_privacy.py — Draw black rectangles over PII regions in medical images.
 
 Usage:
     python3 redact_privacy.py INPUT --regions "x1,y1,x2,y2;x1,y1,x2,y2" [--output OUTPUT]
+    python3 redact_privacy.py INPUT --regions "patient_name:15,4.5,35,7;admission_id:52,4.5,72,7"
     python3 redact_privacy.py INPUT --preset cn_lab_report_v1 [--output OUTPUT]
     python3 redact_privacy.py INPUT --preset cn_ct_report_v1 --regions "..." [--output OUTPUT]
 
@@ -11,8 +12,12 @@ Coordinates are percentages (0–100) of image width/height.
 By default, percentages are anchored to detected document content area (not full photo canvas)
 to avoid over-/under-masking caused by camera borders.
 
+Regions format:
+    "x1,y1,x2,y2;x1,y1,x2,y2"                     — unlabeled (backward-compatible)
+    "label:x1,y1,x2,y2;label:x1,y1,x2,y2"          — labeled (for LLM-driven precision redaction)
+
 Output JSON:
-    {"success": true, "output": "path/to/file_redacted.jpg", "regions_applied": 3, "preset": "cn_lab_report_v1"}
+    {"success": true, "output": "...", "image_size": [W, H], "regions_applied": N, "regions": [...]}
     {"success": false, "error": "..."}
 """
 
@@ -44,19 +49,33 @@ PRESETS: dict[str, list[tuple[float, float, float, float]]] = {
 }
 
 
-def parse_regions(regions_str: str) -> list[tuple[float, float, float, float]]:
-    regions = []
+def parse_regions(regions_str: str) -> list[dict]:
+    """Parse region string into list of dicts with optional labels.
+
+    Supports:
+        "x1,y1,x2,y2;x1,y1,x2,y2"                  — unlabeled
+        "label:x1,y1,x2,y2;label:x1,y1,x2,y2"       — labeled
+    """
+    regions: list[dict] = []
     for part in regions_str.split(";"):
         part = part.strip()
         if not part:
             continue
-        coords = [float(v) for v in part.split(",")]
+        label = None
+        coord_str = part
+        # Check for label: if first comma comes after a colon, treat pre-colon as label
+        colon_idx = part.find(":")
+        comma_idx = part.find(",")
+        if colon_idx != -1 and (comma_idx == -1 or colon_idx < comma_idx):
+            label = part[:colon_idx].strip()
+            coord_str = part[colon_idx + 1:].strip()
+        coords = [float(v) for v in coord_str.split(",")]
         if len(coords) != 4:
             raise ValueError(f"Region must have 4 coordinates, got: {part}")
         x1, y1, x2, y2 = coords
         if not all(0 <= v <= 100 for v in (x1, y1, x2, y2)):
             raise ValueError(f"Coordinates must be in range 0–100, got: {part}")
-        regions.append(normalize_region((x1, y1, x2, y2)))
+        regions.append({"label": label, "coords": normalize_region((x1, y1, x2, y2))})
     return regions
 
 
@@ -125,10 +144,10 @@ def pct_to_pixels(
 
 def redact_image(
     input_path: Path,
-    regions: list[tuple[float, float, float, float]],
+    regions: list[dict],
     output_path: Path,
     anchor: str,
-) -> tuple[int, tuple[int, int, int, int], list[tuple[int, int, int, int]]]:
+) -> dict:
     from PIL import Image, ImageDraw
 
     img = Image.open(input_path).convert("RGB")
@@ -140,14 +159,24 @@ def redact_image(
     else:
         bbox = (0, 0, width, height)
 
-    pixel_regions: list[tuple[int, int, int, int]] = []
+    region_details: list[dict] = []
     for r in regions:
-        pr = pct_to_pixels(r, bbox)
-        pixel_regions.append(pr)
+        coords = r["coords"]
+        pr = pct_to_pixels(coords, bbox)
         draw.rectangle([pr[0], pr[1], pr[2], pr[3]], fill="black")
+        region_details.append({
+            "label": r["label"],
+            "pct": list(coords),
+            "px": list(pr),
+        })
 
     img.save(output_path)
-    return (len(regions), bbox, pixel_regions)
+    return {
+        "image_size": [width, height],
+        "content_bbox": list(bbox),
+        "regions_applied": len(regions),
+        "regions": region_details,
+    }
 
 
 def main():
@@ -187,9 +216,10 @@ def main():
     else:
         output_path = input_path.parent / f"{input_path.stem}_redacted{input_path.suffix}"
 
-    regions: list[tuple[float, float, float, float]] = []
+    regions: list[dict] = []
     if args.preset:
-        regions.extend(PRESETS[args.preset])
+        for coords in PRESETS[args.preset]:
+            regions.append({"label": None, "coords": normalize_region(coords)})
 
     if args.regions:
         try:
@@ -205,19 +235,12 @@ def main():
         }))
         sys.exit(1)
 
-    regions = [normalize_region(r) for r in regions]
-
     try:
-        count, bbox, pixel_regions = redact_image(input_path, regions, output_path, args.anchor)
+        result = redact_image(input_path, regions, output_path, args.anchor)
         print(json.dumps({
             "success": True,
             "output": str(output_path),
-            "regions_applied": count,
-            "preset": args.preset,
-            "anchor": args.anchor,
-            "content_bbox": bbox,
-            "regions_pct": regions,
-            "regions_px": pixel_regions,
+            **result,
         }))
     except Exception as e:
         print(json.dumps({"success": False, "error": str(e)}))
