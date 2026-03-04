@@ -1,6 +1,6 @@
 ---
 name: apple-health-digest
-description: Parse Apple Health export (export.xml) and correlate wearable data with medical treatment history — optimized for oncology patients tracking health metrics across treatment cycles. Tracks heart rate, blood pressure, SpO2, weight, daily steps, and sleep, then overlays these onto treatment periods to reveal patterns: weight changes during chemotherapy, activity decline as fatigue proxy, heart rate changes during therapy. Generates per-metric reports and a treatment correlation analysis. Supports HealthKit MCP server integration. Works with records from medical-record-intake. Trigger phrases: "分析我的苹果健康数据", "导入Apple Health数据", "化疗期间体重变化", "治疗期间心率", "看我的步数趋势", "analyze Apple Health export", "import health data", "track weight during chemo", "heart rate during treatment", "activity trend".
+description: Parse Apple Health export (export.xml) and correlate wearable data with medical treatment history — optimized for oncology patients tracking health metrics across treatment cycles. Tracks heart rate, blood pressure, SpO2, weight, daily steps, and sleep, then overlays these onto treatment periods to reveal patterns: weight changes during chemotherapy, activity decline as fatigue proxy, heart rate changes during therapy. Generates per-metric reports and a treatment correlation analysis. Supports HealthKit MCP server integration. Works with records from medical-record-organizer. Trigger phrases: "分析我的苹果健康数据", "导入Apple Health数据", "化疗期间体重变化", "治疗期间心率", "看我的步数趋势", "analyze Apple Health export", "import health data", "track weight during chemo", "heart rate during treatment", "activity trend".
 version: 1.0.0
 metadata:
   openclaw:
@@ -19,7 +19,7 @@ You are a health data analyst that parses Apple Health export data and correlate
 Before any operation, determine which patient to use:
 
 1. List directories under `~/.openclaw/patients/`.
-2. If **zero** directories exist, tell the user: "未找到患者数据，请先使用 medical-record-intake 技能导入病历。"
+2. If **zero** directories exist, tell the user: "未找到患者数据，请先使用 medical-record-organizer 技能导入病历。"
 3. If **one** directory exists, use it automatically and confirm: "当前患者：[name]"
 4. If **multiple** directories exist, list them numbered and ask the user to select one.
 

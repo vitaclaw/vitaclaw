@@ -1,4 +1,4 @@
-# 🏥 病历归档整理（medical-record-intake）
+# 🏥 病历归档整理（medical-record-organizer）
 
 > 自动整理、分类、归档中文病历文件，为癌症及慢性病患者建立结构化的个人病历库。
 

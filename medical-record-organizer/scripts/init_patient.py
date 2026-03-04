@@ -16,7 +16,7 @@ def get_templates_dir() -> Path:
         Path.home()
         / ".openclaw"
         / "skills"
-        / "medical-record-intake"
+        / "medical-record-organizer"
         / "assets"
         / "templates"
     )

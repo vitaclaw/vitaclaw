@@ -12,9 +12,9 @@ This repo targets Chinese-language medical record management for cancer/chronic 
 
 ```bash
 # Syntax-check all scripts at once
-py -3 -m py_compile medical-record-intake/scripts/init_patient.py
-py -3 -m py_compile medical-record-intake/scripts/extract_pdf.py
-py -3 -m py_compile medical-record-intake/scripts/unpack_archive.py
+py -3 -m py_compile medical-record-organizer/scripts/init_patient.py
+py -3 -m py_compile medical-record-organizer/scripts/extract_pdf.py
+py -3 -m py_compile medical-record-organizer/scripts/unpack_archive.py
 py -3 -m py_compile health-timeline/scripts/update_timeline.py
 py -3 -m py_compile apple-health-digest/scripts/parse_apple_health.py
 ```
@@ -59,7 +59,7 @@ All script paths in SKILL.md bodies use the `~/.openclaw/skills/...` prefix. Scr
 
 ## Architecture: Three Independent Skills
 
-### `medical-record-intake` 🏥 (most complex)
+### `medical-record-organizer` 🏥 (most complex)
 Intake pipeline: classify → extract → archive → update index. Two upload modes:
 - **Batch** (archive file): unpack → process each file → update INDEX.md + timeline.md once
 - **Incremental** (individual files): same "process all first, update once" strategy
@@ -103,5 +103,5 @@ Parses `export.xml` from Apple Health using `iterparse` (streaming, no extra dep
 - **Idempotent init**: `init_patient.py` skips files that already exist
 - **Trend arrows**: `↑↓→` used consistently across all output Markdown
 - **Abnormal values**: flagged with `⚠ 异常` in health-timeline displays
-- **Classification priority** (medical-record-intake): 出院小结 > 完整病理报告 > 子类型; ambiguous docs go to `10_原始文件/未分类/`
+- **Classification priority** (medical-record-organizer): 出院小结 > 完整病理报告 > 子类型; ambiguous docs go to `10_原始文件/未分类/`
 - **document-taxonomy.md** is the classification reference — the Agent reads it during Step 3 of intake

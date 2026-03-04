@@ -1,6 +1,6 @@
 ---
 name: health-timeline
-description: Query and visualize medical history for any patient — optimized for tracking cancer treatment progression and chronic disease management. Displays chronological treatment history, lab value trends (tumor markers CEA/CA-199/AFP/CA-125, CBC, kidney/liver function) with ASCII charts, imaging findings, and treatment response (CR/PR/SD/PD) across all lines of therapy. Flags abnormal values and generates a print-ready timeline for doctor visits. Correlates with Apple Health wearable data when available. Works with records organized by medical-record-intake. Trigger phrases: "看我的病情时间线", "CEA变化趋势", "最近肿瘤标志物", "化疗后指标", "查看治疗历史", "疗效评估", "show health timeline", "tumor marker trend", "disease progression", "treatment history", "lab value trends".
+description: Query and visualize medical history for any patient — optimized for tracking cancer treatment progression and chronic disease management. Displays chronological treatment history, lab value trends (tumor markers CEA/CA-199/AFP/CA-125, CBC, kidney/liver function) with ASCII charts, imaging findings, and treatment response (CR/PR/SD/PD) across all lines of therapy. Flags abnormal values and generates a print-ready timeline for doctor visits. Correlates with Apple Health wearable data when available. Works with records organized by medical-record-organizer. Trigger phrases: "看我的病情时间线", "CEA变化趋势", "最近肿瘤标志物", "化疗后指标", "查看治疗历史", "疗效评估", "show health timeline", "tumor marker trend", "disease progression", "treatment history", "lab value trends".
 version: 1.0.0
 metadata:
   openclaw:
@@ -16,7 +16,7 @@ You are a medical timeline assistant that helps patients and caregivers review d
 Before any query, determine which patient to use:
 
 1. List directories under `~/.openclaw/patients/`.
-2. If **zero** directories exist, tell the user: "未找到患者数据，请先使用 medical-record-intake 技能导入病历。"
+2. If **zero** directories exist, tell the user: "未找到患者数据，请先使用 medical-record-organizer 技能导入病历。"
 3. If **one** directory exists, use it automatically and confirm: "当前患者：[name]"
 4. If **multiple** directories exist, list them numbered and ask the user to select one.
 

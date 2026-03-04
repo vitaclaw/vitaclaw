@@ -61,9 +61,9 @@ CEA (ng/mL) — 近6次记录
 
 无额外软件依赖。
 
-需先用 **medical-record-intake** 为患者建立目录（含 `timeline.md`），本 skill 在此基础上读取数据。
+需先用 **medical-record-organizer** 为患者建立目录（含 `timeline.md`），本 skill 在此基础上读取数据。
 
 ## 与其他 Skill 的关系
 
-- **依赖 medical-record-intake**：读取其建立的 `timeline.md`、`INDEX.md` 和 `肿标趋势.md`，无此基础数据则无法使用
+- **依赖 medical-record-organizer**：读取其建立的 `timeline.md`、`INDEX.md` 和 `肿标趋势.md`，无此基础数据则无法使用
 - **联动 apple-health-digest**：若已导入苹果健康数据，治疗阶段视图中可叠加体重 / 心率 / 步数变化

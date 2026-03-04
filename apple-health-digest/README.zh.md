@@ -89,5 +89,5 @@
 
 ## 与其他 Skill 的关系
 
-- **依赖 medical-record-intake**：读取其建立的患者目录和治疗历史（`06_治疗决策历史/`）来分段分析；需先用 medical-record-intake 建档
+- **依赖 medical-record-organizer**：读取其建立的患者目录和治疗历史（`06_治疗决策历史/`）来分段分析；需先用 medical-record-organizer 建档
 - **联动 health-timeline**：导入完成后，health-timeline 的治疗阶段视图可叠加苹果健康数据
