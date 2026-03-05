@@ -22,6 +22,10 @@ metadata:
         package: python-docx
       - kind: uv
         package: openpyxl
+      - kind: uv
+        package: paddlepaddle
+      - kind: uv
+        package: paddleocr
 ---
 
 # Medical Record Organizer — 病历整理与归档
@@ -31,7 +35,7 @@ metadata:
 ## 整体流程
 
 ```
-输入文件 → 检测类型 → 提取文本 → 分类文档 → 提取关键字段 → 复制并重命名原始文件 → 更新索引
+输入文件 → 检测类型 → 提取文本 → 分类文档 → [图片?] 隐私遮挡 → 提取关键字段 → 复制并重命名 → 更新索引
 ```
 
 ---
@@ -141,8 +145,9 @@ python3 ~/.openclaw/skills/medical-record-organizer/scripts/unpack_archive.py "[
    - 同时为该批内的**每个文件各启动一个 subagent**，每个 subagent 独立执行：
      - Step 2（检测类型并提取文本）
      - Step 3（分类）
-     - Step 4（提取关键字段）
-     - Step 5（复制并重命名原始文件）
+     - Step 4（图片隐私遮挡，仅图片输入时执行）
+     - Step 5（提取关键字段）
+     - Step 6（复制并重命名原始文件）
    - 等待该批**所有** subagent 完成后，向用户报告进度：
      > `[第N批/共M批] 已完成：文件1 (CT报告)、文件2 (血常规)、文件3 (肿瘤标志物)、...`
    - 再开始下一批
@@ -154,7 +159,7 @@ python3 ~/.openclaw/skills/medical-record-organizer/scripts/unpack_archive.py "[
    第3批：文件9           → 单独处理 → 完成后报告进度
    ```
 
-3. **批量更新索引**：所有批次完成后，**仅执行一次** Step 6（更新 INDEX.md）和 Step 7（更新 timeline.md）。
+3. **批量更新索引**：所有批次完成后，**仅执行一次** Step 7（更新 INDEX.md）和 Step 8（更新 timeline.md）。
 
 4. **清理临时文件**：
 
@@ -205,7 +210,31 @@ rm -rf [tmp_dir]
 
 ---
 
-## Step 4 — 提取关键字段
+## Step 4 — 图片/扫描件隐私遮挡（OCR 自动方案）
+
+**触发条件**：仅在输入为图片（`.jpg`/`.png`）或扫描件 PDF（`image_only: true`）时执行。其他文件类型跳过此步。
+
+**时序约束**：必须在 Step 3（分类）之后、Step 5（提取关键字段）之前执行。Step 6 应复制 `_redacted` 版本而非原始文件。
+
+**执行步骤**：
+
+1. **OCR 自动遮挡**：运行 OCR 脚本一键完成 PII 检测与遮挡：
+
+```bash
+python3 ~/.openclaw/skills/medical-record-organizer/scripts/redact_ocr.py "[原始文件路径]" --output "[输出路径_redacted.ext]"
+```
+
+脚本自动完成：PaddleOCR 文字检测 → PII 分类（正则+医疗白名单）→ 标签-值分离（只遮值不遮标签）→ 输出遮挡图。
+
+2. **目视验证**：用视觉能力查看 `_redacted` 文件，快速确认：
+   - 所有 PII（姓名、身份证号、电话、地址、住院号、床号、检验者/审核者姓名）已被黑框覆盖
+   - 所有医疗数据（检验项目、数值、单位、参考范围、医院名称、报告日期）清晰可读
+
+**输出**：`_redacted` 文件路径，作为 Step 6 的复制源。
+
+---
+
+## Step 5 — 提取关键字段
 
 从文档内容中提取以下字段：
 
@@ -228,7 +257,7 @@ rm -rf [tmp_dir]
 
 ---
 
-## Step 5 — 复制并重命名原始文件
+## Step 6 — 复制并重命名原始文件
 
 将原始文件复制到 Step 3 确定的目标目录，并按标准格式重命名：
 
@@ -238,15 +267,23 @@ rm -rf [tmp_dir]
 YYYY-MM-DD_[doc_type]_[brief_desc].[原始扩展名]
 ```
 
-- `YYYY-MM-DD`：来自 Step 4 的 `date` 字段
-- `[doc_type]`：来自 Step 4 的 `doc_type` 字段（如 `CT报告`、`肿瘤标志物`）
-- `[brief_desc]`：来自 Step 4 的 `summary` 字段中最关键的2–4个中文词（如 `腹部增强`、`CEA升高`），且禁止包含任何PII
+- `YYYY-MM-DD`：来自 Step 5 的 `date` 字段
+- `[doc_type]`：来自 Step 5 的 `doc_type` 字段（如 `CT报告`、`肿瘤标志物`）
+- `[brief_desc]`：来自 Step 5 的 `summary` 字段中最关键的2–4个中文词（如 `腹部增强`、`CEA升高`），且禁止包含任何PII
 - 扩展名保留原始文件扩展名（`.pdf`、`.jpg`、`.png` 等）
 
 示例：`2024-03-15_CT报告_腹部增强.pdf`、`2024-03-15_肿瘤标志物_CEA升高.jpg`
 
 ### 操作命令
 
+根据文件类型选择不同的源文件：
+
+**图片/扫描件（经过 Step 4 遮挡）：**
+```bash
+cp "[_redacted文件路径]" "$PATIENT_DIR/[目标目录]/YYYY-MM-DD_[doc_type]_[brief_desc].[ext]"
+```
+
+**其他文件类型（未经遮挡）：**
 ```bash
 cp "[原始文件路径]" "$PATIENT_DIR/[目标目录]/YYYY-MM-DD_[doc_type]_[brief_desc].[ext]"
 ```
@@ -255,11 +292,11 @@ cp "[原始文件路径]" "$PATIENT_DIR/[目标目录]/YYYY-MM-DD_[doc_type]_[br
 
 - 如果目标文件名已存在（同名文件），在 `brief_desc` 后附加 `_2`、`_3` 以此类推
 - 如果原文件名已符合 `YYYY-MM-DD_` 开头的标准格式，可直接复制不重命名
-- 批量模式下：每个 subagent 完成 Step 4 后立即执行此步，无需等待其他文件
+- 批量模式下：每个 subagent 完成 Step 5 后立即执行此步，无需等待其他文件
 
 ---
 
-## Step 6 — 更新 INDEX.md
+## Step 7 — 更新 INDEX.md
 
 > **批量模式下**：所有文件处理完毕后只执行**一次**索引更新。
 
@@ -272,8 +309,8 @@ cp "[原始文件路径]" "$PATIENT_DIR/[目标目录]/YYYY-MM-DD_[doc_type]_[br
 ```
 
 条目格式说明：
-- 链接文本和链接目标均为 Step 5 生成的原始文件名（非 `.md`）
-- 破折号后为一句话摘要（Step 4 的 `summary` 字段 + 关键数值），直接内联，无需打开另一个文件
+- 链接文本和链接目标均为 Step 6 生成的原始文件名（非 `.md`）
+- 破折号后为一句话摘要（Step 5 的 `summary` 字段 + 关键数值），直接内联，无需打开另一个文件
 
 4. 如果文档包含被追踪的检验指标（CEA、CA-199、血红蛋白、肌酐等），同时更新 INDEX.md 中"关键指标（最新值）"表格对应行。
 
@@ -289,7 +326,7 @@ cp ~/.openclaw/skills/medical-record-organizer/assets/templates/INDEX-template.m
 
 ---
 
-## Step 7 — 更新 timeline.md
+## Step 8 — 更新 timeline.md
 
 > **批量模式下**：所有文件处理完毕后只执行**一次**时间线更新。
 
@@ -346,7 +383,7 @@ cp ~/.openclaw/skills/medical-record-organizer/assets/templates/INDEX-template.m
 
 ### 文本隐私遮蔽规则（默认执行）
 
-在 Step 6/Step 7 以及任何摘要写入前，先对文本应用下列遮蔽：
+在 Step 7/Step 8 以及任何摘要写入前，先对文本应用下列遮蔽：
 
 | 信息类型 | 识别特征 | 遮蔽格式 |
 |---------|---------|---------|
@@ -356,100 +393,27 @@ cp ~/.openclaw/skills/medical-record-organizer/assets/templates/INDEX-template.m
 | 患者/联系人姓名 | 「姓名：」「患者：」标签后2–4字中文 | 保留姓，遮蔽名：`张**` |
 | 住院号/床号/申请号 | 医院单据编号字段 | 仅保留后2–4位，其余 `*` |
 
-### 图片/扫描件隐私遮挡（LLM 驱动精确遮挡，4 阶段流程）
+### 图片/扫描件隐私遮挡
 
-适用于图片文件（`.jpg`、`.png`）或扫描件 PDF。**核心原则：只遮 PII 值，不遮标签，不遮医疗数据。**
-
-#### Phase 1 — PII 视觉检测
-
-用视觉能力查看原图，识别所有 PII 字段及其**值区域**的百分比坐标（基于内容区域）。
-
-**关键规则：**
-- **只遮值，不遮标签**。例如"姓名：王国洪" → 遮挡"王国洪"所在区域，"姓名："保留可见
-- 每个 PII 项给出 `label:x1,y1,x2,y2`（百分比，基于内容区域）
-- 每个坐标加 1-2% padding 确保完全覆盖
-
-**需识别的 PII 字段：**
-1. 患者姓名
-2. 性别/年龄/出生年月
-3. 住院号/门诊号/病历号
-4. 床号/病区
-5. 身份证号
-6. 联系电话（患者及医院客服电话）
-7. 地址
-8. 检验医/审核者/报告医师姓名
-9. 含 PII 编码的条形码/二维码
-
-**明确不得遮挡的内容：**
-- 所有检验项目名称、数值、单位、参考范围
-- 检查所见/印象（影像报告）
-- 医院名称
-- 报告日期
-
-输出格式：
-```
-=== PII 检测结果 ===
-发现 N 个 PII 字段：
-1. patient_name: 12,5,28,7.5 — 患者姓名值
-2. admission_id: 48,5,68,7.5 — 住院号值
-3. bed_number: 72,5,88,7.5 — 床号/病区值
-4. dob: 78,3,95,5.5 — 出生年月值
-5. examiner: 55,90,72,93 — 检验医姓名
-6. reviewer: 75,90,92,93 — 核对者姓名
-
-不遮挡确认：
-- 化验表格（y=15%~85%）— 不遮挡
-- 医院名称 — 不遮挡
-- 报告日期 — 不遮挡
-置信度: high
-===
-```
-
-#### Phase 2 — 精确遮挡
-
-根据 Phase 1 的坐标，构造命令：
-
-```bash
-python3 ~/.openclaw/skills/medical-record-organizer/scripts/redact_privacy.py \
-  "[原始文件路径]" \
-  --regions "patient_name:12,5,28,7.5;admission_id:48,5,68,7.5;bed_number:72,5,88,7.5;dob:78,3,95,5.5;examiner:55,90,72,93;reviewer:75,90,92,93" \
-  --anchor content \
-  --output "[输出路径_redacted.ext]"
-```
-
-#### Phase 3 — 多模态验证（最多 3 轮）
-
-用视觉查看遮挡后图片，按以下清单逐项检查：
-
-**医疗数据完整性检查：**
-- 所有检验项目名称可读
-- 所有数值/单位/参考范围可读
-- 检查所见/印象可读（影像报告）
-- 医院名称、报告日期可读
-
-**PII 遮挡完整性检查：**
-- 患者姓名完全不可辨认
-- 各类编号完全覆盖
-- 电话号码完全覆盖
-- 出生日期完全覆盖
-- 医护人员姓名完全覆盖
-
-**验证逻辑：**
-- 两项均通过 → 进入 Phase 4 归档
-- 医疗数据被误遮（遮多了）→ **从原图重新遮挡**（缩小/移动坐标），轮次+1
-- PII 未完全覆盖（遮少了）→ **在当前遮挡图上追加**区域，轮次+1
-- 达到 3 轮仍未通过 → 降级使用 `--preset conservative_v1` + 警告用户需人工复核
-
-**重要：修正坐标时必须从原图重做（不能在已遮挡图上缩小矩形）。**
-
-#### Phase 4 — 归档
-
-- `_redacted` 版本归入患者目录，写入 INDEX.md 和 timeline.md
-- 原始未遮挡图保存到 `10_原始文件/原始未遮挡/`，不写入共享索引
+> 详见 Step 4。图片和扫描件 PDF 的 PII 遮挡由 `redact_ocr.py` 自动完成。
 
 ### 关闭隐私模式（显式指令才允许）
 
 仅当用户明确说出“关闭隐私模式/disable privacy mode”时，才允许不遮蔽处理；执行前需再次确认风险。
+
+## 临时文件管理
+
+| 来源 | 路径 | 清理时机 |
+|------|------|----------|
+| `unpack_archive.py` 解压目录 | `$TEMP/openclaw_unpack_[timestamp]/` | 批量归档完成后立即 `rm -rf [tmp_dir]` |
+
+**容错**：如果批量流程中途失败或被中断，在下次运行任何归档任务前，先检查并清理残留临时目录：
+
+```bash
+rm -rf "$(python3 -c "import tempfile; print(tempfile.gettempdir())")/openclaw_unpack_"*
+```
+
+其余脚本不产生临时文件。`_redacted` 和 `_debug` 文件是最终产物，不属于临时文件。
 
 ## 错误处理
 
