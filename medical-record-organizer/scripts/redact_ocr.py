@@ -2,8 +2,8 @@
 """
 redact_ocr.py — OCR-based PII redaction for Chinese medical documents.
 
-Uses PaddleOCR for precise text detection + regex/whitelist classification
-to redact only PII while preserving all medical data.
+Uses PaddleOCR for text detection + regex classification to identify and
+redact only PII fields. Everything else is left untouched.
 
 Usage:
     python3 redact_ocr.py INPUT [--output OUTPUT] [--debug] [--confidence 0.5]
@@ -22,130 +22,12 @@ import sys
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# Medical data whitelist — lines matching these are NEVER redacted
-# ---------------------------------------------------------------------------
-
-# Lab units (case-insensitive matching applied separately)
-_LAB_UNITS = [
-    "mmol/L", "μmol/L", "umol/L", "nmol/L", "pmol/L",
-    "U/L", "IU/L", "mU/L", "kU/L",
-    "ng/mL", "ng/dL", "μg/L", "ug/L", "mg/L", "mg/dL", "g/L", "g/dL",
-    "pg/mL", "μg/dL",
-    "×10^9/L", "×10^12/L", "x10^9/L", "x10^12/L",
-    "10\\^9/L", "10\\^12/L", "10⁹/L", "10¹²/L",
-    "10\\*9/L", "10\\*12/L",
-    "cells/μL", "cells/uL",
-    "mL/min", "mm/h", "mm/hr",
-    "fL", "pg", "g/L", "%",
-    "s", "sec", "ratio",
-    "copies/mL", "IU/mL",
-    "mIU/mL", "uIU/mL", "μIU/mL",
-    "kPa", "mmHg", "cm", "mm",
-    "MEq/L", "mEq/L", "mOsm/kg",
-]
-
-# Lab test names / medical terms — Chinese
-_MEDICAL_TERMS_ZH = [
-    # Hematology
-    "白细胞", "红细胞", "血红蛋白", "血小板", "中性粒细胞", "淋巴细胞",
-    "单核细胞", "嗜酸性粒细胞", "嗜碱性粒细胞", "红细胞压积", "红细胞分布宽度",
-    "平均红细胞体积", "平均血红蛋白含量", "平均血红蛋白浓度",
-    "网织红细胞", "血沉", "凝血酶原时间", "活化部分凝血活酶时间",
-    "纤维蛋白原", "D-二聚体", "国际标准化比值",
-    # Liver function
-    "总蛋白", "白蛋白", "球蛋白", "总胆红素", "直接胆红素", "间接胆红素",
-    "谷丙转氨酶", "谷草转氨酶", "碱性磷酸酶", "谷氨酰转肽酶",
-    "乳酸脱氢酶", "胆碱酯酶", "前白蛋白", "转铁蛋白",
-    # Kidney function
-    "肌酐", "尿素氮", "尿素", "尿酸", "胱抑素C", "肾小球滤过率",
-    "β2微球蛋白",
-    # Electrolytes / metabolic
-    "钾", "钠", "氯", "钙", "磷", "镁", "铁", "锌", "铜",
-    "血糖", "空腹血糖", "餐后血糖", "糖化血红蛋白",
-    "甘油三酯", "总胆固醇", "高密度脂蛋白", "低密度脂蛋白",
-    "载脂蛋白", "脂蛋白",
-    "同型半胱氨酸", "C反应蛋白", "超敏C反应蛋白", "降钙素原",
-    # Tumor markers
-    "甲胎蛋白", "癌胚抗原", "糖类抗原", "铁蛋白",
-    "前列腺特异性抗原", "游离前列腺特异性抗原",
-    "神经元特异性烯醇化酶", "鳞状细胞癌抗原", "细胞角蛋白",
-    "人绒毛膜促性腺激素", "乳酸脱氢酶",
-    # Thyroid
-    "促甲状腺激素", "游离三碘甲状腺原氨酸", "游离甲状腺素",
-    "甲状腺球蛋白", "甲状腺过氧化物酶抗体",
-    # Immune
-    "免疫球蛋白", "补体",
-    # Urinalysis
-    "尿蛋白", "尿糖", "尿潜血", "尿白细胞", "尿比重", "尿酸碱度",
-    # Coagulation
-    "凝血", "抗凝血酶",
-    # Pathology / molecular
-    "免疫组化", "基因检测", "突变", "野生型", "阳性", "阴性",
-    "病理", "腺癌", "鳞癌", "分化", "浸润", "转移", "淋巴结",
-    # Imaging
-    "检查所见", "检查结果", "印象", "诊断", "结论", "建议",
-    "影像所见", "超声所见", "X线所见",
-    # Report structure
-    "参考范围", "参考值", "检验项目", "检测项目", "项目名称",
-    "结果", "单位", "提示", "正常", "偏高", "偏低", "异常",
-    "标本类型", "标本", "样本", "送检", "采集时间", "检测方法",
-    # Hospital structure
-    "检验报告", "检查报告", "报告单", "化验单",
-]
-
-# Lab test abbreviations — English (case-insensitive)
-_MEDICAL_TERMS_EN = [
-    "WBC", "RBC", "HGB", "HCT", "PLT", "MCV", "MCH", "MCHC", "RDW",
-    "MPV", "PCT", "PDW", "NEUT", "LYMPH", "MONO", "EOS", "BASO",
-    "ALT", "AST", "ALP", "GGT", "TBIL", "DBIL", "IBIL", "TP", "ALB", "GLB",
-    "BUN", "CRE", "CREA", "UA", "eGFR", "CysC",
-    "GLU", "HbA1c", "TG", "TC", "TCHO", "HDL", "LDL", "VLDL",
-    "CRP", "hsCRP", "PCT", "ESR", "SAA",
-    "PT", "APTT", "INR", "FIB", "TT", "FDP",
-    "AFP", "CEA", "CA199", "CA-199", "CA125", "CA-125", "CA153", "CA-153",
-    "CA724", "CA-724", "CA242", "CA-242", "CA50", "CA-50",
-    "PSA", "fPSA", "tPSA", "NSE", "CYFRA", "SCC", "SCCA",
-    "HCG", "β-HCG", "LDH",
-    "TSH", "FT3", "FT4", "T3", "T4", "TG", "TPO", "TRAb",
-    "IgA", "IgG", "IgM", "IgE",
-    "KRAS", "NRAS", "BRAF", "EGFR", "ALK", "ROS1", "HER2", "HER-2",
-    "PD-L1", "PDL1", "Ki-67", "Ki67", "TMB", "MSI", "MSS", "dMMR", "pMMR",
-    "MLH1", "MSH2", "MSH6", "PMS2", "BRCA", "BRCA1", "BRCA2",
-    "PIK3CA", "TP53", "APC", "PTEN", "MET", "RET", "NTRK", "FGFR",
-    "NGS", "PCR", "FISH", "IHC", "ICC",
-    "DNA", "RNA", "ctDNA", "cfDNA",
-    "PET", "CT", "MRI", "PET-CT", "PET/CT",
-    "PICC", "CVC", "ECG", "EEG", "EMG",
-]
-
-# Report header / table header patterns
-_HEADER_PATTERNS = [
-    "参考范围", "参考值", "检验项目", "检测项目", "项目名称",
-    "结果", "单位", "标本号", "条码号", "样本编号",
-    "报告日期", "检测日期", "采样日期", "打印日期", "审核日期",
-    "送检日期", "申请日期", "报告时间", "采集时间",
-]
-
-# Hospital name patterns
-_HOSPITAL_RE = re.compile(
-    r"([\u4e00-\u9fff]{2,}(医院|医学中心|卫生院|诊所|检验所|体检中心|医学检验|病理|中心实验室|临床实验室))"
-    r"|((人民|中心|第[一二三四五六七八九十]|附属|省|市|区|县|儿童|妇幼|肿瘤|胸科|骨科|口腔|眼科|精神|传染|职业)[\u4e00-\u9fff]*医院)"
-)
-
-# Date patterns (these should not be redacted)
-_DATE_RE = re.compile(
-    r"\d{4}[-/年.]\s*\d{1,2}[-/月.]\s*\d{1,2}[日号]?"
-    r"|\d{4}[-/]\d{1,2}[-/]\d{1,2}"
-    r"|\d{4}年\d{1,2}月\d{1,2}日"
-)
-
-# ---------------------------------------------------------------------------
 # PII detection patterns
 # ---------------------------------------------------------------------------
 
 # Labels that precede PII values
 _PII_LABEL_PATTERNS = [
-    (re.compile(r"(姓\s*名|患\s*者|病\s*人)\s*[:：]"), "patient_name"),
+    (re.compile(r"(姓?\s*名|患\s*者|病\s*人)\s*[:：]"), "patient_name"),
     (re.compile(r"(身份证|身份证号|证件号码?|ID)\s*[:：]"), "id_number"),
     (re.compile(r"(电\s*话|联系电话|手\s*机|联系方式|Tel|TEL)\s*[:：]"), "phone"),
     (re.compile(r"(地\s*址|住\s*址|通讯地址|联系地址)\s*[:：]"), "address"),
@@ -168,81 +50,20 @@ _LANDLINE_RE = re.compile(r"\b0\d{2,3}[-\s]?\d{7,8}\b")
 # ---------------------------------------------------------------------------
 
 
-def _build_unit_re():
-    """Build a compiled regex that matches any lab unit."""
-    escaped = [re.escape(u) for u in _LAB_UNITS]
-    return re.compile("|".join(escaped), re.IGNORECASE)
-
-
-_UNIT_RE = _build_unit_re()
-
-# Build sets for fast lookup
-_MEDICAL_ZH_SET = set(_MEDICAL_TERMS_ZH)
-_MEDICAL_EN_UPPER = {t.upper() for t in _MEDICAL_TERMS_EN}
-_HEADER_SET = set(_HEADER_PATTERNS)
-
-
-def is_medical_data(text: str) -> bool:
-    """Check if text line contains medical/lab data that must NOT be redacted."""
-    text_stripped = text.strip()
-    if not text_stripped:
-        return False
-
-    # Check lab units
-    if _UNIT_RE.search(text_stripped):
-        return True
-
-    # Check Chinese medical terms
-    for term in _MEDICAL_ZH_SET:
-        if term in text_stripped:
-            return True
-
-    # Check English medical abbreviations (case-insensitive word match)
-    words_upper = set(re.findall(r"[A-Za-z][\w-]*", text_stripped))
-    words_upper = {w.upper() for w in words_upper}
-    if words_upper & _MEDICAL_EN_UPPER:
-        return True
-
-    # Check header patterns
-    for h in _HEADER_SET:
-        if h in text_stripped:
-            return True
-
-    # Check hospital name
-    if _HOSPITAL_RE.search(text_stripped):
-        return True
-
-    # Check date-only lines (report dates)
-    if _DATE_RE.search(text_stripped):
-        # Only protect if the line is primarily a date (not a PII label with date value)
-        # If line also has a PII label, the PII check takes priority
-        pass  # Dates alone don't override PII labels; handled in classify_line
-
-    # Numeric-heavy lines (lab values like "5.2" "3.8-10.1")
-    # But exclude phone numbers — they are PII, not medical data
-    if _PHONE_RE.search(text_stripped) or _LANDLINE_RE.search(text_stripped):
-        return False
-    digits_and_dots = len(re.findall(r"[\d.↑↓→←▲▼△▽⬆⬇]", text_stripped))
-    if len(text_stripped) > 0 and digits_and_dots / len(text_stripped) > 0.4:
-        return True
-
-    return False
-
-
 def classify_line(text: str) -> tuple[str, str | None, float | None]:
     """
     Classify an OCR text line.
 
     Returns:
         (classification, pii_type, label_ratio)
-        classification: "pii", "medical", "unknown"
+        classification: "pii" or "keep"
         pii_type: e.g. "patient_name", "phone", None
         label_ratio: fraction of text that is the label (for label-value separation),
                      None if not applicable
     """
     text_stripped = text.strip()
     if not text_stripped:
-        return ("unknown", None, None)
+        return ("keep", None, None)
 
     # 1) Check for PII label patterns — pick the earliest match in the string
     best_match = None
@@ -254,12 +75,6 @@ def classify_line(text: str) -> tuple[str, str | None, float | None]:
             best_pii_type = pii_type
 
     if best_match:
-        # If the line ALSO contains medical data after the label, don't redact
-        value_part = text_stripped[best_match.end():]
-        if value_part.strip() and is_medical_data(value_part):
-            return ("medical", None, None)
-
-        # Calculate label ratio for label-value separation
         label_end = best_match.end()
         total_len = len(text_stripped)
         label_ratio = label_end / total_len if total_len > 0 else 0.5
@@ -273,11 +88,101 @@ def classify_line(text: str) -> tuple[str, str | None, float | None]:
     if _LANDLINE_RE.search(text_stripped):
         return ("pii", "phone", None)
 
-    # 3) Check medical data
-    if is_medical_data(text_stripped):
-        return ("medical", None, None)
+    return ("keep", None, None)
 
-    return ("unknown", None, None)
+
+# ---------------------------------------------------------------------------
+# OCR merge — fix split labels like "姓" + "名：王国洪"
+# ---------------------------------------------------------------------------
+
+
+def _merge_split_labels(lines):
+    """
+    Merge single-character OCR fragments with the nearest right neighbor
+    on the same row when the horizontal gap is smaller than the text line
+    height (≈ one character width).  Handles "姓"+"名：…", "床"+"号：…", etc.
+    """
+    if len(lines) < 2:
+        return lines
+
+    def _center_y(bbox):
+        return sum(p[1] for p in bbox) / 4
+
+    def _right_edge(bbox):
+        return max(p[0] for p in bbox)
+
+    def _left_edge(bbox):
+        return min(p[0] for p in bbox)
+
+    def _line_height(bbox):
+        ys = [p[1] for p in bbox]
+        return max(ys) - min(ys)
+
+    consumed = set()
+    merged = []
+
+    for i, line in enumerate(lines):
+        if i in consumed:
+            continue
+        text = line["text"]
+        # Only try to merge single-character fragments
+        if len(text.strip()) != 1:
+            merged.append(line)
+            continue
+
+        bbox_i = line["bbox"]
+        cy_i = _center_y(bbox_i)
+        right_i = _right_edge(bbox_i)
+        lh_i = _line_height(bbox_i)
+
+        # Find the nearest right neighbor on the same row
+        best_j = None
+        best_gap = float("inf")
+        for j, other in enumerate(lines):
+            if j == i or j in consumed:
+                continue
+            bbox_j = other["bbox"]
+            cy_j = _center_y(bbox_j)
+            left_j = _left_edge(bbox_j)
+            lh_j = _line_height(bbox_j)
+            avg_lh = (lh_i + lh_j) / 2
+
+            # Same row: center-Y difference < half the average line height
+            if abs(cy_j - cy_i) > avg_lh * 0.5:
+                continue
+            # Must be to the right
+            gap = left_j - right_i
+            if gap < 0:
+                continue
+            # Gap must be less than one line height (≈ one character width)
+            if gap < avg_lh * 2 and gap < best_gap:
+                best_gap = gap
+                best_j = j
+
+        if best_j is not None:
+            other = lines[best_j]
+            # Merge: concatenate text, combine bounding boxes
+            new_text = text + other["text"]
+            # Build a spanning quad: leftmost of i, rightmost of j
+            bi = bbox_i
+            bj = other["bbox"]
+            new_bbox = [
+                bi[0],  # top-left from first
+                bj[1],  # top-right from second
+                bj[2],  # bottom-right from second
+                bi[3],  # bottom-left from first
+            ]
+            new_conf = min(line["confidence"], other["confidence"])
+            consumed.add(best_j)
+            merged.append({
+                "text": new_text,
+                "bbox": new_bbox,
+                "confidence": new_conf,
+            })
+        else:
+            merged.append(line)
+
+    return merged
 
 
 # ---------------------------------------------------------------------------
@@ -289,14 +194,19 @@ def run_ocr(image_path: str, confidence_threshold: float = 0.5):
     """
     Run PaddleOCR on an image and return text lines with bounding boxes.
 
-    Returns list of dicts:
-        [{"text": str, "bbox": [[x1,y1],[x2,y2],[x3,y3],[x4,y4]], "confidence": float}, ...]
+    Returns:
+        lines: [{"text": str, "bbox": [[x1,y1],[x2,y2],[x3,y3],[x4,y4]], "confidence": float}, ...]
     """
     import os
     os.environ.setdefault("PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK", "True")
     from paddleocr import PaddleOCR
 
-    ocr = PaddleOCR(use_textline_orientation=True, lang="ch")
+    ocr = PaddleOCR(
+        use_textline_orientation=True,
+        use_doc_orientation_classify=False,
+        use_doc_unwarping=False,
+        lang="ch",
+    )
     result = list(ocr.predict(image_path))
 
     lines = []
@@ -358,11 +268,10 @@ def pad_quad(quad, pad, img_width, img_height):
     return result
 
 
-def propagate_pii_to_neighbors(lines_classified, image_height):
+def propagate_pii_to_neighbors(lines_classified):
     """
     Multi-line PII propagation: if a line is PII (especially address),
-    adjacent unknown lines are also marked as PII — unless they match
-    the medical whitelist.
+    adjacent non-PII lines within proximity are also marked as PII.
 
     This handles addresses that span multiple OCR lines.
     """
@@ -384,23 +293,24 @@ def propagate_pii_to_neighbors(lines_classified, image_height):
         _, y1, _, y2 = item["rect"]
         line_height = y2 - y1
 
-        # Check next line(s) below
+        # Check next line(s) below (up to 3 lines, within 1.5x line height)
         for next_pos in range(idx_pos + 1, min(idx_pos + 3, len(sorted_indices))):
             next_idx = sorted_indices[next_pos]
             next_item = lines_classified[next_idx]
 
-            if next_item["classification"] == "medical":
-                break  # Stop propagation at medical data
+            if next_item["classification"] == "pii":
+                break  # Already PII, stop
 
             next_y1 = next_item["rect"][1]
             gap = next_y1 - y2
 
-            # If next line is close (within 1.5x line height) and not medical
-            if gap < line_height * 1.5 and next_item["classification"] == "unknown":
+            if gap < line_height * 1.5 and next_item["classification"] == "keep":
                 next_item["classification"] = "pii"
                 next_item["pii_type"] = "address_cont"
                 next_item["label_ratio"] = None
                 y2 = next_item["rect"][3]  # Extend for next check
+            else:
+                break
 
     return lines_classified
 
@@ -417,7 +327,7 @@ def redact_image_ocr(
 
     Returns result dict for JSON output.
     """
-    from PIL import Image, ImageDraw, ImageFont
+    from PIL import Image, ImageDraw
 
     # 1) Run OCR
     ocr_lines = run_ocr(input_path, confidence_threshold)
@@ -434,10 +344,14 @@ def redact_image_ocr(
             "note": "No text detected by OCR",
         }
 
+    # Use original image (doc preprocessor is disabled so OCR coords match)
     img = Image.open(input_path).convert("RGB")
     width, height = img.size
 
-    # 2) Classify each line
+    # 2) Merge split labels (e.g. "姓" + "名：王国洪" → "姓名：王国洪")
+    ocr_lines = _merge_split_labels(ocr_lines)
+
+    # 3) Classify each line
     lines_classified = []
     for line in ocr_lines:
         text = line["text"]
@@ -454,10 +368,10 @@ def redact_image_ocr(
             "label_ratio": label_ratio,
         })
 
-    # 3) Multi-line PII propagation
-    lines_classified = propagate_pii_to_neighbors(lines_classified, height)
+    # 4) Multi-line PII propagation
+    lines_classified = propagate_pii_to_neighbors(lines_classified)
 
-    # 4) Build redaction regions (only PII lines)
+    # 5) Build redaction regions (only PII lines)
     pii_regions = []
     for item in lines_classified:
         if item["classification"] != "pii":
@@ -477,7 +391,7 @@ def redact_image_ocr(
             "quad_px": [[int(v) for v in p] for p in padded],
         })
 
-    # 5) Apply redaction
+    # 6) Apply redaction
     draw = ImageDraw.Draw(img)
     for region in pii_regions:
         q = region["quad_px"]
@@ -485,7 +399,7 @@ def redact_image_ocr(
 
     img.save(output_path)
 
-    # 6) Debug image (optional)
+    # 7) Debug image (optional)
     if debug:
         debug_img = Image.open(input_path).convert("RGB")
         debug_draw = ImageDraw.Draw(debug_img)
@@ -513,14 +427,13 @@ def redact_image_ocr(
             debug_path = str(p.parent / f"{p.stem}_debug{p.suffix}")
         debug_img.save(debug_path)
 
-    # 7) Build result
+    # 8) Build result
     result = {
         "success": True,
         "output": output_path,
         "pii_detected": len(pii_regions),
         "total_lines": len(lines_classified),
-        "medical_lines": sum(1 for x in lines_classified if x["classification"] == "medical"),
-        "unknown_lines": sum(1 for x in lines_classified if x["classification"] == "unknown"),
+        "kept_lines": sum(1 for x in lines_classified if x["classification"] == "keep"),
         "regions": pii_regions,
     }
     if debug and debug_path:
