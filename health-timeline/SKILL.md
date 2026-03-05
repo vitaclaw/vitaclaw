@@ -1,10 +1,8 @@
 ---
 name: health-timeline
-description: Query and visualize medical history for any patient — optimized for tracking cancer treatment progression and chronic disease management. Displays chronological treatment history, lab value trends (tumor markers CEA/CA-199/AFP/CA-125, CBC, kidney/liver function) with ASCII charts, imaging findings, and treatment response (CR/PR/SD/PD) across all lines of therapy. Flags abnormal values and generates a print-ready timeline for doctor visits. Correlates with Apple Health wearable data when available. Works with records organized by medical-record-organizer. Trigger phrases: "看我的病情时间线", "CEA变化趋势", "最近肿瘤标志物", "化疗后指标", "查看治疗历史", "疗效评估", "show health timeline", "tumor marker trend", "disease progression", "treatment history", "lab value trends", .etc.
+description: "Query and visualize medical history for any patient — optimized for tracking cancer treatment progression and chronic disease management. Displays chronological treatment history, lab value trends (tumor markers CEA/CA-199/AFP/CA-125, CBC, kidney/liver function) with ASCII charts, imaging findings, and treatment response (CR/PR/SD/PD) across all lines of therapy. Flags abnormal values and generates a print-ready timeline for doctor visits. Correlates with Apple Health wearable data when available. Works with records organized by medical-record-organizer. Trigger phrases: 看我的病情时间线, CEA变化趋势, 最近肿瘤标志物, 化疗后指标, 查看治疗历史, 疗效评估, show health timeline, tumor marker trend, disease progression, treatment history, lab value trends."
 version: 1.0.0
-metadata:
-  openclaw:
-    emoji: "📅"
+metadata: {"openclaw":{"emoji":"📅"}}
 ---
 
 # Health Timeline Skill

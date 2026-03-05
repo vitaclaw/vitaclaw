@@ -1,13 +1,8 @@
 ---
 name: apple-health-digest
-description: Parse Apple Health export (export.xml) and correlate wearable data with medical treatment history — optimized for oncology patients tracking health metrics across treatment cycles. Tracks heart rate, blood pressure, SpO2, weight, daily steps, and sleep, then overlays these onto treatment periods to reveal patterns: weight changes during chemotherapy, activity decline as fatigue proxy, heart rate changes during therapy. Generates per-metric reports and a treatment correlation analysis. Supports HealthKit MCP server integration. Works with records from medical-record-organizer. Trigger phrases: "分析我的苹果健康数据", "导入Apple Health数据", "化疗期间体重变化", "治疗期间心率", "看我的步数趋势", "analyze Apple Health export", "import health data", "track weight during chemo", "heart rate during treatment", "activity trend".
+description: "Parse Apple Health export (export.xml) and correlate wearable data with medical treatment history — optimized for oncology patients tracking health metrics across treatment cycles. Tracks heart rate, blood pressure, SpO2, weight, daily steps, and sleep, then overlays these onto treatment periods to reveal patterns. Generates per-metric reports and a treatment correlation analysis. Supports HealthKit MCP server integration. Works with records from medical-record-organizer. Trigger phrases: 分析我的苹果健康数据, 导入Apple Health数据, 化疗期间体重变化, 治疗期间心率, 看我的步数趋势, analyze Apple Health export, import health data, track weight during chemo, heart rate during treatment, activity trend."
 version: 1.0.0
-metadata:
-  openclaw:
-    requires:
-      bins:
-        - python3
-    emoji: "🍎"
+metadata: {"openclaw":{"emoji":"🍎","requires":{"bins":["python3"]}}}
 ---
 
 # Apple Health Digest Skill
