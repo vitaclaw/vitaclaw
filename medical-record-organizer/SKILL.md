@@ -2,7 +2,7 @@
 name: medical-record-organizer
 description: "Archive and organize patient medical records for any condition — optimized for oncology and chronic disease management. Auto-classifies PDFs and scanned photos into a structured per-patient directory: imaging (CT/MRI/PET-CT/ultrasound), lab results (CBC, tumor markers CEA/CA-199/AFP/CA-125), pathology, gene panel (NGS/KRAS/EGFR/BRCA/TMB/MSI), immunohistochemistry (IHC/PD-L1/HER2/Ki-67), and discharge summaries. Supports bulk import via zip/rar/7z archives. Builds a navigable INDEX.md for each patient — ideal for patients and family caregivers managing multi-year records. Supports both Chinese and English medical documents. Trigger phrases: 整理这份报告, 归档这个检查单, 帮我存这份CT, 存这份化验单, 添加出院小结, organize this report, file this lab result, save this CT scan, archive discharge summary, store medical record."
 version: 1.0.0
-metadata: {"openclaw":{"emoji":"🏥","requires":{"bins":["python3"],"anyBins":["unrar","unar"]},"install":[{"kind":"uv","package":"pdfplumber"},{"kind":"uv","package":"rarfile"},{"kind":"uv","package":"pillow"},{"kind":"uv","package":"python-docx"},{"kind":"uv","package":"openpyxl"},{"kind":"uv","package":"paddlepaddle"},{"kind":"uv","package":"paddleocr"}]}}
+metadata: {"openclaw":{"emoji":"🏥","requires":{"bins":["python3"],"anyBins":["unrar","unar"]},"install":[{"kind":"uv","package":"pdfplumber"},{"kind":"uv","package":"rarfile"},{"kind":"uv","package":"pillow"},{"kind":"uv","package":"python-docx"},{"kind":"uv","package":"openpyxl"},{"kind":"uv","package":"paddlepaddle"},{"kind":"uv","package":"paddleocr"},{"kind":"uv","package":"paddlenlp"}]}}
 ---
 
 # Medical Record Organizer — 病历整理与归档
@@ -201,7 +201,7 @@ rm -rf [tmp_dir]
 $PYTHON ~/.openclaw/skills/medical-record-organizer/scripts/redact_ocr.py "[原始文件路径]" --output "[输出路径_redacted.ext]"
 ```
 
-脚本自动完成：PaddleOCR 文字检测 → PII 分类（正则+医疗白名单）→ 标签-值分离（只遮值不遮标签）→ 输出遮挡图。
+脚本自动完成：PaddleOCR 文字检测 → PII 分类（PaddleNLP UIE NER）→ 标签-值分离（只遮值不遮标签）→ 输出遮挡图。
 
 **输出**：
 脚本输出的遮挡图不需要再进行任何额外脱敏处理。

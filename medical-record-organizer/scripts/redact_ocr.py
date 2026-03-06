@@ -2,11 +2,11 @@
 """
 redact_ocr.py — OCR-based PII redaction for Chinese medical documents.
 
-Uses PaddleOCR for text detection + regex classification to identify and
-redact only PII fields. Everything else is left untouched.
+Uses PaddleOCR for text detection + PaddleNLP UIE NER for PII classification.
+Only PII fields are redacted; everything else is left untouched.
 
 Usage:
-    python3 redact_ocr.py INPUT [--output OUTPUT] [--debug] [--confidence 0.5]
+    python3 redact_ocr.py INPUT [--output OUTPUT] [--debug] [--confidence 0.5] [--no-ner]
 
 Output JSON to stdout:
     {"success": true, "output": "...", "pii_detected": N, "regions": [...]}
@@ -22,12 +22,12 @@ import sys
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# PII detection patterns
+# PII detection — regex-first, NER only for names
 # ---------------------------------------------------------------------------
 
 # Labels that precede PII values
 _PII_LABEL_PATTERNS = [
-    (re.compile(r"(姓?\s*名|患\s*者\s*信?\s*息?|患\s*者\s*资?\s*料?|患\s*者\s*名?\s*字?|病\s*人)\s*[:：]"), "patient_name"),
+    (re.compile(r"(姓?\s*名|患\s*者|病\s*人)\s*[:：]"), "patient_name"),
     (re.compile(r"(身份证|身份证号|证件号码?|ID)\s*[:：]"), "id_number"),
     (re.compile(r"(电\s*话|联系电话|手\s*机|联系方式|Tel|TEL)\s*[:：]"), "phone"),
     (re.compile(r"(地\s*址|住\s*址|通讯地址|联系地址)\s*[:：]"), "address"),
@@ -45,6 +45,59 @@ _ID_CARD_RE = re.compile(r"\b[1-9]\d{5}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|
 _PHONE_RE = re.compile(r"\b1[3-9]\d{9}\b")
 _LANDLINE_RE = re.compile(r"\b0\d{2,3}[-\s]?\d{7,8}\b")
 
+
+def _classify_by_patterns(text: str) -> tuple[str | None, float | None]:
+    """Label patterns + standalone patterns. Returns (pii_type, label_ratio) or (None, None)."""
+    text_stripped = text.strip()
+    if not text_stripped:
+        return (None, None)
+
+    # 1) Label patterns — pick earliest match
+    best_match = None
+    best_pii_type = None
+    for pattern, pii_type in _PII_LABEL_PATTERNS:
+        m = pattern.search(text_stripped)
+        if m and (best_match is None or m.start() < best_match.start()):
+            best_match = m
+            best_pii_type = pii_type
+    if best_match:
+        label_ratio = best_match.end() / len(text_stripped) if len(text_stripped) > 0 else 0.5
+        return (best_pii_type, label_ratio)
+
+    # 2) Standalone patterns
+    if _ID_CARD_RE.search(text_stripped):
+        return ("id_number", None)
+    if _PHONE_RE.search(text_stripped):
+        return ("phone", None)
+    if _LANDLINE_RE.search(text_stripped):
+        return ("phone", None)
+
+    return (None, None)
+
+
+_ner_engine = None
+_ner_available = None  # None = not checked, True/False = result
+
+
+def _init_ner_engine():
+    global _ner_engine, _ner_available
+    if _ner_available is False:
+        return None
+    if _ner_engine is not None:
+        return _ner_engine
+    try:
+        from paddlenlp import Taskflow
+        _ner_engine = Taskflow(
+            "information_extraction",
+            schema=["人名"],
+            model="uie-micro",
+        )
+        _ner_available = True
+        return _ner_engine
+    except Exception:
+        _ner_available = False
+        return None
+
 # ---------------------------------------------------------------------------
 # Classification logic
 # ---------------------------------------------------------------------------
@@ -52,7 +105,7 @@ _LANDLINE_RE = re.compile(r"\b0\d{2,3}[-\s]?\d{7,8}\b")
 
 def classify_line(text: str) -> tuple[str, str | None, float | None]:
     """
-    Classify an OCR text line.
+    Classify an OCR text line — regex first, NER fallback for names only.
 
     Returns:
         (classification, pii_type, label_ratio)
@@ -62,37 +115,74 @@ def classify_line(text: str) -> tuple[str, str | None, float | None]:
                      None if not applicable
     """
     text_stripped = text.strip()
-    if not text_stripped:
+    if not text_stripped or len(text_stripped) < 2:
         return ("keep", None, None)
 
-    # 1) Check for PII label patterns — pick the earliest match in the string
-    best_match = None
-    best_pii_type = None
-    for pattern, pii_type in _PII_LABEL_PATTERNS:
-        m = pattern.search(text_stripped)
-        if m and (best_match is None or m.start() < best_match.start()):
-            best_match = m
-            best_pii_type = pii_type
+    # Regex first
+    pii_type, label_ratio = _classify_by_patterns(text_stripped)
+    if pii_type:
+        return ("pii", pii_type, label_ratio)
 
-    if best_match:
-        label_end = best_match.end()
-        total_len = len(text_stripped)
-        label_ratio = label_end / total_len if total_len > 0 else 0.5
-        return ("pii", best_pii_type, label_ratio)
-
-    # 2) Check standalone PII patterns
-    if _ID_CARD_RE.search(text_stripped):
-        return ("pii", "id_number", None)
-    if _PHONE_RE.search(text_stripped):
-        return ("pii", "phone", None)
-    if _LANDLINE_RE.search(text_stripped):
-        return ("pii", "phone", None)
-
+    # NER fallback (names only)
+    engine = _init_ner_engine()
+    if engine is None:
+        return ("keep", None, None)
+    try:
+        results = engine(text_stripped)
+    except Exception:
+        return ("keep", None, None)
+    if not results:
+        return ("keep", None, None)
+    result = results[0] if isinstance(results, list) else results
+    for ent in result.get("人名", []):
+        if ent.get("probability", 0) >= 0.75:
+            start = ent["start"]
+            total = len(text_stripped)
+            lr = start / total if start > 0 and total > 0 else None
+            return ("pii", "patient_name", lr)
     return ("keep", None, None)
 
 
+def _run_ner_batch(lines_classified: list):
+    """Regex-first, then NER for names only."""
+    # Phase 1: regex — instant
+    ner_candidates = []
+    for i, item in enumerate(lines_classified):
+        pii_type, label_ratio = _classify_by_patterns(item["text"])
+        if pii_type:
+            item["classification"] = "pii"
+            item["pii_type"] = pii_type
+            item["label_ratio"] = label_ratio
+        else:
+            ner_candidates.append(i)
+
+    # Phase 2: NER for remaining lines — only detect names
+    engine = _init_ner_engine()
+    if engine is None or not ner_candidates:
+        return
+    texts = [(i, lines_classified[i]["text"].strip()) for i in ner_candidates]
+    valid = [(i, t) for i, t in texts if len(t) >= 2]
+    if not valid:
+        return
+    try:
+        results = engine([t for _, t in valid])
+    except Exception:
+        return
+    for (idx, txt), result in zip(valid, results):
+        if not result:
+            continue
+        for ent in result.get("人名", []):
+            if ent.get("probability", 0) >= 0.75:
+                start = ent["start"]
+                total = len(txt)
+                lines_classified[idx]["classification"] = "pii"
+                lines_classified[idx]["pii_type"] = "patient_name"
+                lines_classified[idx]["label_ratio"] = start / total if start > 0 and total > 0 else None
+                break
+
+
 # ---------------------------------------------------------------------------
-# OCR merge — fix split labels like "姓" + "名：王国洪"
+# OCR merge — fix split labels like "姓" + "名：王某某"
 # ---------------------------------------------------------------------------
 
 
@@ -321,6 +411,7 @@ def redact_image_ocr(
     confidence_threshold: float = 0.5,
     debug: bool = False,
     debug_path: str | None = None,
+    no_ner: bool = False,
 ) -> dict:
     """
     Main pipeline: OCR → classify → redact PII only.
@@ -348,25 +439,23 @@ def redact_image_ocr(
     img = Image.open(input_path).convert("RGB")
     width, height = img.size
 
-    # 2) Merge split labels (e.g. "姓" + "名：王国洪" → "姓名：王国洪")
+    # 2) Merge split labels (e.g. "姓" + "名：王国洪" → "姓名：王某某")
     ocr_lines = _merge_split_labels(ocr_lines)
 
-    # 3) Classify each line
+    # 3) Classify — NER batch
     lines_classified = []
     for line in ocr_lines:
-        text = line["text"]
-        rect = bbox_to_rect(line["bbox"])
-        classification, pii_type, label_ratio = classify_line(text)
-
         lines_classified.append({
-            "text": text,
+            "text": line["text"],
             "bbox": line["bbox"],
-            "rect": rect,
+            "rect": bbox_to_rect(line["bbox"]),
             "confidence": line["confidence"],
-            "classification": classification,
-            "pii_type": pii_type,
-            "label_ratio": label_ratio,
+            "classification": "keep",
+            "pii_type": None,
+            "label_ratio": None,
         })
+    if not no_ner:
+        _run_ner_batch(lines_classified)
 
     # 4) Multi-line PII propagation
     lines_classified = propagate_pii_to_neighbors(lines_classified)
@@ -457,6 +546,8 @@ def main():
                         help="Save annotated debug image showing PII regions (red boxes)")
     parser.add_argument("--confidence", type=float, default=0.5,
                         help="OCR confidence threshold (default: 0.5)")
+    parser.add_argument("--no-ner", action="store_true",
+                        help="Skip NER classification; all lines kept (debug/fallback)")
     args = parser.parse_args()
 
     input_path = Path(args.input).expanduser().resolve()
@@ -484,13 +575,14 @@ def main():
             output_path=output_path,
             confidence_threshold=args.confidence,
             debug=args.debug,
+            no_ner=args.no_ner,
         )
         print(json.dumps(result, ensure_ascii=False))
     except ImportError as e:
         missing = str(e)
         print(json.dumps({
             "success": False,
-            "error": f"Missing dependency: {missing}. Run: pip install paddlepaddle paddleocr",
+            "error": f"Missing dependency: {missing}. Run: pip install paddlepaddle paddleocr paddlenlp",
         }))
         sys.exit(1)
     except Exception as e:
