@@ -7,6 +7,7 @@ import json
 import time
 import tempfile
 import zipfile
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -34,6 +35,50 @@ def list_files(directory: str) -> list:
                     "ext": ext,
                 })
     return results
+
+
+def sanitize_paths(files: list, tmp_dir: str) -> tuple:
+    """If any file path contains non-ASCII chars, flatten all files to tmp_dir
+    root with sequential numeric names. Returns (files, sanitized, mapping_file)."""
+    has_non_ascii = any(not f["path"].isascii() for f in files)
+    if not has_non_ascii:
+        return files, False, None
+
+    sorted_files = sorted(files, key=lambda f: f["name"])
+    mapping = []
+    new_files = []
+    dirs_to_remove = set()
+
+    for idx, f in enumerate(sorted_files, start=1):
+        orig_path = f["path"]
+        orig_name = f["name"]
+        ext = f["ext"]
+        new_name = f"{idx:04d}{ext}"
+        new_path = os.path.join(tmp_dir, new_name)
+
+        shutil.copy2(orig_path, new_path)
+        mapping.append({"idx": idx, "orig_name": orig_name, "new_name": new_name})
+        new_files.append({"path": new_path, "name": new_name, "ext": ext})
+
+        # Track parent dirs that are not tmp_dir itself (the Chinese subdirs)
+        parent = os.path.dirname(orig_path)
+        if os.path.normpath(parent) != os.path.normpath(tmp_dir):
+            # Walk up to find the top-level subdir under tmp_dir
+            rel = os.path.relpath(parent, tmp_dir)
+            top_level = rel.split(os.sep)[0]
+            dirs_to_remove.add(os.path.join(tmp_dir, top_level))
+
+    # Write mapping file
+    mapping_file = os.path.join(tmp_dir, "_mapping.json")
+    with open(mapping_file, "w", encoding="utf-8") as mf:
+        json.dump(mapping, mf, ensure_ascii=False, indent=2)
+
+    # Remove original Chinese-named subdirectories
+    for d in dirs_to_remove:
+        if os.path.isdir(d):
+            shutil.rmtree(d)
+
+    return new_files, True, mapping_file
 
 
 def unpack_zip(archive_path: str, output_dir: str) -> None:
@@ -126,12 +171,16 @@ def main() -> None:
             sys.exit(1)
 
         files = list_files(tmp_dir)
+        files, sanitized, mapping_file = sanitize_paths(files, tmp_dir)
         result = {
             "success": True,
             "tmp_dir": tmp_dir,
             "files": files,
             "total": len(files),
+            "sanitized": sanitized,
         }
+        if sanitized:
+            result["mapping_file"] = mapping_file
         print(json.dumps(result, ensure_ascii=False), flush=True)
 
     except Exception as e:
