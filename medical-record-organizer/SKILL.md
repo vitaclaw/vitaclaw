@@ -29,6 +29,18 @@ metadata: {"openclaw":{"emoji":"🏥","requires":{"bins":["python3"],"anyBins":[
 
 如果三个命令均不可用，告知用户需要安装 Python 3。
 
+### GPU 检测（自动）
+
+确定 `$PYTHON` 后，运行 GPU 诊断：
+
+```bash
+$PYTHON ~/.openclaw/skills/medical-record-organizer/scripts/check_gpu.py
+```
+
+根据输出的 `status` 字段：
+- `ok` / `no_gpu`：静默继续，无需提示用户。
+- `gpu_not_enabled` / `version_mismatch`：向用户显示 `message` 和 `install_command`，询问是否安装。用户确认后执行安装命令，再次运行诊断脚本验证。用户拒绝则继续使用 CPU 模式。
+
 ---
 
 ## Step 1 — 初始化匿名患者目录（默认隐私模式开启）
@@ -348,6 +360,32 @@ cp ~/.openclaw/skills/medical-record-organizer/assets/templates/INDEX-template.m
 > "本次录入了[影像报告/肿瘤标志物]，是否要更新当前状态快照？(y/n)"
 
 如果用户确认（y），则更新 `$PATIENT_DIR/01_当前状态/当前状态.md`，将最新的影像学发现或标志物数值写入对应小节。同时将旧版本的当前状态复制到 `01_当前状态/历史快照/` 目录保存。
+
+---
+
+## GPU 加速（可选）
+
+默认使用 CPU 运行 OCR。如有 NVIDIA GPU，GPU 版本可提速 5–10x。
+
+**自动检测**：Step 0 的 GPU 检测已自动诊断并提示安装。如果跳过了提示或需要手动安装，参考以下命令：
+
+```bash
+# CUDA 11.x
+pip install --upgrade paddlepaddle-gpu -i https://www.paddlepaddle.org.cn/packages/stable/cu118/
+
+# CUDA 12.x
+pip install --upgrade paddlepaddle-gpu -i https://www.paddlepaddle.org.cn/packages/stable/cu126/
+```
+
+> **注意**：标准 PyPI 上 `paddlepaddle-gpu` 最高只有 2.x。PaddleX 3.x 需要 PaddlePaddle ≥ 3.0，必须从 PaddlePaddle 官方源安装。
+
+安装后可运行诊断脚本验证：
+
+```bash
+$PYTHON ~/.openclaw/skills/medical-record-organizer/scripts/check_gpu.py
+```
+
+无需修改任何脚本，PaddlePaddle 自动检测 GPU。
 
 ---
 

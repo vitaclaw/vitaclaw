@@ -358,6 +358,59 @@ def pad_quad(quad, pad, img_width, img_height):
     return result
 
 
+def _propagate_label_to_value(lines_classified):
+    """When a PII box is label-only (label_ratio >= 0.85), propagate to right-adjacent boxes on same row."""
+    if not lines_classified:
+        return
+
+    def _cy(bbox):
+        return sum(p[1] for p in bbox) / 4
+
+    def _lh(bbox):
+        ys = [p[1] for p in bbox]
+        return max(ys) - min(ys)
+
+    for i, item in enumerate(lines_classified):
+        if item["classification"] != "pii":
+            continue
+        if item["label_ratio"] is None or item["label_ratio"] < 0.85:
+            continue
+
+        bbox_i = item["bbox"]
+        cy_i = _cy(bbox_i)
+        right_i = max(p[0] for p in bbox_i)
+        lh_i = _lh(bbox_i)
+
+        candidates = []
+        for j, other in enumerate(lines_classified):
+            if j == i:
+                continue
+            bbox_j = other["bbox"]
+            cy_j = _cy(bbox_j)
+            left_j = min(p[0] for p in bbox_j)
+            lh_j = _lh(bbox_j)
+            avg_lh = (lh_i + lh_j) / 2
+
+            if abs(cy_j - cy_i) > avg_lh * 0.5:
+                continue
+            gap = left_j - right_i
+            if gap < -avg_lh * 0.5:
+                continue
+            if gap > avg_lh * 3:
+                continue
+            candidates.append((gap, j))
+
+        candidates.sort()
+        for _, j in candidates:
+            other = lines_classified[j]
+            if other["classification"] == "pii":
+                other["label_ratio"] = None
+                break
+            other["classification"] = "pii"
+            other["pii_type"] = item["pii_type"]
+            other["label_ratio"] = None
+
+
 def propagate_pii_to_neighbors(lines_classified):
     """
     Multi-line PII propagation: if a line is PII (especially address),
@@ -456,6 +509,9 @@ def redact_image_ocr(
         })
     if not no_ner:
         _run_ner_batch(lines_classified)
+
+    # 3.5) Label-only → value propagation (横向)
+    _propagate_label_to_value(lines_classified)
 
     # 4) Multi-line PII propagation
     lines_classified = propagate_pii_to_neighbors(lines_classified)
