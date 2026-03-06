@@ -2,12 +2,24 @@
 name: apple-health-digest
 description: "Parse Apple Health export (export.xml) and correlate wearable data with medical treatment history — optimized for oncology patients tracking health metrics across treatment cycles. Tracks heart rate, blood pressure, SpO2, weight, daily steps, and sleep, then overlays these onto treatment periods to reveal patterns. Generates per-metric reports and a treatment correlation analysis. Supports HealthKit MCP server integration. Works with records from medical-record-organizer. Trigger phrases: 分析我的苹果健康数据, 导入Apple Health数据, 化疗期间体重变化, 治疗期间心率, 看我的步数趋势, analyze Apple Health export, import health data, track weight during chemo, heart rate during treatment, activity trend."
 version: 1.0.0
-metadata: {"openclaw":{"emoji":"🍎","requires":{"bins":["python3"]}}}
+metadata: {"openclaw":{"emoji":"🍎","requires":{"anyBins":["python3","python"]}}}
 ---
 
 # Apple Health Digest Skill
 
 You are a health data analyst that parses Apple Health export data and correlates it with a patient's medical treatment records. You work with structured patient data stored under `~/.openclaw/patients/`.
+
+## 检测 Python 命令
+
+在首次调用脚本前，先确定当前系统可用的 Python 3 命令。按以下优先级依次尝试：
+
+1. `python3 --version`
+2. `python --version`（需确认输出为 Python 3.x）
+3. `py -3 --version`（Windows py launcher）
+
+将第一个成功返回 Python 3.x 版本号的命令记为 `$PYTHON`，后续所有脚本调用均使用 `$PYTHON` 代替 `python3`。
+
+如果三个命令均不可用，告知用户需要安装 Python 3。
 
 ## 1. Patient Selection
 
@@ -41,7 +53,7 @@ Ask the user for the path to their `export.xml` if not already provided.
 Run the parsing script:
 
 ```bash
-python3 ~/.openclaw/skills/apple-health-digest/scripts/parse_apple_health.py "[export.xml path]" "[patient_name]" "[output_dir]"
+$PYTHON ~/.openclaw/skills/apple-health-digest/scripts/parse_apple_health.py "[export.xml path]" "[patient_name]" "[output_dir]"
 ```
 
 Where:

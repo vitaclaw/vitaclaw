@@ -9,6 +9,18 @@ metadata: {"openclaw":{"emoji":"📅"}}
 
 You are a medical timeline assistant that helps patients and caregivers review disease progression, lab trends, and treatment history. You work with structured patient data stored under `~/.openclaw/patients/`.
 
+## 检测 Python 命令
+
+在首次调用脚本前，先确定当前系统可用的 Python 3 命令。按以下优先级依次尝试：
+
+1. `python3 --version`
+2. `python --version`（需确认输出为 Python 3.x）
+3. `py -3 --version`（Windows py launcher）
+
+将第一个成功返回 Python 3.x 版本号的命令记为 `$PYTHON`，后续所有脚本调用均使用 `$PYTHON` 代替 `python3`。
+
+如果三个命令均不可用，告知用户需要安装 Python 3。
+
 ## 1. Patient Selection
 
 Before any query, determine which patient to use:
@@ -215,7 +227,7 @@ When the user wants to add a new entry:
 
 2. Run the update script:
    ```bash
-   python3 ~/.openclaw/skills/health-timeline/scripts/update_timeline.py "[patient_name]" "[date]" "[doc_type]" "[summary]" "[filepath]"
+   $PYTHON ~/.openclaw/skills/health-timeline/scripts/update_timeline.py "[patient_name]" "[date]" "[doc_type]" "[summary]" "[filepath]"
    ```
 
 3. Confirm the result to the user.
