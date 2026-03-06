@@ -1,71 +1,78 @@
 # 医疗文档分类法 — Document Taxonomy
 
-本文档为 Agent 分类医疗文档时的参考手册。根据文档内容中的关键词匹配，确定文档类型和归档目录。
+本文档为 Agent 分类医疗文档时的参考手册。Agent 应通过阅读和理解文档内容来判断文档类别，而非依赖关键词匹配。
 
 ## 分类对照表
 
-| 文档类型 | 目标目录 | 关键词 | 提取字段 |
-|----------|----------|--------|----------|
-| 出院小结 | `08_出院小结/` | 出院小结、入院诊断、出院诊断、住院号 等 | admission_date, discharge_date, diagnosis, treatment_during_stay, discharge_instructions |
-| 入院小结 | `08_出院小结/入院小结/` | 入院小结、入院记录、入院病历、主诉、现病史 等（不含"出院小结"） | admission_date, chief_complaint, admission_diagnosis, history_of_present_illness, initial_treatment_plan |
-| CT报告 | `04_影像学/CT/` | CT、计算机断层、增强CT、平扫 等 | scan_date, scan_region, findings, impression |
-| MRI报告 | `04_影像学/MRI/` | MRI、磁共振、核磁 等 | scan_date, scan_region, findings, impression |
-| PET-CT报告 | `04_影像学/PET-CT/` | PET、PET-CT、PET/CT、代谢 等 | scan_date, findings, SUVmax, impression |
-| 超声报告 | `04_影像学/超声/` | 超声、B超、彩超、腹部超声 等 | scan_date, scan_region, findings, impression |
-| 血常规 | `05_检验检查/血常规/` | 血常规、CBC、白细胞、红细胞、血红蛋白、血小板 等 | test_date, WBC, RBC, HGB, PLT, abnormal_items |
-| 生化/肝肾功能 | `05_检验检查/生化肝肾功/` | 生化、肝功能、肾功能、ALT、AST、肌酐、尿素氮 等 | test_date, ALT, AST, creatinine, BUN, abnormal_items |
-| 肿瘤标志物 | `05_检验检查/肿瘤标志物/` | 肿瘤标志物、CEA、CA-199、CA199、AFP、CA-125、CA125 等 | test_date, CEA, CA199, AFP, CA125, other_markers |
-| 基因检测/NGS | `03_分子病理/基因检测/` | 基因检测、NGS、二代测序、KRAS、EGFR、BRCA、突变、MSI、TMB 等 | test_date, mutations, MSI_status, TMB, drug_sensitivity |
-| 免疫组化 | `03_分子病理/免疫组化/` | 免疫组化、IHC、PD-L1、HER2、Ki-67、MLH1、MSH2 等 | test_date, markers, expression_levels |
-| 病理报告 | `02_诊断与分期/病理报告/` | 病理、活检、组织学、腺癌、鳞癌、分化 等 | biopsy_date, specimen_source, histology, grade, stage, margins |
-| 处方/门诊记录 | `10_原始文件/门诊记录/` | 处方、门诊、Rx、用法用量 等 | visit_date, doctor, diagnosis, prescriptions |
+| 文档类型 | 目标目录 | 文档特征描述 | 提取字段 |
+|----------|----------|-------------|----------|
+| 出院小结 | `08_出院小结/` | 医院出具的出院证明或出院小结，包含入院/出院日期、住院期间诊治经过、出院诊断和出院医嘱。通常有"出院小结"、"出院证明"等标题。 | admission_date, discharge_date, diagnosis, treatment_during_stay, discharge_instructions |
+| 入院小结 | `08_出院小结/入院小结/` | 患者入院时的记录，包含主诉、现病史、入院诊断和初步治疗计划。有"入院记录"、"入院小结"等标题，但不含出院相关内容。 | admission_date, chief_complaint, admission_diagnosis, history_of_present_illness, initial_treatment_plan |
+| CT报告 | `04_影像学/CT/` | 计算机断层扫描（CT）的影像学检查报告，包含扫描部位、影像学发现和诊断意见。报告标题或内容涉及CT平扫、增强CT、计算机断层等。 | scan_date, scan_region, findings, impression |
+| MRI报告 | `04_影像学/MRI/` | 磁共振成像（MRI）检查报告，包含扫描部位和影像发现。报告涉及磁共振、MRI、核磁共振等检查方式。 | scan_date, scan_region, findings, impression |
+| PET-CT报告 | `04_影像学/PET-CT/` | PET-CT 或 PET/CT 代谢显像报告，包含 SUV 摄取值和代谢活性描述。通常用于肿瘤分期或疗效评估。 | scan_date, findings, SUVmax, impression |
+| 超声报告 | `04_影像学/超声/` | 超声/B超/彩超检查报告，包含超声探查部位和声像图描述。常见于腹部、甲状腺、乳腺等脏器检查。 | scan_date, scan_region, findings, impression |
+| X光/DR报告 | `04_影像学/X光DR/` | X射线或数字化摄影（DR）检查报告，包含拍摄部位和影像学发现。常见于胸部X光、骨骼X光等。报告标题常含"DR"、"X线"、"X光"、"放射"等字样。 | scan_date, scan_region, findings, impression |
+| 血常规 | `05_检验检查/血常规/` | 血液常规检验报告，包含白细胞、红细胞、血红蛋白、血小板等血细胞计数和分类结果。 | test_date, WBC, RBC, HGB, PLT, abnormal_items |
+| 生化/肝肾功能 | `05_检验检查/生化肝肾功/` | 血液生化检验报告，包含肝功能（ALT、AST、胆红素等）、肾功能（肌酐、尿素氮等）、电解质、血脂、血糖、CRP等项目。也包括单项肝功、肾功检测报告。 | test_date, ALT, AST, creatinine, BUN, abnormal_items |
+| 肿瘤标志物 | `05_检验检查/肿瘤标志物/` | 肿瘤标志物检测报告，包含 CEA、CA-199、AFP、CA-125 等肿瘤相关蛋白或抗原的血清浓度值。报告标题常含"肿瘤标志物"、"癌胚抗原"等。 | test_date, CEA, CA199, AFP, CA125, other_markers |
+| 基因检测/NGS | `03_分子病理/基因检测/` | 基因检测或二代测序（NGS）报告，包含基因突变位点、突变频率（VAF）、MSI状态、TMB数值和药物敏感性分析。 | test_date, mutations, MSI_status, TMB, drug_sensitivity |
+| 免疫组化 | `03_分子病理/免疫组化/` | 免疫组化（IHC）单独报告，仅包含免疫组化染色标记物结果（如 PD-L1、HER2、Ki-67、MLH1、MSH2等蛋白表达情况），不含完整病理诊断。 | test_date, markers, expression_levels |
+| 病理报告 | `02_诊断与分期/病理报告/` | 完整的病理检查报告，包含标本大体描述、镜下描述、病理诊断（组织学类型、分化程度、分期等）。可能附带免疫组化结果，但主体是病理诊断。包括活检病理和术后病理。 | biopsy_date, specimen_source, histology, grade, stage, margins |
+| 诊断证明 | `11_诊断证明/` | 医院开具的诊断证明书，用于证明患者疾病诊断，通常包含医院名称、就诊/住院日期、临床诊断、治疗概况和医生建议。格式较简短，主要用途为对外证明（如请假、保险等）。 | hospital, admission_date, discharge_date, diagnosis, treatment_summary, recommendations |
+| 处方/门诊记录 | `10_原始文件/门诊记录/` | 门诊就诊记录或处方笺，包含就诊日期、接诊医生、门诊诊断和处方用药信息。 | visit_date, doctor, diagnosis, prescriptions |
 
 ## 分类优先级规则
 
-当文档内容包含多种类型的关键词时，按以下优先级判定：
+当文档内容涉及多种文档类型特征时，按以下优先级判定：
 
-### 规则 1：出院小结优先
+### 规则 1：出院小结/出院证明优先
 
-如果文档中包含"出院小结"、"出院诊断"字样，**直接归类为出院小结**，即使文档中附带了检验结果或影像报告。
+如果文档的主要内容是出院相关信息（出院小结、出院证明书），**直接归类为出院小结**，即使文档中附带了检验结果或影像报告摘要。
 
 > 理由：出院小结是综合性文档，通常包含患者住院期间所有检查结果的摘要。
 
 ### 规则 1b：入院小结识别
 
-如果文档包含"入院小结"或"入院记录"字样，但**不含**"出院小结"，归类为**入院小结**。
+如果文档主体是入院时的记录（入院小结、入院记录），且不涉及出院内容，归类为**入院小结**。
 
 > 理由：入院小结记录患者入院时的初始状态和诊断，与出院小结是独立文档类型。
 
 ### 规则 2：完整病理报告 > 单独免疫组化
 
-如果文档同时包含"病理"和"免疫组化"关键词：
-- 查看文档结构：如果有完整的病理诊断（包括大体描述、镜下描述、病理诊断），归入 **病理报告**
-- 如果仅有免疫组化标记物结果，归入 **免疫组化**
+如果文档同时包含病理诊断和免疫组化结果：
+- 如果有完整的病理诊断（包括大体描述、镜下描述、病理诊断结论），归入 **病理报告**
+- 如果仅有免疫组化标记物结果表格，无完整病理诊断，归入 **免疫组化**
 
 ### 规则 3：基因检测 vs 免疫组化
 
-如果文档同时包含基因检测和免疫组化关键词：
+如果文档同时涉及基因检测和免疫组化内容：
 - 主要内容是基因突变位点列表、变异频率（VAF）、MSI/TMB → **基因检测**
 - 主要内容是蛋白表达水平、IHC评分 → **免疫组化**
 
 ### 规则 4：影像学子类判定
 
-影像报告的子类型按以下顺序判定：
-1. 含"PET"或"代谢" → PET-CT
-2. 含"MRI"或"磁共振"或"核磁" → MRI
-3. 含"CT"或"计算机断层" → CT
-4. 含"超声"或"B超"或"彩超" → 超声
+影像报告的子类型根据检查方式判定：
+1. PET代谢显像 → PET-CT
+2. 磁共振成像 → MRI
+3. CT断层扫描 → CT
+4. X射线/DR摄影 → X光DR
+5. 超声探查 → 超声
 
 ### 规则 5：检验报告子类判定
 
-检验报告按以下顺序判定：
-1. 含"肿瘤标志物"或特定标志物名称（CEA、CA-199等） → 肿瘤标志物
-2. 含"血常规"或"CBC" → 血常规
-3. 含"生化"或"肝功能"或"肾功能" → 生化肝肾功
+检验报告根据检测项目的主体内容判定：
+1. 以肿瘤标志物（CEA、CA-199、AFP、CA-125等）为主 → 肿瘤标志物
+2. 以血细胞计数为主（白细胞、红细胞、血红蛋白、血小板） → 血常规
+3. 以生化指标为主（肝功、肾功、电解质、CRP等） → 生化肝肾功
 
-### 规则 6：无法判断
+### 规则 6：诊断证明识别
 
-如果以上规则均不匹配，归入 `10_原始文件/未分类/`，并提示用户手动确认分类。
+如果文档是医院开具的诊断证明书（通常较短，用于对外证明用途），归入 **诊断证明**，不要与出院小结混淆。
+
+### 规则 7：无法判断
+
+如果以上规则均不能确定文档类别，归入 `10_原始文件/未分类/`，并提示用户手动确认分类。
 
 ## 各类型详细提取指南
 
@@ -87,7 +94,7 @@
 - 现病史（起病经过、症状演变）
 - 初步治疗方案（入院后拟定）
 
-### 影像报告（CT / MRI / PET-CT / 超声）
+### 影像报告（CT / MRI / PET-CT / 超声 / X光DR）
 
 需提取的关键信息：
 - 检查日期、检查部位
@@ -123,3 +130,12 @@
 - PD-L1 TPS/CPS 评分
 - HER2 状态
 - 药物敏感性提示
+
+### 诊断证明
+
+需提取的关键信息：
+- 医院名称
+- 就诊/住院日期（入院、出院）
+- 临床诊断
+- 治疗概况
+- 医生建议/注意事项

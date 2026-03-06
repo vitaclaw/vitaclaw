@@ -27,7 +27,7 @@ from pathlib import Path
 
 # Labels that precede PII values
 _PII_LABEL_PATTERNS = [
-    (re.compile(r"(姓?\s*名|患\s*者|病\s*人)\s*[:：]"), "patient_name"),
+    (re.compile(r"(姓?\s*名|患\s*者\s*信?\s*息?|患\s*者\s*资?\s*料?|患\s*者\s*名?\s*字?|病\s*人)\s*[:：]"), "patient_name"),
     (re.compile(r"(身份证|身份证号|证件号码?|ID)\s*[:：]"), "id_number"),
     (re.compile(r"(电\s*话|联系电话|手\s*机|联系方式|Tel|TEL)\s*[:：]"), "phone"),
     (re.compile(r"(地\s*址|住\s*址|通讯地址|联系地址)\s*[:：]"), "address"),

@@ -48,6 +48,7 @@ def create_directory_tree(patient_dir: Path) -> None:
         "04_影像学/MRI",
         "04_影像学/PET-CT",
         "04_影像学/超声",
+        "04_影像学/X光DR",
         "05_检验检查/血常规",
         "05_检验检查/生化肝肾功",
         "05_检验检查/肿瘤标志物",
@@ -57,6 +58,7 @@ def create_directory_tree(patient_dir: Path) -> None:
         "08_出院小结/入院小结",
         "09_Apple_Health",
         "10_原始文件/未分类",
+        "11_诊断证明",
         "10_原始文件/门诊记录",
         "10_原始文件/原始未遮挡",
     ]
