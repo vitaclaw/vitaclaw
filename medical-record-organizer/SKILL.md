@@ -12,14 +12,16 @@ metadata: {"openclaw":{"emoji":"🏥","requires":{"bins":["python3"],"anyBins":[
 ## 整体流程
 
 ```
-输入文件 → 检测类型 → 提取文本 → 分类文档 → [图片?] 隐私遮挡 → 提取关键字段 → 复制并重命名 → 更新索引
+输入文件 → 检测类型 → 提取文本 → 分类文档 → [图片?] 隐私遮挡 → 提取关键字段 → 复制并重命名 → 更新索引 → 更新 profile → [触发?] 更新当前状态
 ```
+
+> **严格顺序执行**：Agent 必须按 Step 0 → Step 1 → Step 2 → … → Step 10 的编号顺序依次执行。每个 Step 完成后方可进入下一个 Step，不得跳过或乱序。批量模式下 subagent 内部同样遵守 Step 2 → Step 3 → Step 4 → Step 5 → Step 6 的顺序。
 
 ---
 
 ## 执行模型约束（全局生效）
 
-> **本 SKILL 的所有步骤由 Agent（你）亲自执行，不是由你编写脚本来执行。**
+> **本 SKILL 的所有步骤由 Agent（你）亲自按Step编号顺序依次执行，前一个 Step 完成后才能进入下一个 Step。批量模式下每个 subagent 也必须按 Step 2 → 3 → 4 → 5 → 6 的顺序执行。不是由你编写脚本来执行。**
 
 ### 绝对禁止
 
@@ -28,6 +30,7 @@ metadata: {"openclaw":{"emoji":"🏥","requires":{"bins":["python3"],"anyBins":[
 3. **禁止脚本化字段提取**：Step 5 的关键字段（summary、doc_type、conclusion 等）必须由你阅读文档后生成，不得用正则或模板拼接。
 4. **禁止脚本修改索引**：INDEX.md、timeline.md、肿标趋势.md 的更新必须由你直接读写，不得由脚本程序修改。
 5. **禁止脚本实现并行**：批量模式的并行处理通过 subagent 机制实现，不得编写 threading/multiprocessing/asyncio 脚本。
+6. **禁止跳步或乱序执行**：必须按 Step 编号顺序（0 → 1 → 2 → … → 10）依次执行，前一个 Step 完成后才能进入下一个 Step。批量模式下每个 subagent 也必须按 Step 2 → 3 → 4 → 5 → 6 的顺序执行。
 
 ### 允许调用的脚本（仅限以下）
 
@@ -213,6 +216,7 @@ $PYTHON ~/.openclaw/skills/medical-record-organizer/scripts/unpack_archive.py "[
      - Step 6（复制并重命名原始文件）
    - 等待该批**所有** subagent 完成后，向用户报告进度：
      > `[第N批/共M批] 已完成：文件1 (CT报告)、文件2 (血常规)、文件3 (肿瘤标志物)、...`
+   - 主 Agent 将该批文件的条目行写入 INDEX.md 对应分类小节，并追加 timeline.md 行（Phase A）
    - 再开始下一批
 
    **示例**（MAX_PARALLEL=4，共9个文件）：
@@ -223,7 +227,11 @@ $PYTHON ~/.openclaw/skills/medical-record-organizer/scripts/unpack_archive.py "[
    第3批：文件9           → 单独处理 → 完成后报告进度
    ```
 
-3. **批量更新索引**：所有批次完成后，**仅执行一次** Step 7（更新 INDEX.md）和 Step 8（更新 timeline.md）。
+3. **最终聚合更新**：所有批次完成后，执行一次聚合操作：
+   - 更新 INDEX.md 的聚合模块：关键指标（最新值）表格、最近更新日期
+   - 如有肿瘤标志物文档，更新 `肿标趋势.md`
+   - Step 9（更新 profile.json）
+   - Step 10（更新当前状态快照，需用户确认）
 
 4. **清理临时文件**：
 
@@ -350,7 +358,9 @@ cp "[原始文件路径]" "$PATIENT_DIR/[目标目录]/YYYY-MM-DD_[doc_type]_[br
 
 **执行主体**：INDEX.md 的更新由你（Agent）直接编辑文件完成。不得编写脚本来修改 INDEX.md。
 
-> **批量模式下**：所有文件处理完毕后只执行**一次**索引更新。
+> **批量模式下（两阶段）**：
+> - **Phase A（逐批）**：每批 subagent 完成后，主 Agent 立即将该批文件的条目行插入对应分类小节（`<!-- 新文档条目插入此处 -->` 之后）。此阶段只写条目行，不改其他区域。
+> - **Phase B（最终）**：所有批次完成后，执行一次聚合更新——刷新"关键指标（最新值）"表格、"最近更新"日期等非条目区域。
 
 1. 读取 `$PATIENT_DIR/INDEX.md`。
 2. 找到对应分类的小节标题（如 `### 04_影像学/CT/`）。
@@ -383,13 +393,46 @@ cp ~/.openclaw/skills/medical-record-organizer/assets/templates/INDEX-template.m
 
 **执行主体**：timeline.md 的更新由你（Agent）直接编辑文件完成。不得编写脚本来修改 timeline.md。
 
-> **批量模式下**：所有文件处理完毕后只执行**一次**时间线更新。
+> **批量模式下（逐批写入）**：每批 subagent 完成后，主 Agent 立即将该批文件的行追加到 timeline.md 表格中（保持时间倒序）。无需等到所有批次完成。
 
 在 `$PATIENT_DIR/timeline.md` 的表格中追加新行（按时间倒序，最新的在最前），文件路径指向原始文件：
 
 ```markdown
 | 2024-03-15 | CT报告 | 肝脏多发转移灶，最大2.1cm | 04*影像学/CT/2024-03-15_CT报告*腹部增强.pdf |
 ```
+
+---
+
+## Step 9 — 更新 profile.json
+
+**执行主体**：profile.json 的更新由你（Agent）直接读写文件完成。不得编写脚本来修改 profile.json。
+
+> **批量模式下**：所有文件处理完毕后只执行**一次** profile.json 更新。
+
+根据本次归档文档中提取的信息，自动回填 `$PATIENT_DIR/profile.json` 中仍为 `null` 的字段。
+
+### 规则
+
+1. **只填 `null` 字段**：如果字段已有非 `null` 值，绝对不覆盖。
+2. **可回填的字段**（仅限以下 5 个）：
+
+| 字段 | 数据来源示例 |
+|------|-------------|
+| `diagnosis` | 出院小结中的"出院诊断"、病理报告中的"病理诊断" |
+| `diagnosis_date` | 首次确诊的日期（格式 `YYYY-MM-DD`） |
+| `hospital` | 报告抬头中的医院名称（取最常出现的） |
+| `doctor` | 主治/主管医生姓名（取最常出现的） |
+| `age` | 报告中出现的年龄信息（取最新文档中的值） |
+
+3. **隐私红线**：`name` 字段**永远不得填写**，即使文档中包含患者姓名。
+4. **不确定时不填**：如果信息模糊或矛盾，保留 `null`，不要猜测。
+
+### 执行步骤
+
+1. 读取 `$PATIENT_DIR/profile.json`。
+2. 检查上述 5 个字段是否为 `null`。
+3. 从本次处理的文档提取信息中，匹配可填入的值。
+4. 将更新后的 JSON 写回文件（保持格式化，UTF-8 编码）。
 
 ---
 
@@ -412,7 +455,11 @@ cp ~/.openclaw/skills/medical-record-organizer/assets/templates/INDEX-template.m
 
 ---
 
-## 特殊处理：当前状态更新
+## Step 10 — 更新当前状态快照
+
+**执行主体**：当前状态快照的更新由你（Agent）直接读写文件完成。不得编写脚本来修改当前状态。
+
+> **批量模式下**：所有文件处理完毕后只执行**一次**当前状态更新（需用户确认）。
 
 当新录入的文档是以下类型时：
 
