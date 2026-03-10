@@ -18,7 +18,7 @@ VitaClaw is an open-source library of 204 modular health AI skills designed to r
 
 VitaClaw is built on three pillars:
 
-1. **Health Memory System** — Persistent daily logs and longitudinal tracking stored under `memory/health/`. Your data lives as plain Markdown files on your machine, versioned by git, owned by you.
+1. **Health Memory System** — Daily wellness tracking under `memory/health/` plus a structured clinical record archive under `~/.openclaw/patients/`. Your data lives as plain Markdown files on your machine, versioned by git, owned by you.
 2. **Modular Skills** — 204 self-contained `SKILL.md` files, each defining its own prompt, tools, and data format. Drop in only what you need, edit freely, extend without limits.
 3. **Scenario Orchestration** — 7 scenario apps (e.g., `diabetes-control-hub`, `hypertension-daily-copilot`) that chain multiple skills into end-to-end clinical workflows, from data capture through longitudinal analysis to care recommendations.
 
@@ -50,7 +50,7 @@ No build step, no dependencies, no configuration wizard. Skills activate automat
 
 | #  | Category                                                                 | Count | Highlights                                                                                    |
 | ---- | -------------------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------- |
-| 1  | [Health Memory & Infrastructure](#1-health-memory--infrastructure)       | 1     | `health-memory` — unified data layer for all skills                                          |
+| 1  | [Health Memory & Infrastructure](#1-health-memory--infrastructure)       | 2     | `health-memory`, `medical-record-organizer` — unified data layer for all skills              |
 | 2  | [Scenario Applications](#2-scenario-applications)                        | 7     | `diabetes-control-hub`, `hypertension-daily-copilot`, `mental-wellness-companion`             |
 | 3  | [Daily Health Tracking](#3-daily-health-tracking)                        | 13    | `blood-pressure-tracker`, `sleep-analyzer`, `wearable-analysis-agent`, `weekly-health-digest` |
 | 4  | [Mental Health & Crisis](#4-mental-health--crisis-intervention)          | 12    | `crisis-detection-intervention-ai`, `adhd-daily-planner`, `grief-companion`                   |
@@ -83,6 +83,7 @@ No build step, no dependencies, no configuration wizard. Skills activate automat
 | Skill                           | Description                                                                                                        |
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | [health-memory](health-memory/) | Centralized health memory hub — manages daily logs and per-item longitudinal tracking files under memory/health/. |
+| [medical-record-organizer](medical-record-organizer/) | Structured medical record archive — auto-classifies PDFs, scans, and lab reports into a per-patient directory (imaging, labs, pathology, genomics, discharge summaries). Builds navigable INDEX.md with one-line summaries. |
 
 ## 2. Scenario Applications
 
@@ -452,6 +453,29 @@ memory/health/
 - **Daily logs** aggregate multi-skill data into one file per day. Each skill writes its own `## Section [skill-name · HH:MM]` block.
 - **Item files** maintain 90-day rolling histories for longitudinal metrics (blood pressure, weight, glucose, etc.) with trend summaries.
 - **Format contract** — all skills follow the same Markdown schema with YAML frontmatter, so any skill can consume data produced by any other skill with no transformation needed.
+
+### Medical Record Archive
+
+For clinical documents — imaging reports, lab results, pathology, genomics, and discharge summaries — the [medical-record-organizer](medical-record-organizer/) skill provides a structured per-patient archive under `~/.openclaw/patients/`:
+
+```
+~/.openclaw/patients/[patient-id]/
+├── INDEX.md                  # Navigation entry point
+├── profile.json              # Structured patient info
+├── timeline.md               # Chronological event table
+├── 01_Current Status/
+├── 02_Diagnosis & Staging/
+├── 03_Molecular Pathology/   # Gene panels + IHC
+├── 04_Imaging/               # CT / MRI / PET-CT
+├── 05_Lab Results/           # CBC, tumor markers
+├── 06_Treatment History/
+├── 07_Comorbidities & Meds/
+├── 08_Discharge Summaries/
+├── 09_Apple_Health/
+└── 10_Raw Files/
+```
+
+While `health-memory` tracks **daily wellness metrics** (vitals, sleep, nutrition), `medical-record-organizer` manages **clinical documents** (hospital reports, scans, lab sheets). Together they form a complete personal health data layer — daily self-tracking plus longitudinal medical records.
 
 See [health-memory/SKILL.md](health-memory/) for the full specification.
 
