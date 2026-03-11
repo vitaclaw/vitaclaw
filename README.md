@@ -505,9 +505,3 @@ See [health-memory/SKILL.md](skills/health-memory/) for the full specification.
 
 ---
 
-## License
-
-MIT License. See [LICENSE](../LICENSE) for details.
-
----
-
