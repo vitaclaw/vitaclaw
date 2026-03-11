@@ -2,7 +2,7 @@
 
 # 🩺 VitaClaw
 
-### 204 AI Health Skills for Claude Code
+### 204 AI Health Skills for OpenClaw
 
 ![Skills](https://img.shields.io/badge/skills-204-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![OpenClaw](https://img.shields.io/badge/OpenClaw-compatible-orange)
 
@@ -14,7 +14,7 @@ From blood pressure tracking to tumor board analysis — plug-and-play health in
 
 ## What is VitaClaw?
 
-VitaClaw is an open-source library of 204 modular health AI skills designed to run inside Claude Code. Each skill is a self-contained `SKILL.md` file that gives your AI assistant deep, domain-specific health capabilities — from daily vitals logging to clinical genomics interpretation.
+VitaClaw is an open-source library of 204 modular health AI skills designed to run inside [OpenClaw](https://openclaw.ai). Each skill is a self-contained `SKILL.md` file that gives your AI assistant deep, domain-specific health capabilities — from daily vitals logging to clinical genomics interpretation.
 
 VitaClaw is built on three pillars:
 
@@ -31,17 +31,31 @@ VitaClaw is built on three pillars:
 | Customization  | Fixed features         | Edit any`SKILL.md`                      |
 | Clinical depth | Consumer-grade         | Research-grade (PubMed, ClinVar, GWAS)  |
 | Integration    | Siloed                 | Skills chain together via health-memory |
-| AI model       | Single vendor          | Any model via OpenRouter / Claude Code  |
+| AI model       | Single vendor          | Any model via OpenClaw (Claude, GPT, Gemini, Llama …)  |
 
 ---
 
 ## Installation
 
+### Option A — Git Clone (recommended)
+
 ```bash
-git clone https://github.com//
+# Clone into OpenClaw shared skills directory
+git clone https://github.com/vitaclaw/vitaclaw.git ~/.openclaw/skills/vitaclaw
+
+# Or clone into a workspace
+git clone https://github.com/vitaclaw/vitaclaw.git ./skills/vitaclaw
 ```
 
-No build step, no dependencies, no configuration wizard. Skills activate automatically when Claude Code detects them in your project's `skills/` directory.
+### Option B — Cherry-pick individual skills
+
+```bash
+# Copy only the skills you need
+cp -r vitaclaw/blood-pressure-tracker ~/.openclaw/skills/
+cp -r vitaclaw/diabetes-control-hub   ~/.openclaw/skills/
+```
+
+No build step, no dependencies, no configuration wizard. OpenClaw automatically discovers `SKILL.md` files in its skills directories.
 
 ---
 
@@ -523,7 +537,7 @@ Below the frontmatter, add:
 3. **Input/output format** — specify expected input (user message, file path, memory keys) and the exact output structure (Markdown sections, tables, alert blocks).
 4. **Alert rules** — threshold conditions that trigger warnings or escalation messages.
 
-Place the file in `skills/my-skill/SKILL.md` and Claude Code will automatically discover and invoke it when the user types `/my-skill`.
+Place the file in `skills/my-skill/SKILL.md` and OpenClaw will automatically discover and invoke it when the user types `/my-skill`.
 
 ---
 
@@ -541,4 +555,3 @@ MIT License. See [LICENSE](../LICENSE) for details.
 
 ---
 
-<p align="center">Built with Claude Code</p>

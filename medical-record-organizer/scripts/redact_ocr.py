@@ -492,7 +492,7 @@ def redact_image_ocr(
     img = Image.open(input_path).convert("RGB")
     width, height = img.size
 
-    # 2) Merge split labels (e.g. "姓" + "名：王国洪" → "姓名：王某某")
+    # 2) Merge split labels (e.g. "姓" + "名：王某某" → "姓名：王某某")
     ocr_lines = _merge_split_labels(ocr_lines)
 
     # 3) Classify — NER batch
