@@ -1,3 +1,5 @@
+**English** | [中文](README.zh.md)
+
 <div align="center">
 
 # 🩺 VitaClaw
@@ -248,7 +250,7 @@ No build step, no dependencies, no configuration wizard. OpenClaw automatically 
 | Skill                                                                               | Description                                                                                                                                                                   |
 | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [bio-clinical-databases-pharmacogenomics](skills/bio-clinical-databases-pharmacogenomics/) | Query PharmGKB and CPIC for drug-gene interactions, pharmacogenomic annotations, and dosing guidelines.                                                                       |
-| [nutrigx_advisor](nutrigx_advisor/)                                                 | Generates personalized nutrition reports from consumer genetic data (23andMe, AncestryDNA). Translates nutritionally-relevant SNPs into dietary and supplementation guidance. |
+| [nutrigx_advisor](skills/nutrigx_advisor/)                                                 | Generates personalized nutrition reports from consumer genetic data (23andMe, AncestryDNA). Translates nutritionally-relevant SNPs into dietary and supplementation guidance. |
 | [pharmacogenomics-agent](skills/pharmacogenomics-agent/)                                   | AI-driven pharmacogenomic analysis for precision dosing and adverse event prediction using multi-omics data.                                                                  |
 | [pharmgx-reporter](skills/pharmgx-reporter/)                                               | Pharmacogenomic report from DTC genetic data (23andMe/AncestryDNA) — 12 genes, 31 SNPs, 51 drugs.                                                                            |
 
@@ -492,52 +494,6 @@ For clinical documents — imaging reports, lab results, pathology, genomics, an
 While `health-memory` tracks **daily wellness metrics** (vitals, sleep, nutrition), `medical-record-organizer` manages **clinical documents** (hospital reports, scans, lab sheets). Together they form a complete personal health data layer — daily self-tracking plus longitudinal medical records.
 
 See [health-memory/SKILL.md](skills/health-memory/) for the full specification.
-
----
-
-## Test Data & Personas
-
-Seven scenario skills include test personas with pre-populated health memory data for development and demo purposes:
-
-```bash
-# List available test personas
-./scripts/switch_test_persona.sh
-
-# Switch to a test persona
-./scripts/switch_test_persona.sh diabetes-control-hub
-
-# Then try the scenario skill
-# /diabetes-control-hub daily-log
-```
-
-Each test persona includes a `_health-profile.md`, several days of daily logs, and relevant item tracking files.
-
----
-
-## Creating Your Own Skill
-
-Every VitaClaw skill is a single `SKILL.md` file. Start with the frontmatter:
-
-```yaml
----
-name: my-skill
-description: "What it does and when to use it."
-version: 1.0.0
-user-invocable: true
-argument-hint: "[arg1 | arg2]"
-allowed-tools: Read, Grep, Glob, Write, Edit
-metadata: {"openclaw":{"emoji":"🔬","category":"health"}}
----
-```
-
-Below the frontmatter, add:
-
-1. **Role & purpose** — one paragraph describing the skill's clinical or analytical function.
-2. **Workflow steps** — numbered instructions that tell the agent exactly how to proceed, which memory paths to read from, and which tools to call.
-3. **Input/output format** — specify expected input (user message, file path, memory keys) and the exact output structure (Markdown sections, tables, alert blocks).
-4. **Alert rules** — threshold conditions that trigger warnings or escalation messages.
-
-Place the file in `skills/my-skill/SKILL.md` and OpenClaw will automatically discover and invoke it when the user types `/my-skill`.
 
 ---
 
