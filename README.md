@@ -4,9 +4,9 @@
 
 # 🩺 VitaClaw
 
-### 204 AI Health Skills for OpenClaw
+### 222 AI Health Skills for OpenClaw
 
-![Skills](https://img.shields.io/badge/skills-204-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![OpenClaw](https://img.shields.io/badge/OpenClaw-compatible-orange)
+![Skills](https://img.shields.io/badge/skills-222-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![OpenClaw](https://img.shields.io/badge/OpenClaw-compatible-orange)
 
 From blood pressure tracking to tumor board analysis — plug-and-play health intelligence for your AI assistant.
 
@@ -16,12 +16,12 @@ From blood pressure tracking to tumor board analysis — plug-and-play health in
 
 ## What is VitaClaw?
 
-VitaClaw is an open-source library of 204 modular health AI skills designed to run inside [OpenClaw](https://openclaw.ai). Each skill is a self-contained `SKILL.md` file that gives your AI assistant deep, domain-specific health capabilities — from daily vitals logging to clinical genomics interpretation.
+VitaClaw is an open-source library of 222 modular health AI skills designed to run inside [OpenClaw](https://openclaw.ai). Each skill is a self-contained `SKILL.md` file that gives your AI assistant deep, domain-specific health capabilities — from daily vitals logging to clinical genomics interpretation.
 
 VitaClaw is built on three pillars:
 
 1. **Health Memory System** — Daily wellness tracking under `memory/health/` plus a structured clinical record archive under `~/.openclaw/patients/`. Your data lives as plain Markdown files on your machine, versioned by git, owned by you.
-2. **Modular Skills** — 204 self-contained `SKILL.md` files, each defining its own prompt, tools, and data format. Drop in only what you need, edit freely, extend without limits.
+2. **Modular Skills** — 222 self-contained `SKILL.md` files, each defining its own prompt, tools, and data format. Drop in only what you need, edit freely, extend without limits.
 3. **Scenario Orchestration** — 7 scenario apps (e.g., `diabetes-control-hub`, `hypertension-daily-copilot`) that chain multiple skills into end-to-end clinical workflows, from data capture through longitudinal analysis to care recommendations.
 
 ### Why VitaClaw?
@@ -68,7 +68,7 @@ No build step, no dependencies, no configuration wizard. OpenClaw automatically 
 | ---- | -------------------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------- |
 | 1  | [Health Memory & Infrastructure](#1-health-memory--infrastructure)       | 2     | `health-memory`, `medical-record-organizer` — unified data layer for all skills              |
 | 2  | [Scenario Applications](#2-scenario-applications)                        | 7     | `diabetes-control-hub`, `hypertension-daily-copilot`, `mental-wellness-companion`             |
-| 3  | [Daily Health Tracking](#3-daily-health-tracking)                        | 13    | `blood-pressure-tracker`, `sleep-analyzer`, `wearable-analysis-agent`, `weekly-health-digest` |
+| 3  | [Daily Health Tracking](#3-daily-health-tracking)                        | 23    | `blood-pressure-tracker`, `sleep-analyzer`, `wearable-analysis-agent`, `weekly-health-digest` |
 | 4  | [Mental Health & Crisis](#4-mental-health--crisis-intervention)          | 12    | `crisis-detection-intervention-ai`, `adhd-daily-planner`, `grief-companion`                   |
 | 5  | [Chronic Disease & Treatment](#5-chronic-disease--treatment-management)  | 10    | `chemo-side-effect-tracker`, `medication-reminder`, `post-surgery-recovery`                   |
 | 6  | [Biomedical Databases](#6-biomedical-databases)                          | 23    | `pubmed-database`, `clinvar-database`, `kegg-database`, `uniprot-database`                    |
@@ -84,10 +84,10 @@ No build step, no dependencies, no configuration wizard. OpenClaw automatically 
 | 16 | [Medical NLP & Reports](#16-medical-nlp--reports)                        | 13    | `clinical-note-summarization`, `radgpt-radiology-reporter`, `checkup-report-interpreter`      |
 | 17 | [Research & Literature](#17-research--literature)                        | 11    | `literature-review`, `deep-research`, `pubmed-search`, `knowledge-synthesis`                  |
 | 18 | [Data Science & Visualization](#18-data-science--visualization)          | 4     | `statistical-analysis`, `data-visualization-biomedical`, `exploratory-data-analysis`          |
-| 19 | [General Health & Lifestyle](#19-general-health--lifestyle)              | 11    | `tcm-constitution-analyzer`, `travel-health-analyzer`, `food-database-query`                  |
+| 19 | [General Health & Lifestyle](#19-general-health--lifestyle)              | 19    | `tcm-constitution-analyzer`, `travel-health-analyzer`, `food-database-query`                  |
 | 20 | [Utilities & Document Processing](#20-utilities--document-processing)    | 5     | `markitdown`, `pdf-processing-pro`, `medical-research-toolkit`                                |
 
-**Total: 204 skills**
+**Total: 222 skills**
 
 ---
 
@@ -119,14 +119,24 @@ No build step, no dependencies, no configuration wizard. OpenClaw automatically 
 
 | Skill                                                   | Description                                                                                                                                                                                                                                                                            |
 | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [allergy-manager](skills/allergy-manager/) | Manages allergy profiles including food, environmental, and drug allergies. Tracks reactions, identifies cross-reactivity risks, provides seasonal allergy forecasts, and warns about allergen exposure. |
 | [blood-pressure-tracker](skills/blood-pressure-tracker/)       | Records and classifies blood pressure readings per ACC/AHA 2017 guidelines, detects morning surge, analyzes diurnal variation, and generates monthly statistics.                                                                                                                       |
+| [body-composition-analyzer](skills/body-composition-analyzer/) | Analyzes body composition metrics including body fat percentage, muscle mass, visceral fat, and BMI. Tracks trends and provides training and nutrition recommendations. |
+| [breathing-exercise-guide](skills/breathing-exercise-guide/) | Provides structured breathing exercise programs for stress relief, sleep improvement, focus enhancement, and anxiety management with step-by-step guided instructions. |
 | [caffeine-tracker](skills/caffeine-tracker/)                   | Tracks daily caffeine intake from beverages, models residual caffeine using half-life decay (t½=5h).                                                                                                                                                                                  |
 | [chronic-condition-monitor](skills/chronic-condition-monitor/) | Monitors multiple chronic disease indicators (BP, glucose, HbA1c, lipids, uric acid, creatinine, eGFR, liver function) against Chinese clinical guidelines.                                                                                                                            |
+| [circadian-rhythm-optimizer](skills/circadian-rhythm-optimizer/) | Analyzes circadian rhythm patterns, assesses chronotype, provides light exposure protocols, optimizes meal/exercise/sleep timing, and supports jet lag recovery and shift work adaptation. |
 | [fitness-analyzer](skills/fitness-analyzer/)                   | Analyzes exercise data, identifies workout patterns, assesses fitness progress, and provides personalized training recommendations. Supports correlation with chronic disease data.                                                                                                    |
+| [google-fit-digest](skills/google-fit-digest/) | Analyzes Google Fit exported data including steps, heart rate, sleep, and activity metrics. Generates health digests and trend reports from Google Fit JSON/CSV exports. |
 | [health-trend-analyzer](skills/health-trend-analyzer/)         | Analyzes health data trends and patterns over time. Correlates medications, symptoms, vital signs, lab results, and other health indicators. Identifies concerning trends, improvements, and provides data-driven insights. Supports interactive HTML visualization reports (ECharts). |
+| [hormone-health-tracker](skills/hormone-health-tracker/) | Tracks hormone lab results over time, analyzes trends for thyroid, sex hormones, cortisol, and metabolic markers, and provides lifestyle optimization suggestions. |
+| [hydration-tracker](skills/hydration-tracker/) | Tracks daily water intake, calculates personalized hydration targets based on body weight, activity level, and weather conditions, and provides reminders. |
 | [kidney-function-tracker](skills/kidney-function-tracker/)     | Tracks kidney function using CKD-EPI 2021 (race-free) eGFR formula, stages CKD G1-G5, monitors albuminuria categories A1-A3, and calculates eGFR decline rate.                                                                                                                         |
+| [menstrual-cycle-tracker](skills/menstrual-cycle-tracker/) | Tracks menstrual cycles, predicts ovulation and next period, logs symptoms and flow, and provides PMS management suggestions. |
 | [nutrition-analyzer](skills/nutrition-analyzer/)               | Analyzes nutrition data, identifies dietary patterns, assesses nutritional status, and provides personalized nutrition advice. Supports correlation with exercise, sleep, and chronic disease data.                                                                                    |
+| [pregnancy-health-tracker](skills/pregnancy-health-tracker/) | Provides trimester-specific pregnancy health guidance, tracks prenatal appointments, monitors symptoms, and offers nutrition and exercise recommendations. |
 | [sleep-analyzer](skills/sleep-analyzer/)                       | Analyzes sleep data to compute efficiency, quality score (0-100), and stage distribution.                                                                                                                                                                                              |
+| [stress-management-coach](skills/stress-management-coach/) | Assesses stress levels, guides breathing exercises and mindfulness practices, analyzes HRV-based stress data, and provides personalized stress reduction strategies. |
 | [tumor-marker-trend](skills/tumor-marker-trend/)               | Tumor marker trending — records CEA/CA199/AFP and other markers, supports trend analysis, spike detection, and multi-marker comparison.                                                                                                                                               |
 | [tumor-journey-summary](skills/tumor-journey-summary/)         | Tumor journey timeline summary (based on patient directory structure + LLM extraction).                                                                                                                                                                                                |
 | [wearable-analysis-agent](skills/wearable-analysis-agent/)     | Analyzes longitudinal wearable sensor data (heart rate, activity, sleep) to detect anomalies and provide personalized health insights.                                                                                                                                                 |
@@ -396,16 +406,24 @@ No build step, no dependencies, no configuration wizard. OpenClaw automatically 
 | Skill                                                   | Description                                                                                                                                                                                    |
 | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [care-coordination](skills/care-coordination/)                 | Care coordination agent for healthcare workflows.                                                                                                                                              |
+| [chronic-pain-manager](skills/chronic-pain-manager/) | Manages chronic pain through pain diary logging, pattern analysis, weather and activity correlation, and non-pharmacological intervention suggestions. |
 | [claims-appeals](skills/claims-appeals/)                       | Claims appeals agent for healthcare workflows.                                                                                                                                                 |
 | [ehr-fhir-integration](skills/ehr-fhir-integration/)           | Provides comprehensive tools for working with Electronic Health Records (EHR) using the HL7 FHIR standard.                                                                                     |
+| [eye-health-advisor](skills/eye-health-advisor/) | Provides eye health guidance including 20-20-20 rule reminders, screen time management, vision change tracking, and dry eye prevention tips. |
 | [fhir-developer-skill](skills/fhir-developer-skill/)           | FHIR development toolkit for healthcare interoperability.                                                                                                                                      |
+| [first-aid-guide](skills/first-aid-guide/) | Provides step-by-step first aid instructions for common emergencies including burns, fractures, choking, poisoning, and bleeding. Includes CPR guidance. |
 | [food-database-query](skills/food-database-query/)             | Comprehensive food nutrition database with search, comparison, recommendations, and automatic calorie calculation.                                                                             |
+| [gut-health-advisor](skills/gut-health-advisor/) | Assesses gut health through symptom tracking, provides FODMAP dietary guidance, recommends probiotics and prebiotics, and monitors digestive patterns. |
+| [longevity-advisor](skills/longevity-advisor/) | Provides evidence-based longevity and anti-aging lifestyle recommendations, tracks biological age markers, and synthesizes latest healthspan research. |
 | [oral-health-analyzer](skills/oral-health-analyzer/)           | Analyzes oral health data, identifies dental issues, assesses oral health status, and provides personalized oral health advice.                                                                |
+| [posture-ergonomics-coach](skills/posture-ergonomics-coach/) | Provides posture assessment guidance, workstation ergonomics setup advice, and recommends stretching and strengthening exercises. |
 | [sexual-health-analyzer](skills/sexual-health-analyzer/)       | Comprehensive sexual health data analysis including IIEF-5 scoring, STD screening management, contraception assessment, and cross-domain correlation analysis.                                 |
 | [skin-health-analyzer](skills/skin-health-analyzer/)           | Analyzes skin health data, identifies skin issues, assesses skin health status, and provides personalized skin health advice.                                                                  |
 | [sleep-optimizer](skills/sleep-optimizer/)                     | Generates prioritized, personalized sleep improvement recommendations based on sleep metrics, caffeine data, screen time, and exercise timing.                                                 |
+| [social-health-tracker](skills/social-health-tracker/) | Tracks social interactions, assesses loneliness via UCLA Loneliness Scale, maps Dunbar social circles, generates social health scores, and provides social prescriptions. |
 | [tcm-constitution-analyzer](skills/tcm-constitution-analyzer/) | Analyzes TCM (Traditional Chinese Medicine) constitution data, identifies constitution types, assesses characteristics, and provides personalized wellness advice.                             |
 | [travel-health-analyzer](skills/travel-health-analyzer/)       | Analyzes travel health data, assesses destination health risks, provides vaccination recommendations, and generates multilingual emergency medical information cards. Integrates WHO/CDC data. |
+| [vaccination-tracker](skills/vaccination-tracker/) | Records vaccination history, tracks due dates for boosters, provides travel vaccination requirements, and maintains an immunization schedule. |
 
 ## 20. Utilities & Document Processing
 

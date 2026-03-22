@@ -4,9 +4,9 @@
 
 # 🩺 VitaClaw
 
-### 204 个 AI 健康技能，适用于 OpenClaw
+### 222 个 AI 健康技能，适用于 OpenClaw
 
-![Skills](https://img.shields.io/badge/skills-204-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![OpenClaw](https://img.shields.io/badge/OpenClaw-compatible-orange)
+![Skills](https://img.shields.io/badge/skills-222-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![OpenClaw](https://img.shields.io/badge/OpenClaw-compatible-orange)
 
 从血压追踪到肿瘤委员会分析——即插即用的健康智能，为你的 AI 助手赋能。
 
@@ -16,12 +16,12 @@
 
 ## 什么是 VitaClaw？
 
-VitaClaw 是一个开源的模块化健康 AI 技能库，包含 204 个技能，专为在 [OpenClaw](https://openclaw.ai) 中运行而设计。每个技能都是一个独立的 `SKILL.md` 文件，赋予你的 AI 助手深度、领域特定的健康能力——从日常体征记录到临床基因组学解读。
+VitaClaw 是一个开源的模块化健康 AI 技能库，包含 222 个技能，专为在 [OpenClaw](https://openclaw.ai) 中运行而设计。每个技能都是一个独立的 `SKILL.md` 文件，赋予你的 AI 助手深度、领域特定的健康能力——从日常体征记录到临床基因组学解读。
 
 VitaClaw 建立在三大支柱之上：
 
 1. **健康记忆系统** —— 在 `memory/health/` 下进行每日健康追踪，在 `~/.openclaw/patients/` 下维护结构化的临床病历档案。你的数据以纯 Markdown 文件形式存储在本地，由 git 版本控制，完全由你掌控。
-2. **模块化技能** —— 204 个独立的 `SKILL.md` 文件，每个文件定义自己的提示词、工具和数据格式。按需引入，自由编辑，无限扩展。
+2. **模块化技能** —— 222 个独立的 `SKILL.md` 文件，每个文件定义自己的提示词、工具和数据格式。按需引入，自由编辑，无限扩展。
 3. **场景编排** —— 7 个场景应用（如 `diabetes-control-hub`、`hypertension-daily-copilot`）将多个技能串联成端到端的临床工作流，从数据采集到纵向分析再到健康建议。
 
 ### 为什么选择 VitaClaw？
@@ -68,7 +68,7 @@ cp -r vitaclaw/skills/diabetes-control-hub   ~/.openclaw/skills/
 | -- | ------------------------------------------------------------------------ | ---- | --------------------------------------------------------------------------------------------- |
 | 1  | [健康记忆与基础设施](#1-健康记忆与基础设施)                              | 2    | `health-memory`、`medical-record-organizer`——所有技能的统一数据层                            |
 | 2  | [场景应用](#2-场景应用)                                                  | 7    | `diabetes-control-hub`、`hypertension-daily-copilot`、`mental-wellness-companion`             |
-| 3  | [每日健康追踪](#3-每日健康追踪)                                          | 13   | `blood-pressure-tracker`、`sleep-analyzer`、`wearable-analysis-agent`、`weekly-health-digest` |
+| 3  | [每日健康追踪](#3-每日健康追踪)                                          | 23   | `blood-pressure-tracker`、`sleep-analyzer`、`wearable-analysis-agent`、`weekly-health-digest` |
 | 4  | [心理健康与危机干预](#4-心理健康与危机干预)                              | 12   | `crisis-detection-intervention-ai`、`adhd-daily-planner`、`grief-companion`                   |
 | 5  | [慢性病与治疗管理](#5-慢性病与治疗管理)                                  | 10   | `chemo-side-effect-tracker`、`medication-reminder`、`post-surgery-recovery`                   |
 | 6  | [生物医学数据库](#6-生物医学数据库)                                      | 23   | `pubmed-database`、`clinvar-database`、`kegg-database`、`uniprot-database`                    |
@@ -84,10 +84,10 @@ cp -r vitaclaw/skills/diabetes-control-hub   ~/.openclaw/skills/
 | 16 | [医学 NLP 与报告](#16-医学-nlp-与报告)                                   | 13   | `clinical-note-summarization`、`radgpt-radiology-reporter`、`checkup-report-interpreter`      |
 | 17 | [科研与文献](#17-科研与文献)                                             | 11   | `literature-review`、`deep-research`、`pubmed-search`、`knowledge-synthesis`                  |
 | 18 | [数据科学与可视化](#18-数据科学与可视化)                                 | 4    | `statistical-analysis`、`data-visualization-biomedical`、`exploratory-data-analysis`          |
-| 19 | [综合健康与生活方式](#19-综合健康与生活方式)                             | 11   | `tcm-constitution-analyzer`、`travel-health-analyzer`、`food-database-query`                  |
+| 19 | [综合健康与生活方式](#19-综合健康与生活方式)                             | 19   | `tcm-constitution-analyzer`、`travel-health-analyzer`、`food-database-query`                  |
 | 20 | [工具与文档处理](#20-工具与文档处理)                                     | 5    | `markitdown`、`pdf-processing-pro`、`medical-research-toolkit`                                |
 
-**共计：204 个技能**
+**共计：222 个技能**
 
 ---
 
@@ -119,14 +119,24 @@ cp -r vitaclaw/skills/diabetes-control-hub   ~/.openclaw/skills/
 
 | 技能                                                    | 描述                                                                                                                                                                           |
 | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [allergy-manager](skills/allergy-manager/) | 管理过敏档案，包括食物、环境和药物过敏。追踪过敏反应，识别交叉反应风险，提供季节性过敏预报，并警告过敏原暴露。 |
 | [blood-pressure-tracker](skills/blood-pressure-tracker/)       | 按 ACC/AHA 2017 指南记录和分级血压，检测晨峰现象，分析昼夜变异，生成月度统计。                                                                                                 |
+| [body-composition-analyzer](skills/body-composition-analyzer/) | 分析身体成分指标，包括体脂率、肌肉量、内脏脂肪和 BMI。追踪趋势并提供训练和营养建议。 |
+| [breathing-exercise-guide](skills/breathing-exercise-guide/) | 提供结构化的呼吸练习方案，用于缓解压力、改善睡眠、增强专注力和管理焦虑，含分步引导说明。 |
 | [caffeine-tracker](skills/caffeine-tracker/)                   | 追踪每日咖啡因摄入，利用半衰期衰减模型（t½=5h）计算残留咖啡因。                                                                                                               |
 | [chronic-condition-monitor](skills/chronic-condition-monitor/) | 按中国临床指南监测多种慢性病指标（血压、血糖、糖化血红蛋白、血脂、尿酸、肌酐、eGFR、肝功能）。                                                                                 |
+| [circadian-rhythm-optimizer](skills/circadian-rhythm-optimizer/) | 分析昼夜节律模式，评估时型，提供光照暴露方案，优化进餐/运动/睡眠时间，支持时差恢复和轮班工作适应。 |
 | [fitness-analyzer](skills/fitness-analyzer/)                   | 分析运动数据，识别锻炼模式，评估体能进展，提供个性化训练建议。支持与慢性病数据关联。                                                                                             |
+| [google-fit-digest](skills/google-fit-digest/) | 分析 Google Fit 导出数据，包括步数、心率、睡眠和活动指标。从 Google Fit JSON/CSV 导出生成健康摘要和趋势报告。 |
 | [health-trend-analyzer](skills/health-trend-analyzer/)         | 分析健康数据趋势与模式。关联药物、症状、体征、化验和其他健康指标。识别异常趋势和改善情况，提供数据驱动的洞察。支持交互式 HTML 可视化报告（ECharts）。 |
+| [hormone-health-tracker](skills/hormone-health-tracker/) | 追踪激素化验结果，分析甲状腺、性激素、皮质醇和代谢标志物的趋势，提供生活方式优化建议。 |
+| [hydration-tracker](skills/hydration-tracker/) | 追踪每日饮水量，根据体重、活动水平和天气条件计算个性化补水目标，并提供提醒。 |
 | [kidney-function-tracker](skills/kidney-function-tracker/)     | 使用 CKD-EPI 2021（无种族校正）公式追踪肾功能，CKD G1-G5 分期，白蛋白尿 A1-A3 分类，计算 eGFR 下降速率。                                                                       |
+| [menstrual-cycle-tracker](skills/menstrual-cycle-tracker/) | 追踪月经周期，预测排卵和下次经期，记录症状和经量，提供经前综合征管理建议。 |
 | [nutrition-analyzer](skills/nutrition-analyzer/)               | 分析营养数据，识别饮食模式，评估营养状态，提供个性化营养建议。支持与运动、睡眠和慢性病数据关联。                                                                                 |
+| [pregnancy-health-tracker](skills/pregnancy-health-tracker/) | 提供按孕期分阶段的孕期健康指导，追踪产检预约，监测症状，提供营养和运动建议。 |
 | [sleep-analyzer](skills/sleep-analyzer/)                       | 分析睡眠数据，计算睡眠效率、质量评分（0-100）和睡眠阶段分布。                                                                                                                   |
+| [stress-management-coach](skills/stress-management-coach/) | 评估压力水平，指导呼吸练习和正念冥想，分析基于 HRV 的压力数据，提供个性化减压策略。 |
 | [tumor-marker-trend](skills/tumor-marker-trend/)               | 肿瘤标志物趋势追踪——记录 CEA/CA199/AFP 等标志物，支持趋势分析、突增检测和多标志物对比。                                                                                       |
 | [tumor-journey-summary](skills/tumor-journey-summary/)         | 肿瘤诊疗历程时间线汇总（基于患者目录结构 + LLM 提取）。                                                                                                                         |
 | [wearable-analysis-agent](skills/wearable-analysis-agent/)     | 分析可穿戴设备纵向传感器数据（心率、活动、睡眠），检测异常并提供个性化健康洞察。                                                                                                 |
@@ -396,16 +406,24 @@ cp -r vitaclaw/skills/diabetes-control-hub   ~/.openclaw/skills/
 | 技能                                                    | 描述                                                                                                                                                       |
 | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [care-coordination](skills/care-coordination/)                 | 医疗工作流中的护理协调代理。 |
+| [chronic-pain-manager](skills/chronic-pain-manager/) | 通过疼痛日记记录、模式分析、天气和活动关联性分析以及非药物干预建议来管理慢性疼痛。 |
 | [claims-appeals](skills/claims-appeals/)                       | 医疗工作流中的理赔申诉代理。 |
 | [ehr-fhir-integration](skills/ehr-fhir-integration/)           | 使用 HL7 FHIR 标准处理电子健康记录（EHR）的综合工具。 |
+| [eye-health-advisor](skills/eye-health-advisor/) | 提供眼部健康指导，包括 20-20-20 法则提醒、屏幕时间管理、视力变化追踪和干眼预防建议。 |
 | [fhir-developer-skill](skills/fhir-developer-skill/)           | 医疗互操作性 FHIR 开发工具包。 |
+| [first-aid-guide](skills/first-aid-guide/) | 提供常见紧急情况的分步急救指导，包括烧伤、骨折、窒息、中毒和出血处理。含心肺复苏指导。 |
 | [food-database-query](skills/food-database-query/)             | 综合食物营养数据库，支持搜索、对比、推荐和自动热量计算。 |
+| [gut-health-advisor](skills/gut-health-advisor/) | 通过症状追踪评估肠道健康，提供低 FODMAP 饮食指导，推荐益生菌和益生元，监测消化模式。 |
+| [longevity-advisor](skills/longevity-advisor/) | 提供循证的长寿和抗衰老生活方式建议，追踪生物年龄标志物，综合最新的健康寿命研究。 |
 | [oral-health-analyzer](skills/oral-health-analyzer/)           | 分析口腔健康数据，识别牙科问题，评估口腔健康状态，提供个性化口腔健康建议。 |
+| [posture-ergonomics-coach](skills/posture-ergonomics-coach/) | 提供姿势评估指导、工位人体工学设置建议，推荐拉伸和强化练习。 |
 | [sexual-health-analyzer](skills/sexual-health-analyzer/)       | 全面的性健康数据分析，包括 IIEF-5 评分、性病筛查管理、避孕评估和跨领域关联分析。 |
 | [skin-health-analyzer](skills/skin-health-analyzer/)           | 分析皮肤健康数据，识别皮肤问题，评估皮肤健康状态，提供个性化皮肤健康建议。 |
 | [sleep-optimizer](skills/sleep-optimizer/)                     | 基于睡眠指标、咖啡因数据、屏幕时间和运动时间，生成优先排序的个性化睡眠改善建议。 |
+| [social-health-tracker](skills/social-health-tracker/) | 追踪社交互动，通过 UCLA 孤独量表评估孤独感，映射邓巴社交圈层，生成社交健康评分，提供社交处方。 |
 | [tcm-constitution-analyzer](skills/tcm-constitution-analyzer/) | 分析中医体质数据，识别体质类型，评估体质特征，提供个性化养生建议。 |
 | [travel-health-analyzer](skills/travel-health-analyzer/)       | 分析旅行健康数据，评估目的地健康风险，提供疫苗建议，生成多语言紧急医疗信息卡。整合 WHO/CDC 数据。 |
+| [vaccination-tracker](skills/vaccination-tracker/) | 记录疫苗接种史，追踪加强针到期日期，提供旅行疫苗要求，维护免疫接种时间表。 |
 
 ## 20. 工具与文档处理
 
