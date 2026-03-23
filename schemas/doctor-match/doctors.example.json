@@ -1,0 +1,27 @@
+[
+  {
+    "name": "李明",
+    "english_name": "Ming Li",
+    "hospital": "瑞和国际门诊",
+    "department": "心内科 / 高血压门诊",
+    "city": "上海",
+    "district": "徐汇",
+    "specialties": ["hypertension", "lipid management", "chronic disease follow-up"],
+    "official_profile_url": "https://hospital.example/doctor-li",
+    "schedule": "Tue pm / Fri am",
+    "accepts_long_term_followup": true,
+    "pubmed_query": "\"Ming Li\"[Author] AND (hypertension OR lipid)"
+  },
+  {
+    "name": "王琪",
+    "english_name": "Qi Wang",
+    "hospital": "海城医院",
+    "department": "消化内科 / 肝病门诊",
+    "city": "上海",
+    "district": "浦东",
+    "specialties": ["fatty liver", "hepatology"],
+    "profile_text": "Focus on fatty liver and liver enzyme abnormalities.",
+    "schedule": "Thu am",
+    "accepts_long_term_followup": false
+  }
+]

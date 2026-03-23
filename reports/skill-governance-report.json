@@ -1,37 +1,37 @@
 {
-  "generated_at": "2026-03-23T21:34:40",
+  "generated_at": "2026-03-23T22:15:10",
   "repo_root": "/Users/baozhiwei/Library/CloudStorage/坚果云-452858265@qq.com/我的坚果云/其他项目/vitaclaw-main",
   "summary": {
-    "skill_count": 219,
-    "health_skill_count": 77,
-    "with_frontmatter": 181,
-    "frontmatter_valid": 77,
-    "with_code": 110,
+    "skill_count": 222,
+    "health_skill_count": 80,
+    "with_frontmatter": 184,
+    "frontmatter_valid": 80,
+    "with_code": 113,
     "with_tests": 24,
-    "with_cli_entrypoints": 44,
-    "user_invocable_true": 40,
+    "with_cli_entrypoints": 47,
+    "user_invocable_true": 43,
     "user_invocable_missing": 142,
-    "health_core_core": 63,
+    "health_core_core": 66,
     "health_core_labs": 6,
     "health_core_restricted": 8,
-    "health_core_audit_pass": 69,
+    "health_core_audit_pass": 72,
     "out_of_scope_count": 142
   },
   "health_core": {
     "summary": {
-      "skill_count": 77,
-      "health_skill_count": 77,
-      "with_frontmatter": 77,
-      "frontmatter_valid": 77,
-      "with_code": 29,
+      "skill_count": 80,
+      "health_skill_count": 80,
+      "with_frontmatter": 80,
+      "frontmatter_valid": 80,
+      "with_code": 32,
       "with_tests": 7,
-      "with_cli_entrypoints": 23,
-      "user_invocable_true": 40,
+      "with_cli_entrypoints": 26,
+      "user_invocable_true": 43,
       "user_invocable_missing": 0,
-      "health_core_core": 63,
+      "health_core_core": 66,
       "health_core_labs": 6,
       "health_core_restricted": 8,
-      "health_core_audit_pass": 69,
+      "health_core_audit_pass": 72,
       "out_of_scope_count": 0
     },
     "skills": [
@@ -306,6 +306,24 @@
         "frontmatter_validation_errors": []
       },
       {
+        "slug": "department-fit-router",
+        "path": "skills/department-fit-router",
+        "distribution_tier": "core",
+        "audit_status": "pass",
+        "license_evidence": "repository license inheritance: LICENSE",
+        "user_invocable": true,
+        "allowed_tools": [
+          "Read",
+          "Grep",
+          "Glob",
+          "Write",
+          "Edit"
+        ],
+        "category": "health",
+        "frontmatter_valid": true,
+        "frontmatter_validation_errors": []
+      },
+      {
         "slug": "diabetes-control-hub",
         "path": "skills/diabetes-control-hub",
         "distribution_tier": "core",
@@ -320,6 +338,42 @@
           "Edit"
         ],
         "category": "health-scenario",
+        "frontmatter_valid": true,
+        "frontmatter_validation_errors": []
+      },
+      {
+        "slug": "doctor-evidence-profiler",
+        "path": "skills/doctor-evidence-profiler",
+        "distribution_tier": "core",
+        "audit_status": "pass",
+        "license_evidence": "repository license inheritance: LICENSE",
+        "user_invocable": true,
+        "allowed_tools": [
+          "Read",
+          "Grep",
+          "Glob",
+          "Write",
+          "Edit"
+        ],
+        "category": "health",
+        "frontmatter_valid": true,
+        "frontmatter_validation_errors": []
+      },
+      {
+        "slug": "doctor-fit-finder",
+        "path": "skills/doctor-fit-finder",
+        "distribution_tier": "core",
+        "audit_status": "pass",
+        "license_evidence": "repository license inheritance: LICENSE",
+        "user_invocable": true,
+        "allowed_tools": [
+          "Read",
+          "Grep",
+          "Glob",
+          "Write",
+          "Edit"
+        ],
+        "category": "health",
         "frontmatter_valid": true,
         "frontmatter_validation_errors": []
       },

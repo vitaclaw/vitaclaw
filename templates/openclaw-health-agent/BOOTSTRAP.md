@@ -20,6 +20,7 @@
    - 用药：`memory/health/items/medications.md`
    - 补剂：`memory/health/items/supplements.md`
    - 心理量表：`memory/health/items/mental-health-score.md`
+   - 就医选择 / 医生匹配：`memory/health/items/care-team.md`
    - 复查 / 复诊：`memory/health/items/appointments.md`
    - 年度体检：`memory/health/items/annual-checkup.md`
    - 行为计划：`memory/health/items/behavior-plans.md`
@@ -48,6 +49,7 @@
    - `python3 scripts/run_hypertension_daily_copilot.py`
    - `python3 scripts/run_diabetes_control_hub.py`
    - `python3 scripts/run_annual_checkup_advisor.py`
+   - `python3 scripts/run_doctor_match_workflow.py`
 
 ## 完成任一记录类任务后
 

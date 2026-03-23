@@ -1062,6 +1062,67 @@ class HealthMemoryWriter:
         )
         return str(self.items_dir / "appointments.md")
 
+    def update_care_team(
+        self,
+        date_str: str,
+        preferred_departments: list[str],
+        shortlist: list[dict],
+        city: str | None = None,
+        district: str | None = None,
+        summary: str | None = None,
+        booking_strategy: str | None = None,
+    ) -> str:
+        shortlist_text = "; ".join(
+            f"{item['doctor'].get('name', 'Unknown')}@{item['doctor'].get('hospital', 'Unknown')} ({item.get('score', 0)})"
+            for item in shortlist[:3]
+        ) or "pending"
+        self._upsert_item_file(
+            item_slug="care-team",
+            title="Care Team Records",
+            unit="public recommendations",
+            recent_lines=[
+                f"Latest doctor match: {date_str}",
+                f"Preferred departments: {'; '.join(preferred_departments) or 'pending'}",
+                f"Preferred city / district: {(city or 'pending')} / {(district or 'pending')}",
+                f"Active shortlist: {shortlist_text}",
+                f"Booking strategy: {booking_strategy or 'pending'}",
+                f"Summary: {summary or 'pending'}",
+            ],
+            headers=[
+                "Date",
+                "Doctor",
+                "Hospital",
+                "Department",
+                "City",
+                "Fit Score",
+                "Evidence Signal",
+                "Status",
+                "Notes",
+            ],
+            row=[
+                date_str,
+                shortlist[0]["doctor"].get("name", "pending") if shortlist else "pending",
+                shortlist[0]["doctor"].get("hospital", "pending") if shortlist else "pending",
+                shortlist[0]["doctor"].get("department", "pending") if shortlist else "pending",
+                shortlist[0]["doctor"].get("city", city or "pending") if shortlist else (city or "pending"),
+                str(shortlist[0].get("score", "pending")) if shortlist else "pending",
+                shortlist[0].get("evidence_signal", "pending") if shortlist else "pending",
+                "shortlisted",
+                summary or "",
+            ],
+            row_date=date_str,
+            row_identity="|".join(
+                [
+                    date_str,
+                    shortlist[0]["doctor"].get("name", "pending") if shortlist else "pending",
+                    shortlist[0]["doctor"].get("hospital", "pending") if shortlist else "pending",
+                ]
+            ),
+            identity_columns=3,
+            retention_days=365,
+        )
+        return str(self.items_dir / "care-team.md")
+
     def update_annual_checkup(
         self,
         report_date: str,
@@ -1739,6 +1800,7 @@ class HealthMemoryWriter:
             "blood-lipids",
             "tumor-markers",
             "mental-health-score",
+            "care-team",
             "appointments",
             "annual-checkup",
             "behavior-plans",

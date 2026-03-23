@@ -48,6 +48,7 @@ Iteration 3 keeps those layers and adds a chief-led team layer:
 
 - `memory/health/items/behavior-plans.md`: active behavior plans with due time, cadence, risk policy, and consequence
 - `memory/health/items/execution-barriers.md`: recurring blockers, execution debt, and recovery next steps
+- `memory/health/items/care-team.md`: public doctor-match shortlist, preferred departments, and booking strategy
 - `memory/health/files/write-audit.md`: audit trail for automatic scenario writebacks
 - `memory/health/team/tasks/`: chief-dispatched role tasks
 - `memory/health/team/briefs/`: specialist briefs and chief summaries
@@ -110,6 +111,7 @@ Iteration 3 requires these core item files in initialized workspaces:
 - `annual-checkup.md`
 - `behavior-plans.md`
 - `execution-barriers.md`
+- `care-team.md`
 
 ## 6. Safety output contract
 

@@ -18,6 +18,23 @@ PRIORITY_ORDER = {"high": 0, "medium": 1, "low": 2}
 PRIORITY_LABEL = {"high": "高优先级", "medium": "中优先级", "low": "低优先级"}
 
 
+def _resolve_reader_data_dir(
+    data_dir: str | None,
+    memory_dir: str | None,
+    workspace_root: str | None,
+) -> str | None:
+    if data_dir:
+        return str(Path(data_dir).expanduser().resolve())
+    if workspace_root:
+        return str((Path(workspace_root).expanduser().resolve() / "data"))
+    if memory_dir:
+        memory_path = Path(memory_dir).expanduser().resolve()
+        if memory_path.name == "health" and memory_path.parent.name == "memory":
+            return str(memory_path.parent.parent / "data")
+        return str(memory_path / "_skill-data")
+    return None
+
+
 class HealthHeartbeat:
     """Run lightweight health maintenance checks and produce reminders."""
 
@@ -58,7 +75,13 @@ class HealthHeartbeat:
         now_fn=None,
     ):
         self._now_fn = now_fn or datetime.now
-        self.reader = CrossSkillReader(data_dir=data_dir)
+        self.reader = CrossSkillReader(
+            data_dir=_resolve_reader_data_dir(
+                data_dir=data_dir,
+                memory_dir=memory_dir,
+                workspace_root=workspace_root,
+            )
+        )
         self.memory_writer = HealthMemoryWriter(
             memory_root=memory_dir,
             workspace_root=workspace_root,

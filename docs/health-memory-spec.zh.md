@@ -129,6 +129,7 @@ Iteration 1 约定以下核心 item 模板必须存在：
 - `annual-checkup.md`
 - `behavior-plans.md`
 - `execution-barriers.md`
+- `care-team.md`
 
 ## 6. 固定蒸馏链
 
@@ -168,6 +169,7 @@ Iteration 3 的固定蒸馏链为：
 - 高血压场景：`python3 scripts/run_hypertension_daily_copilot.py`
 - 糖尿病场景：`python3 scripts/run_diabetes_control_hub.py`
 - 年度体检场景：`python3 scripts/run_annual_checkup_advisor.py`
+- 医生匹配场景：`python3 scripts/run_doctor_match_workflow.py`
 - 心理支持场景：`python3 scripts/run_mental_wellness_companion.py`
 - 周报 / 月报：`python3 skills/weekly-health-digest/weekly_health_digest.py`
 - heartbeat：`python3 scripts/run_health_heartbeat.py`

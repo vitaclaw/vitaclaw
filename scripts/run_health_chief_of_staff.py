@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import sys
+from pathlib import Path
 
 
 ROOT = os.path.dirname(os.path.dirname(__file__))
@@ -74,6 +75,12 @@ def _parser() -> argparse.ArgumentParser:
     ck.add_argument("--next-follow-up", default=None)
     ck.add_argument("--next-follow-up-details", default=None)
 
+    doctor = subparsers.add_parser("doctor-match", help="Run chief-led doctor matching workflow")
+    doctor.add_argument("--patient-json", required=True)
+    doctor.add_argument("--doctors-json", required=True)
+    doctor.add_argument("--top-n", type=int, default=5)
+    doctor.add_argument("--pubmed-mode", choices=("off", "auto", "required"), default="auto")
+
     subparsers.add_parser("heartbeat", help="Run chief-led team heartbeat")
     return parser
 
@@ -115,6 +122,10 @@ def _parse_checkup_items(entries: list[str]) -> list[dict]:
             }
         )
     return result
+
+
+def _load_json(path: str):
+    return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
 def _render_markdown(result: dict) -> str:
@@ -197,6 +208,17 @@ def main() -> None:
                 "report_date": args.report_date,
                 "next_follow_up": args.next_follow_up,
                 "next_follow_up_details": args.next_follow_up_details,
+            },
+            context=args.context,
+        )
+    elif args.command == "doctor-match":
+        result = orchestrator.dispatch_flagship_scenario(
+            "doctor-fit-finder",
+            payload={
+                "patient_profile": _load_json(args.patient_json),
+                "doctors": _load_json(args.doctors_json),
+                "top_n": args.top_n,
+                "pubmed_mode": args.pubmed_mode,
             },
             context=args.context,
         )

@@ -83,6 +83,7 @@ python3 scripts/run_health_chief_of_staff.py hypertension-daily \
 ```bash
 python3 scripts/run_health_chief_of_staff.py diabetes-daily ...
 python3 scripts/run_health_chief_of_staff.py annual-checkup --report-date 2026-03-10 --item "血糖|空腹血糖|6.4|mmol/L|3.9-6.1|偏高"
+python3 scripts/run_health_chief_of_staff.py doctor-match --patient-json /path/to/patient.json --doctors-json /path/to/doctors.json
 ```
 
 ## 4. 你应该看到什么
@@ -124,6 +125,7 @@ python3 scripts/run_health_chief_of_staff.py annual-checkup --report-date 2026-0
 
 - 轻巡检：`python3 scripts/run_health_chief_of_staff.py heartbeat`
 - 高血压 / 糖尿病 / 体检：统一走 `run_health_chief_of_staff.py`
+- 就医选择 / 医生匹配：`python3 scripts/run_health_chief_of_staff.py doctor-match ...`
 - 周报 / 月报 / 蒸馏：`python3 scripts/run_health_operations.py`
 - 门诊前 briefing：`python3 scripts/generate_visit_briefing.py`
 - 门诊后 follow-up：`python3 scripts/record_visit_followup.py`

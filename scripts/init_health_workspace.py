@@ -90,6 +90,28 @@ DEFAULT_CORE_ITEMS = {
             "Monthly digest consolidates follow-up completion and scheduling debt.",
         ],
     },
+    "care-team.md": {
+        "title": "Care Team Records",
+        "item": "care-team",
+        "unit": "public recommendations",
+        "recent": [
+            "Latest doctor match: pending",
+            "Preferred departments: pending",
+            "Preferred city / district: pending / pending",
+            "Active shortlist: pending",
+            "Booking strategy: pending",
+            "Summary: pending",
+        ],
+        "history": "| Date | Doctor | Hospital | Department | City | Fit Score | Evidence Signal | Status | Notes |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+        "thresholds": [
+            "Use public information only; do not treat this as a definitive ranking.",
+            "Escalate if no suitable doctor is found in the preferred city for urgent problems.",
+        ],
+        "rollup": [
+            "Weekly digest can mention unresolved doctor-selection blockers when they delay follow-up.",
+            "Distillation only writes chosen long-term clinician relationships back to MEMORY.md.",
+        ],
+    },
     "behavior-plans.md": {
         "title": "Behavior Plan Records",
         "item": "behavior-plans",
@@ -976,6 +998,7 @@ def _workspace_config_text(target_dir: Path, template_name: str, packages: list[
             '        "hypertension-daily-copilot": ["health-metrics", "health-lifestyle"],',
             '        "diabetes-control-hub": ["health-metrics", "health-lifestyle"],',
             '        "annual-checkup-advisor": ["health-records", "health-metrics"],',
+            '        "doctor-fit-finder": ["health-records", "health-research", "health-metrics"],',
             '        "mental-support": ["health-mental"],',
             '        "research-brief": ["health-research"],',
             '        "family-care": ["health-family"],',

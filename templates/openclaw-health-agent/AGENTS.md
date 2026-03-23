@@ -27,6 +27,7 @@
    - `python3 scripts/run_health_chief_of_staff.py hypertension-daily ...`
    - `python3 scripts/run_health_chief_of_staff.py diabetes-daily ...`
    - `python3 scripts/run_health_chief_of_staff.py annual-checkup ...`
+   - `python3 scripts/run_health_chief_of_staff.py doctor-match ...`
 
 ## 工作原则
 
