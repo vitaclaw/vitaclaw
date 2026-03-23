@@ -29,6 +29,7 @@ from health_flagship_scenarios import (  # noqa: E402
     DiabetesControlHub,
     HypertensionDailyCopilot,
 )
+from doctor_match_workflow import DoctorMatchWorkflow  # noqa: E402
 
 
 ROLE_DEFINITIONS = {
@@ -167,6 +168,7 @@ ROUTE_TABLE = {
     "hypertension-daily-copilot": ["health-metrics", "health-lifestyle"],
     "diabetes-control-hub": ["health-metrics", "health-lifestyle"],
     "annual-checkup-advisor": ["health-records", "health-metrics"],
+    "doctor-fit-finder": ["health-records", "health-research", "health-metrics"],
     "mental-support": ["health-mental"],
     "research-brief": ["health-research"],
     "family-care": ["health-family"],
@@ -220,6 +222,11 @@ class HealthTeamOrchestrator:
             workspace_root=workspace_root,
             patients_root=patients_root,
             patient_id=patient_id,
+            now_fn=self._now_fn,
+        )
+        self.doctor_match = DoctorMatchWorkflow(
+            workspace_root=workspace_root,
+            memory_dir=memory_dir,
             now_fn=self._now_fn,
         )
         self.operations = HealthOperationsRunner(
@@ -304,6 +311,8 @@ class HealthTeamOrchestrator:
             return self.diabetes.daily_log(write=write, **payload)
         if scenario == "annual-checkup-advisor":
             return self.checkup.import_report(**payload)
+        if scenario == "doctor-fit-finder":
+            return self.doctor_match.match_doctors(write=write, **payload)
         raise ValueError(f"Unsupported flagship scenario: {scenario}")
 
     def _role_summary_lines(self, role: str, scenario: str, result: dict, payload: dict) -> list[str]:

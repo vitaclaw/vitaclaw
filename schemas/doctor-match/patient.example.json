@@ -1,0 +1,10 @@
+{
+  "city": "上海",
+  "district": "徐汇",
+  "conditions": ["高血压", "糖前期"],
+  "symptoms": ["晨起头胀"],
+  "abnormal_findings": ["ALT 78 U/L", "甘油三酯 2.7 mmol/L"],
+  "goals": ["找适合长期管理高血压和代谢风险的门诊"],
+  "preferred_hospitals": ["瑞和国际门诊"],
+  "continuity_preference": "需要长期随访和沟通清晰的医生"
+}

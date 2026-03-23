@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-03-23T21:34:40",
+  "generated_at": "2026-03-23T22:15:10",
   "repo_root": "/Users/baozhiwei/Library/CloudStorage/坚果云-452858265@qq.com/我的坚果云/其他项目/vitaclaw-main",
   "summary": {
-    "skill_count": 219,
-    "health_skill_count": 77,
-    "with_frontmatter": 181,
-    "frontmatter_valid": 77,
-    "with_code": 110,
+    "skill_count": 222,
+    "health_skill_count": 80,
+    "with_frontmatter": 184,
+    "frontmatter_valid": 80,
+    "with_code": 113,
     "with_tests": 24,
-    "with_cli_entrypoints": 44,
-    "user_invocable_true": 40,
+    "with_cli_entrypoints": 47,
+    "user_invocable_true": 43,
     "user_invocable_missing": 142,
-    "health_core_core": 63,
+    "health_core_core": 66,
     "health_core_labs": 6,
     "health_core_restricted": 8,
-    "health_core_audit_pass": 69,
+    "health_core_audit_pass": 72,
     "out_of_scope_count": 142
   },
   "skills": [
@@ -3257,6 +3257,61 @@
       "is_health_skill": false
     },
     {
+      "slug": "department-fit-router",
+      "path": "skills/department-fit-router",
+      "has_skill_md": true,
+      "has_readme": false,
+      "has_frontmatter": true,
+      "frontmatter_parse_errors": [],
+      "frontmatter_valid": true,
+      "frontmatter_validation_errors": [],
+      "name": "department-fit-router",
+      "description": "Routes a user's health problem to the most suitable department path using symptoms, chronic conditions, abnormal findings, goals, and continuity needs. Use before doctor recommendation when the user is unsure which specialty to see.",
+      "version": "1.0.0",
+      "user_invocable": true,
+      "allowed_tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Write",
+        "Edit"
+      ],
+      "category": "health",
+      "metadata": {
+        "openclaw": {
+          "emoji": "🧭",
+          "category": "health"
+        }
+      },
+      "has_code": true,
+      "code_file_count": 1,
+      "code_files": [
+        "department_fit_router.py"
+      ],
+      "languages": [
+        "python"
+      ],
+      "primary_language": "python",
+      "has_dependencies": false,
+      "dependency_files": [],
+      "root_python_files": [
+        "department_fit_router.py"
+      ],
+      "cli_entrypoints": [
+        "department_fit_router.py"
+      ],
+      "primary_cli_entrypoint": "department_fit_router.py",
+      "has_tests": false,
+      "test_files": [],
+      "license_files": [],
+      "license_status": "present",
+      "license_evidence": "repository license inheritance: LICENSE",
+      "governance_scope": "health-core",
+      "distribution_tier": "core",
+      "audit_status": "pass",
+      "is_health_skill": true
+    },
+    {
       "slug": "diabetes-control-hub",
       "path": "skills/diabetes-control-hub",
       "has_skill_md": true,
@@ -3344,6 +3399,116 @@
       "distribution_tier": null,
       "audit_status": "needs-review",
       "is_health_skill": false
+    },
+    {
+      "slug": "doctor-evidence-profiler",
+      "path": "skills/doctor-evidence-profiler",
+      "has_skill_md": true,
+      "has_readme": false,
+      "has_frontmatter": true,
+      "frontmatter_parse_errors": [],
+      "frontmatter_valid": true,
+      "frontmatter_validation_errors": [],
+      "name": "doctor-evidence-profiler",
+      "description": "Profiles a doctor using public official pages and optional PubMed evidence. Use when you want a conservative public-information view of a doctor's specialty fit, continuity potential, and academic signal.",
+      "version": "1.0.0",
+      "user_invocable": true,
+      "allowed_tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Write",
+        "Edit"
+      ],
+      "category": "health",
+      "metadata": {
+        "openclaw": {
+          "emoji": "🔎",
+          "category": "health"
+        }
+      },
+      "has_code": true,
+      "code_file_count": 1,
+      "code_files": [
+        "doctor_evidence_profiler.py"
+      ],
+      "languages": [
+        "python"
+      ],
+      "primary_language": "python",
+      "has_dependencies": false,
+      "dependency_files": [],
+      "root_python_files": [
+        "doctor_evidence_profiler.py"
+      ],
+      "cli_entrypoints": [
+        "doctor_evidence_profiler.py"
+      ],
+      "primary_cli_entrypoint": "doctor_evidence_profiler.py",
+      "has_tests": false,
+      "test_files": [],
+      "license_files": [],
+      "license_status": "present",
+      "license_evidence": "repository license inheritance: LICENSE",
+      "governance_scope": "health-core",
+      "distribution_tier": "core",
+      "audit_status": "pass",
+      "is_health_skill": true
+    },
+    {
+      "slug": "doctor-fit-finder",
+      "path": "skills/doctor-fit-finder",
+      "has_skill_md": true,
+      "has_readme": false,
+      "has_frontmatter": true,
+      "frontmatter_parse_errors": [],
+      "frontmatter_valid": true,
+      "frontmatter_validation_errors": [],
+      "name": "doctor-fit-finder",
+      "description": "Ranks public doctor candidates for a specific patient profile by combining department fit, location, continuity potential, public profile matching, and optional PubMed evidence. Use when the user wants doctor recommendations rather than a generic top-doctor list.",
+      "version": "1.0.0",
+      "user_invocable": true,
+      "allowed_tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Write",
+        "Edit"
+      ],
+      "category": "health",
+      "metadata": {
+        "openclaw": {
+          "emoji": "🩺",
+          "category": "health"
+        }
+      },
+      "has_code": true,
+      "code_file_count": 1,
+      "code_files": [
+        "doctor_fit_finder.py"
+      ],
+      "languages": [
+        "python"
+      ],
+      "primary_language": "python",
+      "has_dependencies": false,
+      "dependency_files": [],
+      "root_python_files": [
+        "doctor_fit_finder.py"
+      ],
+      "cli_entrypoints": [
+        "doctor_fit_finder.py"
+      ],
+      "primary_cli_entrypoint": "doctor_fit_finder.py",
+      "has_tests": false,
+      "test_files": [],
+      "license_files": [],
+      "license_status": "present",
+      "license_evidence": "repository license inheritance: LICENSE",
+      "governance_scope": "health-core",
+      "distribution_tier": "core",
+      "audit_status": "pass",
+      "is_health_skill": true
     },
     {
       "slug": "drug-adverse-event-query",

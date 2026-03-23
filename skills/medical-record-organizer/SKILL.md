@@ -43,7 +43,10 @@ metadata: {"openclaw":{"emoji":"🏥","category":"health-records","requires":{"b
 - `extract_pdf.py` — 提取 PDF 文本
 - `extract_docx.py` — 提取 Word 文本
 - `extract_excel.py` — 提取 Excel 文本
+- `ensure_redaction_runtime.py` — 检查 / 自动安装图片脱敏运行时
 - `redact_ocr.py` — 图片 PII 遮挡
+- `copy_patient_document.py` — 安全复制与隐私闸门
+- `repair_patient_images.py` — 修复已误归档的未脱敏图片
 
 **你不得创建新的 `.py` 或 `.sh` 文件。**
 
@@ -273,9 +276,25 @@ rm -rf [tmp_dir]
 
 **时序约束**：必须在 Step 3（分类）之后、Step 5（提取关键字段）之前执行。Step 6 应复制 `_redacted` 版本而非原始文件。
 
+**隐私闸门**：隐私模式开启时，图片类文件如果没有成功生成 `_redacted` 版本，**禁止**进入分类目录。此时只能保留 `10_原始文件/原始未遮挡/` 备份，并明确告知用户“归档被隐私闸门阻断”。
+
 **执行步骤**：
 
-1. **OCR 自动遮挡**：运行 OCR 脚本一键完成 PII 检测与遮挡：
+1. **先检查运行时是否就绪**：
+
+```bash
+$PYTHON ~/.openclaw/skills/medical-record-organizer/scripts/ensure_redaction_runtime.py --require-ready
+```
+
+如果返回 `success=false`，优先尝试自动安装依赖：
+
+```bash
+$PYTHON ~/.openclaw/skills/medical-record-organizer/scripts/ensure_redaction_runtime.py --require-ready --auto-install
+```
+
+如果仍然返回 `success=false`，必须立即停止后续归档流程，不得继续 Step 5-10。
+
+2. **OCR 自动遮挡**：运行 OCR 脚本一键完成 PII 检测与遮挡：
 
 ```bash
 $PYTHON ~/.openclaw/skills/medical-record-organizer/scripts/redact_ocr.py "[原始文件路径]" --output "[输出路径_redacted.ext]"
@@ -334,27 +353,34 @@ YYYY-MM-DD_[doc_type]_[brief_desc].[原始扩展名]
 
 ### 操作命令
 
-**备份原始文件**：无论文件类型，先将原始未遮挡文件按序号复制到备份目录：
+**禁止手写 `cp` 到分类目录。** Step 6 必须统一调用安全复制脚本，它会自动：
+- 将原始未遮挡文件备份到 `10_原始文件/原始未遮挡/`
+- 在隐私模式 ON 且输入为图片时，自动触发 `redact_ocr.py`
+- 如果脱敏失败，则阻断分类归档（fail-closed）
+
+统一命令如下：
 
 ```bash
-cp "[原始文件路径]" "$PATIENT_DIR/10_原始文件/原始未遮挡/[序号].[原始扩展名]"
+$PYTHON ~/.openclaw/skills/medical-record-organizer/scripts/copy_patient_document.py \
+  "[原始文件路径]" \
+  --patient-dir "$PATIENT_DIR" \
+  --target-rel "[目标目录]/YYYY-MM-DD_[doc_type]_[brief_desc].[ext]" \
+  --sequence "[序号]" \
+  --privacy-mode on \
+  --auto-install-runtime
 ```
 
-- 序号格式为 `0001`、`0002`（与解压时一致）；单文件输入时序号为 `0001`
-- 此操作保留未经任何处理的原始文件，确保可追溯
-
-根据文件类型选择不同的源文件复制到分类目录：
-
-**图片/扫描件（经过 Step 4 遮挡）：**
+如果你在 Step 4 已经手动跑过一次 `_redacted` 文件，也仍然通过同一个脚本复制：
 
 ```bash
-cp "[_redacted文件路径]" "$PATIENT_DIR/[目标目录]/YYYY-MM-DD_[doc_type]_[brief_desc].[ext]"
-```
-
-**其他文件类型（未经遮挡）：**
-
-```bash
-cp "[原始文件路径]" "$PATIENT_DIR/[目标目录]/YYYY-MM-DD_[doc_type]_[brief_desc].[ext]"
+$PYTHON ~/.openclaw/skills/medical-record-organizer/scripts/copy_patient_document.py \
+  "[原始文件路径]" \
+  --patient-dir "$PATIENT_DIR" \
+  --target-rel "[目标目录]/YYYY-MM-DD_[doc_type]_[brief_desc].[ext]" \
+  --sequence "[序号]" \
+  --privacy-mode on \
+  --auto-install-runtime \
+  --redacted-source "[_redacted文件路径]"
 ```
 
 ### 注意事项
@@ -521,6 +547,14 @@ $PYTHON ~/.openclaw/skills/medical-record-organizer/scripts/check_gpu.py
 
 核心原则：除非用户明确说”关闭隐私模式”，否则始终启用。目录必须使用匿名ID，文件名和索引内容禁止出现 PII。图片/扫描件的 PII 遮挡由 Step 4 的 `redact_ocr.py` 自动完成。
 
+新增强制要求：隐私模式开启时，图片类文档必须通过 `copy_patient_document.py` 进入分类目录。若 OCR / PaddleOCR / PaddleNLP 未就绪或脱敏失败，流程必须失败并中止，不允许把未脱敏图片复制进正式归档目录。
+
+如果你发现历史归档里已经混入未脱敏图片，使用修复脚本原位替换：
+
+```bash
+$PYTHON ~/.openclaw/skills/medical-record-organizer/scripts/repair_patient_images.py --patient-dir "$PATIENT_DIR"
+```
+
 ## 临时文件管理
 
 | 来源                         | 路径                                 | 清理时机                              |
@@ -540,4 +574,5 @@ rm -rf "$($PYTHON -c "import tempfile; print(tempfile.gettempdir())")/openclaw_u
 - 如果 PDF 提取失败（加密、损坏），告知用户并建议拍照后用图片模式重试。
 - 如果无法判断文档分类，归入 `10_原始文件/未分类/` 并提示用户手动确认。
 - 如果关键字段无法提取，标注"未提供"并继续流程。
+- 如果隐私模式开启且图片脱敏失败，必须停止流程。只允许保留 `10_原始文件/原始未遮挡/` 备份，并明确告知用户“分类归档被隐私闸门阻断，原因是脱敏运行时未就绪或执行失败”。
 - 所有文件操作使用 UTF-8 编码。

@@ -211,6 +211,7 @@
         "hypertension-daily-copilot": ["health-metrics", "health-lifestyle"],
         "diabetes-control-hub": ["health-metrics", "health-lifestyle"],
         "annual-checkup-advisor": ["health-records", "health-metrics"],
+        "doctor-fit-finder": ["health-records", "health-research", "health-metrics"],
         "mental-support": ["health-mental"],
         "research-brief": ["health-research"],
         "family-care": ["health-family"],

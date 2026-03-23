@@ -20,6 +20,7 @@
    - 用药：`memory/health/items/medications.md`
    - 补剂：`memory/health/items/supplements.md`
    - 心理量表：`memory/health/items/mental-health-score.md`
+   - 就医选择 / 医生匹配：`memory/health/items/care-team.md`
    - 复查 / 复诊：`memory/health/items/appointments.md`
    - 年度体检：`memory/health/items/annual-checkup.md`
 7. 若已启用患者档案桥接，再读取：

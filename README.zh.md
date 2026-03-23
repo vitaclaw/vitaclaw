@@ -7,7 +7,7 @@
 ### OpenClaw 健康技能库
 
 <!-- BEGIN GENERATED:README_BADGES -->
-![Skills](https://img.shields.io/badge/skills-219-blue) ![Health Core](https://img.shields.io/badge/health__core-77-teal) ![Iteration](https://img.shields.io/badge/iteration-1-orange) ![License](https://img.shields.io/badge/license-per-skill%20audit-lightgrey)
+![Skills](https://img.shields.io/badge/skills-222-blue) ![Health Core](https://img.shields.io/badge/health__core-80-teal) ![Iteration](https://img.shields.io/badge/iteration-1-orange) ![License](https://img.shields.io/badge/license-per-skill%20audit-lightgrey)
 <!-- END GENERATED:README_BADGES -->
 从血压追踪到主动健康支持——即插即用的健康智能，为你的 AI 助手赋能。
 
@@ -40,25 +40,25 @@ VitaClaw 建立在三大支柱之上：
 
 ## 安装
 
-### 方式 A —— Git Clone（推荐）
+### 推荐方式 —— 让你的 Agent 直接安装 VitaClaw
 
-```bash
-# 克隆到 OpenClaw 共享技能目录
-git clone https://github.com/vitaclaw/vitaclaw.git ~/.openclaw/skills/vitaclaw
+把下面这段提示词直接发给你的 Agent：
 
-# 或克隆到工作区
-git clone https://github.com/vitaclaw/vitaclaw.git ./skills/vitaclaw
+```text
+帮我安装 VitaClaw，仓库地址是 https://github.com/vitaclaw/vitaclaw/tree/beta。
+
+安装前请先理解 VitaClaw 的核心原理、工作区结构、记忆契约和健康团队工作流，再检查我当前的 Agent 架构、技能目录、工作区布局和本机环境，然后按当前环境做适配，让 VitaClaw 真正融入这台机器，而不是生硬移植。
+
+要求：
+- 使用 beta 分支。
+- 尽量保留现有 Agent 和 workspace 约定。
+- 把 VitaClaw 安装到这台机器最合适的 skills 目录中。
+- 除非必要，不要重复安装或覆盖已有 skills。
+- 如果需要 bootstrap 或 onboarding，请执行合适的初始化步骤，并说明初始化了什么。
+- 安装完成后，验证 skills 已可被发现，并总结做了哪些改动、安装到了哪里，以及接下来如何开始使用。
 ```
 
-### 方式 B —— 按需挑选
-
-```bash
-# 只复制你需要的技能
-cp -r vitaclaw/skills/blood-pressure-tracker ~/.openclaw/skills/
-cp -r vitaclaw/skills/diabetes-control-hub   ~/.openclaw/skills/
-```
-
-无需强制构建步骤，也无需全局安装。OpenClaw 会自动发现技能目录中的 `SKILL.md` 文件；如果你希望直接初始化健康工作区，可以运行 `python3 scripts/init_health_workspace.py --onboard`。
+VitaClaw 不需要强制构建步骤，也不需要全局安装。兼容 OpenClaw 的运行时会自动发现技能目录中的 `SKILL.md` 文件；如果你希望直接初始化健康工作区，也可以运行 `python3 scripts/init_health_workspace.py --onboard`。
 
 ---
 
@@ -71,20 +71,20 @@ _以下内容由 `skills-manifest.json` 自动生成。_
 
 | 指标 | 数量 |
 | --- | ---: |
-| 总 skill 数（不含 `_shared`） | 219 |
-| 健康核心 skill | 77 |
-| 健康核心 frontmatter 校验通过 | 77 |
-| 健康核心审计通过 | 69 |
-| 带代码 skill | 110 |
-| 带 CLI 入口 skill | 44 |
+| 总 skill 数（不含 `_shared`） | 222 |
+| 健康核心 skill | 80 |
+| 健康核心 frontmatter 校验通过 | 80 |
+| 健康核心审计通过 | 72 |
+| 带代码 skill | 113 |
+| 带 CLI 入口 skill | 47 |
 | 带测试 skill | 24 |
 
 ### 治理快照
 
 | 范围 / 分层 | 数量 | 说明 |
 | --- | ---: | --- |
-| 健康核心 | 77 | Iteration 1 直接治理对象 |
-| `core` | 63 | 默认开箱即用的健康工作区能力 |
+| 健康核心 | 80 | Iteration 1 直接治理对象 |
+| `core` | 66 | 默认开箱即用的健康工作区能力 |
 | `labs` | 6 | 高级分析 / 研究型健康能力 |
 | `restricted` | 8 | 专有版权、特殊许可或需人工复核 |
 | 范围外 | 142 | 本轮只做审计，不做批量整改 |
@@ -93,7 +93,7 @@ _以下内容由 `skills-manifest.json` 自动生成。_
 
 | 分类 | 数量 | 示例 |
 | --- | ---: | --- |
-| `health` | 34 | `allergy-manager`, `blood-pressure-tracker`, `body-composition-analyzer` |
+| `health` | 37 | `allergy-manager`, `blood-pressure-tracker`, `body-composition-analyzer` |
 | `health-scenario` | 15 | `annual-checkup-advisor`, `caffeine-sleep-advisor`, `calorie-fitness-manager` |
 | `health-analyzer` | 14 | `family-health-analyzer`, `fitness-analyzer`, `goal-analyzer` |
 | `medical-research` | 9 | `bio-clinical-databases-tumor-mutational-burden`, `bio-tumor-fraction-estimation`, `cancer-metabolism-agent` |
@@ -124,7 +124,10 @@ _以下内容由 `skills-manifest.json` 自动生成。_
 | [chronic-condition-monitor](skills/chronic-condition-monitor/) | `健康核心` | `core` | `false` | `health` | Monitors multiple chronic disease indicators (BP, glucose, HbA1c, lipids, uric acid, creatinine, eGFR, liver function) against Chinese clinical guidelines. Detects abnormal trends, metabolic syndrome, and generates visit summaries. Use when the user tracks lab results or manages multiple chronic conditions. |
 | [chronic-pain-manager](skills/chronic-pain-manager/) | `健康核心` | `core` | `false` | `health` | Manages chronic pain through pain diary logging, pattern analysis, weather and activity correlation, and non-pharmacological intervention suggestions. Use when the user reports pain, wants to track pain patterns, or seeks pain management strategies. |
 | [circadian-rhythm-optimizer](skills/circadian-rhythm-optimizer/) | `健康核心` | `core` | `false` | `health` | Analyzes circadian rhythm patterns, assesses chronotype (morningness-eveningness), provides light exposure protocols, optimizes meal/exercise/sleep timing windows, and supports jet lag recovery and shift work adaptation. Use when the user asks about their body clock, optimal daily timing, light exposure, jet lag, or shift schedules. |
+| [department-fit-router](skills/department-fit-router/) | `健康核心` | `core` | `true` | `health` | Routes a user's health problem to the most suitable department path using symptoms, chronic conditions, abnormal findings, goals, and continuity needs. Use before doctor recommendation when the user is unsure which specialty to see. |
 | [diabetes-control-hub](skills/diabetes-control-hub/) | `健康核心` | `core` | `true` | `health-scenario` | Manages comprehensive diabetes control by coordinating blood glucose tracking, nutrition analysis, exercise correlation, kidney function monitoring, and complication risk assessment. Use when a diabetes patient logs blood sugar, meals, or exercise, or needs checkup interpretation. |
+| [doctor-evidence-profiler](skills/doctor-evidence-profiler/) | `健康核心` | `core` | `true` | `health` | Profiles a doctor using public official pages and optional PubMed evidence. Use when you want a conservative public-information view of a doctor's specialty fit, continuity potential, and academic signal. |
+| [doctor-fit-finder](skills/doctor-fit-finder/) | `健康核心` | `core` | `true` | `health` | Ranks public doctor candidates for a specific patient profile by combining department fit, location, continuity potential, public profile matching, and optional PubMed evidence. Use when the user wants doctor recommendations rather than a generic top-doctor list. |
 | [drug-adverse-event-query](skills/drug-adverse-event-query/) | `健康核心` | `core` | `true` | `health` | Queries drug adverse event reports from the openFDA FAERS API, including frequency, severity, and outcome distributions. Use when the user wants to understand reported side effects for a medication. |
 | [drug-interaction-checker](skills/drug-interaction-checker/) | `健康核心` | `core` | `true` | `health` | Checks drug-drug interactions via the RxNorm API with automatic fallback to openFDA drug labels when RxNorm data is unavailable. Supports single-drug lookup, multi-drug batch checking, and FDA label retrieval. Use when the user wants to verify whether their medications interact. |
 | [drug-label-lookup](skills/drug-label-lookup/) | `健康核心` | `core` | `true` | `health` | Retrieves FDA-approved drug label information via the openFDA API, including indications, dosage, warnings, contraindications, adverse reactions, and drug interactions. Use when the user needs official prescribing information for a medication. |

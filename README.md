@@ -7,7 +7,7 @@
 ### OpenClaw Health Skill Library
 
 <!-- BEGIN GENERATED:README_BADGES -->
-![Skills](https://img.shields.io/badge/skills-219-blue) ![Health Core](https://img.shields.io/badge/health__core-77-teal) ![Iteration](https://img.shields.io/badge/iteration-1-orange) ![License](https://img.shields.io/badge/license-per-skill%20audit-lightgrey)
+![Skills](https://img.shields.io/badge/skills-222-blue) ![Health Core](https://img.shields.io/badge/health__core-80-teal) ![Iteration](https://img.shields.io/badge/iteration-1-orange) ![License](https://img.shields.io/badge/license-per-skill%20audit-lightgrey)
 <!-- END GENERATED:README_BADGES -->
 From blood pressure tracking to proactive daily health support — plug-and-play health intelligence for your AI assistant.
 
@@ -40,25 +40,25 @@ VitaClaw is built on three pillars:
 
 ## Installation
 
-### Option A — Git Clone (recommended)
+### Recommended — Ask your agent to install VitaClaw
 
-```bash
-# Clone into OpenClaw shared skills directory
-git clone https://github.com/vitaclaw/vitaclaw.git ~/.openclaw/skills/vitaclaw
+Copy the prompt below into your agent:
 
-# Or clone into a workspace
-git clone https://github.com/vitaclaw/vitaclaw.git ./skills/vitaclaw
+```text
+Help me install VitaClaw from https://github.com/vitaclaw/vitaclaw/tree/beta.
+
+Before making changes, first understand VitaClaw's core principles, workspace structure, memory contract, and health-team workflow. Then inspect my current agent architecture, skills directories, workspace layout, and local environment, and adapt the installation so VitaClaw fits naturally into this machine instead of being copied in mechanically.
+
+Requirements:
+- Use the beta branch.
+- Preserve existing agent and workspace conventions when possible.
+- Install VitaClaw into the most appropriate skills location for this machine.
+- Avoid duplicating or overwriting existing skills unless necessary.
+- If workspace bootstrap or onboarding is needed, run the appropriate setup and explain what was initialized.
+- After installation, verify that the skills are discoverable and summarize what changed, where VitaClaw was installed, and how to start using it.
 ```
 
-### Option B — Cherry-pick individual skills
-
-```bash
-# Copy only the skills you need
-cp -r vitaclaw/skills/blood-pressure-tracker ~/.openclaw/skills/
-cp -r vitaclaw/skills/diabetes-control-hub   ~/.openclaw/skills/
-```
-
-No mandatory build step and no global install step. OpenClaw automatically discovers `SKILL.md` files in its skills directories, and VitaClaw now ships an optional workspace onboarding flow via `python3 scripts/init_health_workspace.py --onboard`.
+VitaClaw does not require a mandatory build step or global install step. OpenClaw-compatible runtimes discover `SKILL.md` files automatically, and VitaClaw also ships an optional workspace onboarding flow via `python3 scripts/init_health_workspace.py --onboard`.
 
 ---
 
@@ -71,20 +71,20 @@ _The block below is generated from `skills-manifest.json`._
 
 | Metric | Count |
 | --- | ---: |
-| Total skills (excluding `_shared`) | 219 |
-| Health-core skills | 77 |
-| Health-core frontmatter valid | 77 |
-| Health-core audit pass | 69 |
-| Skills with code | 110 |
-| Skills with CLI entrypoints | 44 |
+| Total skills (excluding `_shared`) | 222 |
+| Health-core skills | 80 |
+| Health-core frontmatter valid | 80 |
+| Health-core audit pass | 72 |
+| Skills with code | 113 |
+| Skills with CLI entrypoints | 47 |
 | Skills with tests | 24 |
 
 ### Governance Snapshot
 
 | Scope / Tier | Count | Notes |
 | --- | ---: | --- |
-| Health core | 77 | Directly governed in Iteration 1 |
-| `core` | 63 | Workspace-ready self-service health skills |
+| Health core | 80 | Directly governed in Iteration 1 |
+| `core` | 66 | Workspace-ready self-service health skills |
 | `labs` | 6 | Advanced analysis or research-heavy health skills |
 | `restricted` | 8 | Proprietary or manual-license-review skills |
 | Out of scope | 142 | Audited only in Iteration 1 |
@@ -93,7 +93,7 @@ _The block below is generated from `skills-manifest.json`._
 
 | Category | Count | Highlights |
 | --- | ---: | --- |
-| `health` | 34 | `allergy-manager`, `blood-pressure-tracker`, `body-composition-analyzer` |
+| `health` | 37 | `allergy-manager`, `blood-pressure-tracker`, `body-composition-analyzer` |
 | `health-scenario` | 15 | `annual-checkup-advisor`, `caffeine-sleep-advisor`, `calorie-fitness-manager` |
 | `health-analyzer` | 14 | `family-health-analyzer`, `fitness-analyzer`, `goal-analyzer` |
 | `medical-research` | 9 | `bio-clinical-databases-tumor-mutational-burden`, `bio-tumor-fraction-estimation`, `cancer-metabolism-agent` |
@@ -124,7 +124,10 @@ _The block below is generated from `skills-manifest.json`._
 | [chronic-condition-monitor](skills/chronic-condition-monitor/) | `health-core` | `core` | `false` | `health` | Monitors multiple chronic disease indicators (BP, glucose, HbA1c, lipids, uric acid, creatinine, eGFR, liver function) against Chinese clinical guidelines. Detects abnormal trends, metabolic syndrome, and generates visit summaries. Use when the user tracks lab results or manages multiple chronic conditions. |
 | [chronic-pain-manager](skills/chronic-pain-manager/) | `health-core` | `core` | `false` | `health` | Manages chronic pain through pain diary logging, pattern analysis, weather and activity correlation, and non-pharmacological intervention suggestions. Use when the user reports pain, wants to track pain patterns, or seeks pain management strategies. |
 | [circadian-rhythm-optimizer](skills/circadian-rhythm-optimizer/) | `health-core` | `core` | `false` | `health` | Analyzes circadian rhythm patterns, assesses chronotype (morningness-eveningness), provides light exposure protocols, optimizes meal/exercise/sleep timing windows, and supports jet lag recovery and shift work adaptation. Use when the user asks about their body clock, optimal daily timing, light exposure, jet lag, or shift schedules. |
+| [department-fit-router](skills/department-fit-router/) | `health-core` | `core` | `true` | `health` | Routes a user's health problem to the most suitable department path using symptoms, chronic conditions, abnormal findings, goals, and continuity needs. Use before doctor recommendation when the user is unsure which specialty to see. |
 | [diabetes-control-hub](skills/diabetes-control-hub/) | `health-core` | `core` | `true` | `health-scenario` | Manages comprehensive diabetes control by coordinating blood glucose tracking, nutrition analysis, exercise correlation, kidney function monitoring, and complication risk assessment. Use when a diabetes patient logs blood sugar, meals, or exercise, or needs checkup interpretation. |
+| [doctor-evidence-profiler](skills/doctor-evidence-profiler/) | `health-core` | `core` | `true` | `health` | Profiles a doctor using public official pages and optional PubMed evidence. Use when you want a conservative public-information view of a doctor's specialty fit, continuity potential, and academic signal. |
+| [doctor-fit-finder](skills/doctor-fit-finder/) | `health-core` | `core` | `true` | `health` | Ranks public doctor candidates for a specific patient profile by combining department fit, location, continuity potential, public profile matching, and optional PubMed evidence. Use when the user wants doctor recommendations rather than a generic top-doctor list. |
 | [drug-adverse-event-query](skills/drug-adverse-event-query/) | `health-core` | `core` | `true` | `health` | Queries drug adverse event reports from the openFDA FAERS API, including frequency, severity, and outcome distributions. Use when the user wants to understand reported side effects for a medication. |
 | [drug-interaction-checker](skills/drug-interaction-checker/) | `health-core` | `core` | `true` | `health` | Checks drug-drug interactions via the RxNorm API with automatic fallback to openFDA drug labels when RxNorm data is unavailable. Supports single-drug lookup, multi-drug batch checking, and FDA label retrieval. Use when the user wants to verify whether their medications interact. |
 | [drug-label-lookup](skills/drug-label-lookup/) | `health-core` | `core` | `true` | `health` | Retrieves FDA-approved drug label information via the openFDA API, including indications, dosage, warnings, contraindications, adverse reactions, and drug interactions. Use when the user needs official prescribing information for a medication. |

@@ -102,6 +102,7 @@ chief-led 架构会在主 workspace 下自动形成团队产物：
 
 - 高血压 / 糖尿病日常管理：chief -> metrics + lifestyle -> main
 - 年度体检 / 报告导入：chief -> records + metrics -> main
+- 就医选择 / 医生匹配：chief -> records + research + metrics -> main
 - 危急值 / 必须就医：chief -> safety -> main
 - 心理支持：chief -> mental；若出现危机则强制并入 safety
 - 研究问题：chief -> research
