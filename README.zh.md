@@ -4,11 +4,12 @@
 
 # 🩺 VitaClaw
 
-### 222 个 AI 健康技能，适用于 OpenClaw
+### OpenClaw 健康技能库
 
-![Skills](https://img.shields.io/badge/skills-222-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![OpenClaw](https://img.shields.io/badge/OpenClaw-compatible-orange)
-
-从血压追踪到肿瘤委员会分析——即插即用的健康智能，为你的 AI 助手赋能。
+<!-- BEGIN GENERATED:README_BADGES -->
+![Skills](https://img.shields.io/badge/skills-219-blue) ![Health Core](https://img.shields.io/badge/health__core-77-teal) ![Iteration](https://img.shields.io/badge/iteration-1-orange) ![License](https://img.shields.io/badge/license-per-skill%20audit-lightgrey)
+<!-- END GENERATED:README_BADGES -->
+从血压追踪到主动健康支持——即插即用的健康智能，为你的 AI 助手赋能。
 
 </div>
 
@@ -16,13 +17,13 @@
 
 ## 什么是 VitaClaw？
 
-VitaClaw 是一个开源的模块化健康 AI 技能库，包含 222 个技能，专为在 [OpenClaw](https://openclaw.ai) 中运行而设计。每个技能都是一个独立的 `SKILL.md` 文件，赋予你的 AI 助手深度、领域特定的健康能力——从日常体征记录到临床基因组学解读。
+VitaClaw 是一个开源的模块化健康 AI 技能库，专为在 [OpenClaw](https://openclaw.ai) 中运行而设计。每个技能都是一个独立的 `SKILL.md` 文件，赋予你的 AI 助手实用、领域特定的健康能力——从日常体征记录到纵向健康跟踪和随访支持。
 
 VitaClaw 建立在三大支柱之上：
 
 1. **健康记忆系统** —— 在 `memory/health/` 下进行每日健康追踪，在 `~/.openclaw/patients/` 下维护结构化的临床病历档案。你的数据以纯 Markdown 文件形式存储在本地，由 git 版本控制，完全由你掌控。
-2. **模块化技能** —— 222 个独立的 `SKILL.md` 文件，每个文件定义自己的提示词、工具和数据格式。按需引入，自由编辑，无限扩展。
-3. **场景编排** —— 7 个场景应用（如 `diabetes-control-hub`、`hypertension-daily-copilot`）将多个技能串联成端到端的临床工作流，从数据采集到纵向分析再到健康建议。
+2. **模块化技能** —— 由 manifest 驱动的 `SKILL.md` 目录，每个文件定义自己的提示词、工具和数据格式。按需引入，自由编辑，无限扩展。
+3. **场景编排** —— 一组场景应用（如 `diabetes-control-hub`、`hypertension-daily-copilot`）将多个技能串联成端到端的健康工作流，从数据采集到纵向分析，再到提醒和后续建议。
 
 ### 为什么选择 VitaClaw？
 
@@ -31,7 +32,7 @@ VitaClaw 建立在三大支柱之上：
 | -------- | -------------------- | --------------------------------------- |
 | 数据归属 | 云端 / 厂商锁定     | 本地文件——数据完全属于你              |
 | 可定制性 | 固定功能             | 可编辑任何 `SKILL.md`                   |
-| 临床深度 | 消费级               | 研究级（PubMed、ClinVar、GWAS）         |
+| 健康支持深度 | 一次性建议         | 纵向追踪、主动提醒和结构化健康上下文     |
 | 集成能力 | 各自孤立             | 技能通过 health-memory 互联互通         |
 | AI 模型  | 单一供应商           | 通过 OpenClaw 支持任意模型（Claude、GPT、Gemini、Llama……） |
 
@@ -57,385 +58,277 @@ cp -r vitaclaw/skills/blood-pressure-tracker ~/.openclaw/skills/
 cp -r vitaclaw/skills/diabetes-control-hub   ~/.openclaw/skills/
 ```
 
-无需构建步骤，无需依赖，无需配置向导。OpenClaw 会自动发现技能目录中的 `SKILL.md` 文件。
+无需强制构建步骤，也无需全局安装。OpenClaw 会自动发现技能目录中的 `SKILL.md` 文件；如果你希望直接初始化健康工作区，可以运行 `python3 scripts/init_health_workspace.py --onboard`。
 
 ---
 
 ## 技能概览
 
+<!-- BEGIN GENERATED:README_OVERVIEW -->
+_以下内容由 `skills-manifest.json` 自动生成。_
 
-| #  | 分类                                                                     | 数量 | 亮点                                                                                          |
-| -- | ------------------------------------------------------------------------ | ---- | --------------------------------------------------------------------------------------------- |
-| 1  | [健康记忆与基础设施](#1-健康记忆与基础设施)                              | 2    | `health-memory`、`medical-record-organizer`——所有技能的统一数据层                            |
-| 2  | [场景应用](#2-场景应用)                                                  | 7    | `diabetes-control-hub`、`hypertension-daily-copilot`、`mental-wellness-companion`             |
-| 3  | [每日健康追踪](#3-每日健康追踪)                                          | 23   | `blood-pressure-tracker`、`sleep-analyzer`、`wearable-analysis-agent`、`weekly-health-digest` |
-| 4  | [心理健康与危机干预](#4-心理健康与危机干预)                              | 12   | `crisis-detection-intervention-ai`、`adhd-daily-planner`、`grief-companion`                   |
-| 5  | [慢性病与治疗管理](#5-慢性病与治疗管理)                                  | 10   | `chemo-side-effect-tracker`、`medication-reminder`、`post-surgery-recovery`                   |
-| 6  | [生物医学数据库](#6-生物医学数据库)                                      | 23   | `pubmed-database`、`clinvar-database`、`kegg-database`、`uniprot-database`                    |
-| 7  | [药理学与药物安全](#7-药理学与药物安全)                                  | 9    | `drug-interaction-checker`、`drug-label-lookup`、`drugbank-database`                          |
-| 8  | [临床研究与试验](#8-临床研究与试验)                                      | 7    | `trial-eligibility-agent`、`clinical-trial-protocol-skill`、`clinical-diagnostic-reasoning`   |
-| 9  | [基因组学与变异解读](#9-基因组学与变异解读)                              | 14   | `variant-interpretation-acmg`、`gwas-lookup`、`gwas-prs`                                      |
-| 10 | [药物基因组学](#10-药物基因组学)                                         | 4    | `pharmgx-reporter`、`nutrigx_advisor`、`pharmacogenomics-agent`                               |
-| 11 | [肿瘤学与精准医疗](#11-肿瘤学与精准医疗)                                | 13   | `tumor-heterogeneity-agent`、`digital-twin-clinical-agent`、`hrd-analysis-agent`              |
-| 12 | [血液学与血液疾病](#12-血液学与血液疾病)                                 | 8    | `chip-clonal-hematopoiesis-agent`、`mpn-progression-monitor-agent`、`myeloma-mrd-agent`       |
-| 13 | [免疫信息学](#13-免疫信息学)                                             | 4    | `bio-immunoinformatics-neoantigen-prediction`、`bio-immunoinformatics-mhc-binding-prediction` |
-| 14 | [液体活检与 ctDNA](#14-液体活检与-ctdna)                                 | 8    | `bio-ctdna-mutation-detection`、`mrd-edge-detection-agent`、`liquid-biopsy-analytics-agent`   |
-| 15 | [ToolUniverse 套件](#15-tooluniverse-套件)                               | 27   | 涵盖数据库、分析和报告的综合多工具研究工作流                                                  |
-| 16 | [医学 NLP 与报告](#16-医学-nlp-与报告)                                   | 13   | `clinical-note-summarization`、`radgpt-radiology-reporter`、`checkup-report-interpreter`      |
-| 17 | [科研与文献](#17-科研与文献)                                             | 11   | `literature-review`、`deep-research`、`pubmed-search`、`knowledge-synthesis`                  |
-| 18 | [数据科学与可视化](#18-数据科学与可视化)                                 | 4    | `statistical-analysis`、`data-visualization-biomedical`、`exploratory-data-analysis`          |
-| 19 | [综合健康与生活方式](#19-综合健康与生活方式)                             | 19   | `tcm-constitution-analyzer`、`travel-health-analyzer`、`food-database-query`                  |
-| 20 | [工具与文档处理](#20-工具与文档处理)                                     | 5    | `markitdown`、`pdf-processing-pro`、`medical-research-toolkit`                                |
+### 仓库统计
 
-**共计：222 个技能**
+| 指标 | 数量 |
+| --- | ---: |
+| 总 skill 数（不含 `_shared`） | 219 |
+| 健康核心 skill | 77 |
+| 健康核心 frontmatter 校验通过 | 77 |
+| 健康核心审计通过 | 69 |
+| 带代码 skill | 110 |
+| 带 CLI 入口 skill | 44 |
+| 带测试 skill | 24 |
 
+### 治理快照
+
+| 范围 / 分层 | 数量 | 说明 |
+| --- | ---: | --- |
+| 健康核心 | 77 | Iteration 1 直接治理对象 |
+| `core` | 63 | 默认开箱即用的健康工作区能力 |
+| `labs` | 6 | 高级分析 / 研究型健康能力 |
+| `restricted` | 8 | 专有版权、特殊许可或需人工复核 |
+| 范围外 | 142 | 本轮只做审计，不做批量整改 |
+
+### 健康核心分类统计
+
+| 分类 | 数量 | 示例 |
+| --- | ---: | --- |
+| `health` | 34 | `allergy-manager`, `blood-pressure-tracker`, `body-composition-analyzer` |
+| `health-scenario` | 15 | `annual-checkup-advisor`, `caffeine-sleep-advisor`, `calorie-fitness-manager` |
+| `health-analyzer` | 14 | `family-health-analyzer`, `fitness-analyzer`, `goal-analyzer` |
+| `medical-research` | 9 | `bio-clinical-databases-tumor-mutational-burden`, `bio-tumor-fraction-estimation`, `cancer-metabolism-agent` |
+| `health-records` | 2 | `health-timeline`, `medical-record-organizer` |
+| `health-data` | 1 | `apple-health-digest` |
+| `medical-imaging` | 1 | `multimodal-medical-imaging` |
+| `medical-nlp` | 1 | `medical-entity-extractor` |
+<!-- END GENERATED:README_OVERVIEW -->
 ---
 
 ## 完整技能目录
 
-## 1. 健康记忆与基础设施
-
-
-| 技能                          | 描述                                                                                                       |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| [health-memory](skills/health-memory/) | 集中式健康记忆中枢——管理 memory/health/ 下的每日日志和按项目的纵向追踪文件。 |
-| [medical-record-organizer](skills/medical-record-organizer/) | 结构化病历档案——自动将 PDF、扫描件和化验报告分类存储到按患者组织的目录中（影像、化验、病理、基因组、出院小结），并生成可导航的 INDEX.md 汇总。 |
-
-## 2. 场景应用
-
-
-| 技能                                                              | 描述                                                                                                                                                                           |
-| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [annual-checkup-advisor](skills/annual-checkup-advisor/)                 | 编排年度体检解读：协调报告解析、化验解读、家族史分析、遗传风险评分、中医体质评估和指南查询。 |
-| [caffeine-sleep-advisor](skills/caffeine-sleep-advisor/)                 | 分析咖啡因摄入与睡眠质量的关系：协调咖啡因追踪、睡眠分析和趋势关联。                     |
-| [calorie-fitness-manager](skills/calorie-fitness-manager/)               | 管理每日热量平衡与运动追踪：协调 BMR/TDEE 计算、营养分析、食物查询、运动统计、趋势分析和 SMART 目标追踪。 |
-| [diabetes-control-hub](skills/diabetes-control-hub/)                     | 全面管理糖尿病控制：协调血糖追踪、营养分析、运动关联、肾功能监测和并发症风险评估。         |
-| [hypertension-daily-copilot](skills/hypertension-daily-copilot/)         | 提供全面的每日高血压管理：协调血压追踪、用药依从性、DASH 饮食评分、运动监测和趋势分析。   |
-| [mental-wellness-companion](skills/mental-wellness-companion/)           | 提供每日心理健康支持：协调 PHQ-9/GAD-7 评估、危机检测、睡眠-情绪关联、运动处方和行为激活。 |
-| [nutrition-supplement-optimizer](skills/nutrition-supplement-optimizer/) | 评估膳食营养缺口与补充剂安全性：协调营养分析、食物替代、补充剂相互作用检查、不良事件筛查和效果追踪。 |
-
-## 3. 每日健康追踪
-
-
-| 技能                                                    | 描述                                                                                                                                                                           |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [allergy-manager](skills/allergy-manager/) | 管理过敏档案，包括食物、环境和药物过敏。追踪过敏反应，识别交叉反应风险，提供季节性过敏预报，并警告过敏原暴露。 |
-| [blood-pressure-tracker](skills/blood-pressure-tracker/)       | 按 ACC/AHA 2017 指南记录和分级血压，检测晨峰现象，分析昼夜变异，生成月度统计。                                                                                                 |
-| [body-composition-analyzer](skills/body-composition-analyzer/) | 分析身体成分指标，包括体脂率、肌肉量、内脏脂肪和 BMI。追踪趋势并提供训练和营养建议。 |
-| [breathing-exercise-guide](skills/breathing-exercise-guide/) | 提供结构化的呼吸练习方案，用于缓解压力、改善睡眠、增强专注力和管理焦虑，含分步引导说明。 |
-| [caffeine-tracker](skills/caffeine-tracker/)                   | 追踪每日咖啡因摄入，利用半衰期衰减模型（t½=5h）计算残留咖啡因。                                                                                                               |
-| [chronic-condition-monitor](skills/chronic-condition-monitor/) | 按中国临床指南监测多种慢性病指标（血压、血糖、糖化血红蛋白、血脂、尿酸、肌酐、eGFR、肝功能）。                                                                                 |
-| [circadian-rhythm-optimizer](skills/circadian-rhythm-optimizer/) | 分析昼夜节律模式，评估时型，提供光照暴露方案，优化进餐/运动/睡眠时间，支持时差恢复和轮班工作适应。 |
-| [fitness-analyzer](skills/fitness-analyzer/)                   | 分析运动数据，识别锻炼模式，评估体能进展，提供个性化训练建议。支持与慢性病数据关联。                                                                                             |
-| [google-fit-digest](skills/google-fit-digest/) | 分析 Google Fit 导出数据，包括步数、心率、睡眠和活动指标。从 Google Fit JSON/CSV 导出生成健康摘要和趋势报告。 |
-| [health-trend-analyzer](skills/health-trend-analyzer/)         | 分析健康数据趋势与模式。关联药物、症状、体征、化验和其他健康指标。识别异常趋势和改善情况，提供数据驱动的洞察。支持交互式 HTML 可视化报告（ECharts）。 |
-| [hormone-health-tracker](skills/hormone-health-tracker/) | 追踪激素化验结果，分析甲状腺、性激素、皮质醇和代谢标志物的趋势，提供生活方式优化建议。 |
-| [hydration-tracker](skills/hydration-tracker/) | 追踪每日饮水量，根据体重、活动水平和天气条件计算个性化补水目标，并提供提醒。 |
-| [kidney-function-tracker](skills/kidney-function-tracker/)     | 使用 CKD-EPI 2021（无种族校正）公式追踪肾功能，CKD G1-G5 分期，白蛋白尿 A1-A3 分类，计算 eGFR 下降速率。                                                                       |
-| [menstrual-cycle-tracker](skills/menstrual-cycle-tracker/) | 追踪月经周期，预测排卵和下次经期，记录症状和经量，提供经前综合征管理建议。 |
-| [nutrition-analyzer](skills/nutrition-analyzer/)               | 分析营养数据，识别饮食模式，评估营养状态，提供个性化营养建议。支持与运动、睡眠和慢性病数据关联。                                                                                 |
-| [pregnancy-health-tracker](skills/pregnancy-health-tracker/) | 提供按孕期分阶段的孕期健康指导，追踪产检预约，监测症状，提供营养和运动建议。 |
-| [sleep-analyzer](skills/sleep-analyzer/)                       | 分析睡眠数据，计算睡眠效率、质量评分（0-100）和睡眠阶段分布。                                                                                                                   |
-| [stress-management-coach](skills/stress-management-coach/) | 评估压力水平，指导呼吸练习和正念冥想，分析基于 HRV 的压力数据，提供个性化减压策略。 |
-| [tumor-marker-trend](skills/tumor-marker-trend/)               | 肿瘤标志物趋势追踪——记录 CEA/CA199/AFP 等标志物，支持趋势分析、突增检测和多标志物对比。                                                                                       |
-| [tumor-journey-summary](skills/tumor-journey-summary/)         | 肿瘤诊疗历程时间线汇总（基于患者目录结构 + LLM 提取）。                                                                                                                         |
-| [wearable-analysis-agent](skills/wearable-analysis-agent/)     | 分析可穿戴设备纵向传感器数据（心率、活动、睡眠），检测异常并提供个性化健康洞察。                                                                                                 |
-| [weekly-health-digest](skills/weekly-health-digest/)           | 汇总过去 7 天的 health-memory 数据，生成叙述性周报，包含综合健康评分（0-100）、各领域摘要、跨领域关联和下周可行建议。                                                             |
-| [weightloss-analyzer](skills/weightloss-analyzer/)             | 分析减重数据，计算代谢率，追踪能量赤字，管理减重阶段。                                                                                                                           |
-
-## 4. 心理健康与危机干预
-
-
-| 技能                                                                  | 描述                                                                                                                                                                           |
-| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [adhd-daily-planner](skills/adhd-daily-planner/)                             | 时间感知友好的日程规划、执行功能支持和 ADHD 人群的日常结构。擅长现实时间估计、多巴胺导向任务设计和系统构建。 |
-| [crisis-detection-intervention-ai](skills/crisis-detection-intervention-ai/) | 使用 NLP 和心理健康情感分析检测用户内容中的危机信号，实施安全干预协议。包含自杀意念检测、自动升级和危机资源路由。 |
-| [crisis-response-protocol](skills/crisis-response-protocol/)                 | 在 AI 辅导中安全处理心理健康危机情境。实施危机检测、安全协议、紧急升级和自杀预防功能。 |
-| [grief-companion](skills/grief-companion/)                                   | 富有同理心的丧亲支持、纪念创建、哀伤教育和康复旅程引导。擅长理解悲伤阶段、创建有意义的纪念和支持疗愈。 |
-| [hrv-alexithymia-expert](skills/hrv-alexithymia-expert/)                     | 心率变异性生物指标与情绪觉察训练。 |
-| [jungian-psychologist](skills/jungian-psychologist/)                         | 荣格分析心理学专家：深度心理学、阴影工作、原型分析、梦的解析、积极想象、成瘾/康复的荣格视角以及个体化过程。 |
-| [mental-health-analyzer](skills/mental-health-analyzer/)                     | 分析心理健康数据，识别心理模式，评估心理健康状态，提供个性化心理健康建议。支持与睡眠、运动和营养数据关联。 |
-| [modern-drug-rehab-computer](skills/modern-drug-rehab-computer/)             | 成瘾康复环境的综合知识系统，支持住院和门诊（IOP/PHP）患者。精通循证治疗方法（CBT、DBT、MI）。 |
-| [psychologist-analyst](skills/psychologist-analyst/)                         | 心理分析与咨询支持。 |
-| [recovery-community-moderator](skills/recovery-community-moderator/)         | 创伤知情的 AI 管理员，用于成瘾康复社区。应用减害原则，尊重十二步传统，区分健康冲突与滥用，检测危机帖子。 |
-| [speech-pathology-ai](skills/speech-pathology-ai/)                           | 专业语言病理学家：AI 辅助言语治疗、音素分析、构音可视化、嗓音障碍、流畅性干预和辅助沟通。 |
-| [occupational-health-analyzer](skills/occupational-health-analyzer/)         | 分析职业健康数据，识别工作相关健康风险，评估职业健康状态，提供个性化职业健康建议。 |
-
-## 5. 慢性病与治疗管理
-
-
-| 技能                                                    | 描述                                                                                                                                                                           |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [cancer-nutrition-coach](skills/cancer-nutrition-coach/)       | 癌症患者营养评估与饮食方案生成（NRS-2002 评分 + LLM 营养建议）。 |
-| [chemo-side-effect-tracker](skills/chemo-side-effect-tracker/) | 化疗副作用追踪——按 CTCAE v5.0 分级记录副作用，支持周期对比、毒性趋势分析和综合毒性报告。 |
-| [emergency-card](skills/emergency-card/)                       | 生成紧急医疗信息摘要卡。提取关键信息（过敏、用药、急症、植入物），支持多格式输出（JSON、文本、二维码）。 |
-| [family-health-analyzer](skills/family-health-analyzer/)       | 分析家族病史，评估遗传风险，识别家族健康模式，提供个性化预防建议。 |
-| [follow-up-reminder](skills/follow-up-reminder/)               | 复诊提醒管理工具——支持疾病特定的随访项目、定期提醒和完成追踪。 |
-| [goal-analyzer](skills/goal-analyzer/)                         | 分析健康目标数据，识别目标模式，评估目标进度，提供个性化目标管理建议。 |
-| [medication-reminder](skills/medication-reminder/)             | 管理用药计划，追踪用药依从性（实际服药次数 vs. 处方剂量）。 |
-| [post-surgery-recovery](skills/post-surgery-recovery/)         | 术后康复追踪——记录引流量、伤口状态、疼痛、活动和饮食恢复；支持里程碑检查和复诊提醒。 |
-| [rehabilitation-analyzer](skills/rehabilitation-analyzer/)     | 分析康复训练数据，识别恢复模式，评估康复进度，提供个性化恢复建议。 |
-| [supplement-manager](skills/supplement-manager/)               | 补充剂管理——管理每日补充剂方案，追踪摄入记录和依从性，RxNorm 相互作用检查，智能服用时间建议。 |
-
-## 6. 生物医学数据库
-
-
-| 技能                                                | 描述                                                                                                                                                       |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [biorxiv-database](skills/biorxiv-database/)               | bioRxiv 预印本服务器的高效数据库检索工具。 |
-| [cbioportal-database](skills/cbioportal-database/)         | 查询 cBioPortal 癌症基因组学数据，包括体细胞突变、拷贝数变异、基因表达和数百个癌症研究的生存数据。 |
-| [clinicaltrials-database](skills/clinicaltrials-database/) | 通过 API v2 查询 ClinicalTrials.gov。按疾病、药物、地点、状态或分期搜索试验，通过 NCT ID 获取试验详情。 |
-| [clinpgx-database](skills/clinpgx-database/)               | 访问 ClinPGx 药物基因组学数据（PharmGKB 的后续项目）。查询基因-药物相互作用、CPIC 指南、等位基因功能，用于精准医疗和基因型指导用药。 |
-| [clinvar-database](skills/clinvar-database/)               | 查询 NCBI ClinVar 变异临床意义。按基因/位置搜索，解读致病性分类，通过 E-utilities API 或 FTP 访问，注释 VCF。 |
-| [cosmic-database](skills/cosmic-database/)                 | 访问 COSMIC 癌症突变数据库。查询体细胞突变、癌症基因普查、突变特征、基因融合。需要认证。 |
-| [ensembl-database](skills/ensembl-database/)               | 查询 Ensembl 基因组数据库 REST API，支持 250+ 物种。基因查找、序列检索、变异分析、比较基因组学、直系同源物、VEP 预测。 |
-| [fda-database](skills/fda-database/)                       | 查询 openFDA API，获取药品、器械、不良事件、召回、监管审批（510k、PMA）、物质标识（UNII）。 |
-| [gene-database](skills/gene-database/)                     | 通过 E-utilities/Datasets API 查询 NCBI Gene。按符号/ID 搜索，检索基因信息（RefSeqs、GO、位置、表型），批量查找。 |
-| [geo-database](skills/geo-database/)                       | 访问 NCBI GEO 基因表达/基因组学数据。搜索和下载微阵列和 RNA-seq 数据集（GSE、GSM、GPL），检索 SOFT/Matrix 文件。 |
-| [gnomad-database](skills/gnomad-database/)                 | 查询 gnomAD 群体等位基因频率、变异约束评分（pLI、LOEUF）和功能缺失不耐受性。 |
-| [gwas-database](skills/gwas-database/)                     | 查询 NHGRI-EBI GWAS Catalog 的 SNP-性状关联。按 rs ID、疾病/性状、基因搜索变异，获取 p 值和汇总统计。 |
-| [hmdb-database](skills/hmdb-database/)                     | 访问人类代谢组数据库（220K+ 代谢物）。按名称/ID/结构搜索，获取化学性质、生物标志物数据、NMR/MS 谱图、通路。 |
-| [interpro-database](skills/interpro-database/)             | 查询 InterPro 蛋白质家族、结构域和功能位点注释。 |
-| [kegg-database](skills/kegg-database/)                     | 直接 REST API 访问 KEGG（仅限学术用途）。 |
-| [monarch-database](skills/monarch-database/)               | 查询 Monarch Initiative 知识图谱，获取跨物种的疾病-基因-表型关联。 |
-| [openalex-database](skills/openalex-database/)             | 使用 OpenAlex 数据库查询和分析学术文献。 |
-| [opentargets-database](skills/opentargets-database/)       | 查询 Open Targets 平台的靶点-疾病关联、药物靶点发现、成药性/安全性数据、遗传学/组学证据、已知药物。 |
-| [pubchem-database](skills/pubchem-database/)               | 通过 PUG-REST API/PubChemPy 查询 PubChem（110M+ 化合物）。按名称/CID/SMILES 搜索，获取性质，相似性/子结构搜索，生物活性。 |
-| [pubmed-database](skills/pubmed-database/)                 | 直接 REST API 访问 PubMed。高级布尔/MeSH 查询，E-utilities API，批量处理，引用管理。 |
-| [reactome-database](skills/reactome-database/)             | 查询 Reactome REST API 进行通路分析、富集分析、基因-通路映射、疾病通路、分子相互作用、表达分析。 |
-| [string-database](skills/string-database/)                 | 查询 STRING API 获取蛋白质-蛋白质相互作用（59M 蛋白质，20B 相互作用）。网络分析，GO/KEGG 富集，相互作用发现，5000+ 物种。 |
-| [uniprot-database](skills/uniprot-database/)               | 直接 REST API 访问 UniProt。蛋白质搜索、FASTA 检索、ID 映射、Swiss-Prot/TrEMBL。 |
-
-## 7. 药理学与药物安全
-
-
-| 技能                                                  | 描述                                                                                                                                                       |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [drug-adverse-event-query](skills/drug-adverse-event-query/) | 通过 openFDA FAERS API 查询药物不良反应报告（频率、严重程度、结局）。 |
-| [drug-discovery-search](skills/drug-discovery-search/)       | 端到端药物发现平台，整合 ChEMBL 化合物、DrugBank、靶点和 FDA 标签。Valyu 自然语言驱动。 |
-| [drug-interaction-checker](skills/drug-interaction-checker/) | 检查药物-药物相互作用（基于 RxNorm API + FDA 标签补充）。 |
-| [drug-label-lookup](skills/drug-label-lookup/)               | 通过 openFDA API 查询药品说明书（适应症、用法用量、警告、禁忌、不良反应、药物相互作用）。 |
-| [drug-labels-search](skills/drug-labels-search/)             | 以自然语言搜索 FDA 药品说明书。Valyu 驱动的官方药物信息、适应症和安全数据。 |
-| [drug-name-resolver](skills/drug-name-resolver/)             | 将药物名称（通用名/商品名/研发代号）标准化为 RxNorm RxCUI，并获取药物分类信息。 |
-| [drug-photo](skills/drug-photo/)                             | 药物照片转个性化 PGx 剂量卡——通过 Claude 视觉识别药片，获取基因型指导建议。 |
-| [drugbank-database](skills/drugbank-database/)               | 访问和分析 DrugBank 综合药物信息，包括药物性质、相互作用、靶点、通路、化学结构和药理学数据。 |
-| [drugbank-search](skills/drugbank-search/)                   | 以自然语言搜索 DrugBank 综合药物数据库。Valyu 驱动的药物机制、相互作用和安全数据。 |
-
-## 8. 临床研究与试验
-
-
-| 技能                                                            | 描述                                                                                                                                                       |
-| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [clinical-decision-support](skills/clinical-decision-support/)         | 为制药和临床研究环境生成专业临床决策支持（CDS）文件，包括患者队列分析和治疗建议报告。支持 GRADE 证据分级、统计分析、生物标志物整合。 |
-| [clinical-diagnostic-reasoning](skills/clinical-diagnostic-reasoning/) | 通过系统性错误分析和上下文算法应用，识别和纠正医学决策中的认知偏差。 |
-| [clinical-trial-protocol-skill](skills/clinical-trial-protocol-skill/) | 生成医疗器械或药物的临床试验方案。 |
-| [clinical-trial-search](skills/clinical-trial-search/)                 | 搜索 ClinicalTrials.gov 临床试验，支持按疾病、干预、地区、试验状态多维度筛选。 |
-| [clinical-trials-search](skills/clinical-trials-search/)               | 以自然语言搜索 ClinicalTrials.gov。Valyu 语义搜索驱动的临床试验、入组和结果查找。 |
-| [trial-eligibility-agent](skills/trial-eligibility-agent/)             | 解析试验方案和患者数据，按标准逐项生成 MET/NOT/UNKNOWN 判定，附带证据和缺口分析，用于临床试验筛选。 |
-| [trialgpt-matching](skills/trialgpt-matching/)                         | 试验短名单——AI 驱动的患者-试验匹配。 |
-
-## 9. 基因组学与变异解读
-
-
-| 技能                                                                                              | 描述                                                                                                                                                       |
-| ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [bio-clinical-databases-clinvar-lookup](skills/bio-clinical-databases-clinvar-lookup/)                   | 通过 REST API 或本地 VCF 查询 ClinVar 变异致病性分类、审查状态和疾病关联。 |
-| [bio-clinical-databases-dbsnp-queries](skills/bio-clinical-databases-dbsnp-queries/)                     | 查询 dbSNP 进行 rsID 查找、变异注释和与其他数据库的交叉引用。 |
-| [bio-clinical-databases-gnomad-frequencies](skills/bio-clinical-databases-gnomad-frequencies/)           | 查询 gnomAD 群体等位基因频率以评估变异稀有性。 |
-| [bio-clinical-databases-hla-typing](skills/bio-clinical-databases-hla-typing/)                           | 使用 OptiType、HLA-HD 或 arcasHLA 从 NGS 数据推断 HLA 分型，用于免疫基因组学应用。 |
-| [bio-clinical-databases-myvariant-queries](skills/bio-clinical-databases-myvariant-queries/)             | 查询 myvariant.info API 获取来自多个数据库（ClinVar、gnomAD、dbSNP、COSMIC 等）的聚合变异注释。 |
-| [bio-clinical-databases-polygenic-risk](skills/bio-clinical-databases-polygenic-risk/)                   | 使用 PRSice-2、LDpred2 或 PRS-CS 从 GWAS 汇总统计计算多基因风险评分。 |
-| [bio-clinical-databases-somatic-signatures](skills/bio-clinical-databases-somatic-signatures/)           | 使用 SigProfiler 或 MutationalPatterns 从体细胞变异中提取和分析突变特征。 |
-| [bio-clinical-databases-tumor-mutational-burden](skills/bio-clinical-databases-tumor-mutational-burden/) | 从 panel 或 WES 数据计算肿瘤突变负荷，进行适当的标准化处理并应用临床阈值。 |
-| [bio-clinical-databases-variant-prioritization](skills/bio-clinical-databases-variant-prioritization/)   | 按致病性、群体频率和临床证据对变异进行过滤和优先排序，用于罕见病分析。 |
-| [gwas-lookup](skills/gwas-lookup/)                                                                       | 跨 9 个基因组数据库的联合变异查找——GWAS Catalog、Open Targets、PheWeb（UKB、FinnGen、BBJ）、GTEx、eQTL Catalogue。 |
-| [gwas-prs](skills/gwas-prs/)                                                                             | 使用 PGS Catalog 从消费级基因检测数据计算多基因风险评分。 |
-| [multi-ancestry-prs-agent](skills/multi-ancestry-prs-agent/)                                             | AI 驱动的多祖源多基因风险评分计算与优化，实现跨全球多样化人群的公平疾病风险预测。 |
-| [variant-interpretation-acmg](skills/variant-interpretation-acmg/)                                       | 按 ACMG（美国医学遗传学与基因组学学会）指南对遗传变异进行分类。 |
-| [varcadd-pathogenicity](skills/varcadd-pathogenicity/)                                                   | 使用 CADD 和其他计算预测器进行变异致病性评分。 |
-
-## 10. 药物基因组学
-
-
-| 技能                                                                                | 描述                                                                                                                                                       |
-| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [bio-clinical-databases-pharmacogenomics](skills/bio-clinical-databases-pharmacogenomics/) | 查询 PharmGKB 和 CPIC 获取药物-基因相互作用、药物基因组学注释和用药指南。 |
-| [nutrigx_advisor](skills/nutrigx_advisor/)                                                 | 从消费级基因检测数据（23andMe、AncestryDNA）生成个性化营养报告。将营养相关 SNP 转化为膳食和补充剂指导。 |
-| [pharmacogenomics-agent](skills/pharmacogenomics-agent/)                                   | AI 驱动的药物基因组学分析，利用多组学数据实现精准用药和不良事件预测。 |
-| [pharmgx-reporter](skills/pharmgx-reporter/)                                               | 从消费级基因检测数据（23andMe/AncestryDNA）生成药物基因组学报告——12 个基因、31 个 SNP、51 种药物。 |
-
-## 11. 肿瘤学与精准医疗
-
-
-| 技能                                                                        | 描述                                                                                                                                                       |
-| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [autonomous-oncology-agent](skills/autonomous-oncology-agent/)                     | 精准肿瘤学研究与治疗推荐。 |
-| [cancer-metabolism-agent](skills/cancer-metabolism-agent/)                         | AI 驱动的癌症代谢重编程分析，包括 Warburg 效应、谷氨酰胺成瘾、脂质代谢和代谢脆弱性治疗靶向。 |
-| [cellular-senescence-agent](skills/cellular-senescence-agent/)                     | AI 驱动的细胞衰老分析，用于衰老研究、癌症治疗响应和衰老细胞清除药物开发。 |
-| [chromosomal-instability-agent](skills/chromosomal-instability-agent/)             | AI 驱动的染色体不稳定性（CIN）特征分析，用于癌症预后、免疫治疗响应预测和治疗脆弱性识别。 |
-| [digital-twin-clinical-agent](skills/digital-twin-clinical-agent/)                 | AI 驱动的患者数字孪生创建，用于临床试验模拟、治疗结果预测和个性化医疗，整合真实世界数据和多组学数据。 |
-| [hrd-analysis-agent](skills/hrd-analysis-agent/)                                   | AI 驱动的同源重组缺陷（HRD）分析，使用基因组瘢痕特征和 BRCA 通路评估预测 PARP 抑制剂响应。 |
-| [immune-checkpoint-combination-agent](skills/immune-checkpoint-combination-agent/) | AI 驱动的免疫检查点抑制剂最优组合预测分析，基于肿瘤微环境、生物标志物和分子谱分析。 |
-| [microbiome-cancer-agent](skills/microbiome-cancer-agent/)                         | AI 驱动的微生物组-癌症相互作用分析，包括肿瘤微生物组图谱、免疫治疗响应预测和微生物组靶向治疗机会。 |
-| [nk-cell-therapy-agent](skills/nk-cell-therapy-agent/)                             | AI 驱动的 NK 细胞癌症免疫治疗设计，包括 CAR-NK 工程、记忆样 NK 生成和 KIR/HLA 匹配优化。 |
-| [precision-oncology-agent](skills/precision-oncology-agent/)                       | 融合基因组变异、病理发现和临床背景，为肿瘤委员会审查草拟有证据支持的治疗方案。 |
-| [tumor-clonal-evolution-agent](skills/tumor-clonal-evolution-agent/)               | AI 驱动的肿瘤克隆架构、亚克隆动态和进化轨迹分析，基于多区域测序和纵向液体活检数据。 |
-| [tumor-heterogeneity-agent](skills/tumor-heterogeneity-agent/)                     | AI 驱动的肿瘤内异质性分析，用于克隆架构重建、亚克隆进化追踪和治疗耐药预测。 |
-| [tumor-mutational-burden-agent](skills/tumor-mutational-burden-agent/)             | 跨平台计算和标准化肿瘤突变负荷（TMB），预测免疫治疗响应。 |
-
-## 12. 血液学与血液疾病
-
-
-| 技能                                                                | 描述                                                                                                                                                       |
-| ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [bone-marrow-ai-agent](skills/bone-marrow-ai-agent/)                       | AI 驱动的骨髓形态分析、细胞分类和血液学疾病诊断，使用深度学习处理骨髓穿刺和活检图像。 |
-| [chip-clonal-hematopoiesis-agent](skills/chip-clonal-hematopoiesis-agent/) | AI 驱动的不确定潜能克隆性造血（CHIP）检测、风险分层和心血管/恶性肿瘤风险预测。 |
-| [coagulation-thrombosis-agent](skills/coagulation-thrombosis-agent/)       | AI 驱动的凝血障碍分析、血栓风险预测、抗凝管理和血小板功能评估。 |
-| [cytokine-storm-analysis-agent](skills/cytokine-storm-analysis-agent/)     | AI 驱动的细胞因子释放综合征（CRS）和细胞因子风暴分析，用于免疫治疗和感染性疾病的预测、监测和管理。 |
-| [hemoglobinopathy-analysis-agent](skills/hemoglobinopathy-analysis-agent/) | AI 驱动的血红蛋白病分析，包括镰状细胞病、地中海贫血和变异血红蛋白，使用 HPLC、电泳和分子数据。 |
-| [mpn-progression-monitor-agent](skills/mpn-progression-monitor-agent/)     | AI 驱动的骨髓增殖性肿瘤监测，用于 PV、ET 和骨髓纤维化的疾病进展预测、治疗响应追踪和转化风险评估。 |
-| [mpn-research-assistant](skills/mpn-research-assistant/)                   | 骨髓增殖性肿瘤（MPN）研究专家，涵盖 JAK2/CALR/MPL 突变、骨髓纤维化、真性红细胞增多症、原发性血小板增多症。 |
-| [myeloma-mrd-agent](skills/myeloma-mrd-agent/)                             | AI 驱动的多发性骨髓瘤微小残留病（MRD）分析，使用新一代流式细胞术、NGS 和质谱方法。 |
-
-## 13. 免疫信息学
-
-
-| 技能                                                                                          | 描述                                                                                                                                                       |
-| --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [bio-immunoinformatics-epitope-prediction](skills/bio-immunoinformatics-epitope-prediction/)         | 使用 BepiPred、IEDB 工具和基于结构的方法预测 B 细胞和 T 细胞表位，用于疫苗和抗体设计。 |
-| [bio-immunoinformatics-immunogenicity-scoring](skills/bio-immunoinformatics-immunogenicity-scoring/) | 使用多因子模型（结合 MHC 结合、加工、表达和序列特征）对新抗原和表位进行免疫原性评分和优先排序。 |
-| [bio-immunoinformatics-mhc-binding-prediction](skills/bio-immunoinformatics-mhc-binding-prediction/) | 使用 MHCflurry 和 NetMHCpan 神经网络模型预测肽段-MHC I 类和 II 类结合亲和力。 |
-| [bio-immunoinformatics-neoantigen-prediction](skills/bio-immunoinformatics-neoantigen-prediction/)   | 使用 pVACtools 从体细胞突变中识别肿瘤新抗原，用于个性化癌症免疫治疗。 |
-
-## 14. 液体活检与 ctDNA
-
-
-| 技能                                                                | 描述                                                                                                                                                       |
-| ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [bio-ctdna-mutation-detection](skills/bio-ctdna-mutation-detection/)       | 使用针对低等位基因频率优化的变异调用器和基于 UMI 的错误抑制，在循环肿瘤 DNA 中检测体细胞突变。 |
-| [bio-liquid-biopsy-pipeline](skills/bio-liquid-biopsy-pipeline/)           | 从血浆测序到肿瘤监测的游离 DNA 分析流水线。 |
-| [bio-longitudinal-monitoring](skills/bio-longitudinal-monitoring/)         | 使用连续液体活检样本追踪 ctDNA 动态变化，用于治疗响应监测。 |
-| [bio-methylation-based-detection](skills/bio-methylation-based-detection/) | 使用 cfMeDIP-seq 或亚硫酸氢盐测序（MethylDackel）分析 cfDNA 甲基化模式用于癌症检测。 |
-| [bio-tumor-fraction-estimation](skills/bio-tumor-fraction-estimation/)     | 使用 ichorCNA 从浅全基因组测序估算循环肿瘤 DNA 比例。 |
-| [ctdna-dynamics-mrd-agent](skills/ctdna-dynamics-mrd-agent/)               | AI 驱动的循环肿瘤 DNA 动态分析，用于分子残留病检测、治疗响应监测和早期复发预测。 |
-| [liquid-biopsy-analytics-agent](skills/liquid-biopsy-analytics-agent/)     | 液体活检数据（ctDNA、CTC）综合分析，用于癌症检测、MRD 监测和响应追踪。 |
-| [mrd-edge-detection-agent](skills/mrd-edge-detection-agent/)               | 使用 MRD-EDGE 深度学习实现超灵敏 AI 分子残留病检测，达到亚 0.001% VAF ctDNA 检测水平，用于早期复发预测。 |
-
-## 15. ToolUniverse 套件
-
-
-| 技能                                                                                              | 描述                                                                                                                                                       |
-| ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [tooluniverse-adverse-event-detection](skills/tooluniverse-adverse-event-detection/)                     | 使用 FDA FAERS 数据、药品说明书、不均衡分析（PRR、ROR、IC）和生物医学证据检测和分析药物不良事件信号。 |
-| [tooluniverse-cancer-variant-interpretation](skills/tooluniverse-cancer-variant-interpretation/)         | 对癌症中的体细胞突变提供全面的临床解读。 |
-| [tooluniverse-clinical-guidelines](skills/tooluniverse-clinical-guidelines/)                             | 搜索和检索来自 12+ 权威来源的临床实践指南，包括 NICE、WHO、ADA、AHA/ACC、NCCN、SIGN、CPIC。 |
-| [tooluniverse-clinical-trial-design](skills/tooluniverse-clinical-trial-design/)                         | 使用 ToolUniverse 进行策略性临床试验设计可行性评估。 |
-| [tooluniverse-clinical-trial-matching](skills/tooluniverse-clinical-trial-matching/)                     | AI 驱动的精准医疗和肿瘤学患者-试验匹配。 |
-| [tooluniverse-disease-research](skills/tooluniverse-disease-research/)                                   | 使用 100+ ToolUniverse 工具生成全面的疾病研究报告。 |
-| [tooluniverse-drug-drug-interaction](skills/tooluniverse-drug-drug-interaction/)                         | 全面的药物-药物相互作用（DDI）预测和风险评估。 |
-| [tooluniverse-drug-repurposing](skills/tooluniverse-drug-repurposing/)                                   | 使用 ToolUniverse 识别药物再利用候选物，支持基于靶点、基于化合物和基于疾病的策略。 |
-| [tooluniverse-drug-research](skills/tooluniverse-drug-research/)                                         | 生成全面的药物研究报告，包含化合物消歧、证据分级和强制完整性检查。 |
-| [tooluniverse-drug-target-validation](skills/tooluniverse-drug-target-validation/)                       | 早期药物发现阶段的全面计算靶点验证。 |
-| [tooluniverse-gwas-drug-discovery](skills/tooluniverse-gwas-drug-discovery/)                             | 将 GWAS 信号转化为可操作的药物靶点和再利用机会。 |
-| [tooluniverse-gwas-finemapping](skills/tooluniverse-gwas-finemapping/)                                   | 使用统计精细定位和位点-基因预测识别和优先排序 GWAS 位点的因果变异。 |
-| [tooluniverse-gwas-snp-interpretation](skills/tooluniverse-gwas-snp-interpretation/)                     | 通过聚合多个数据库的证据解读来自 GWAS 研究的遗传变异（SNP）。 |
-| [tooluniverse-gwas-study-explorer](skills/tooluniverse-gwas-study-explorer/)                             | 比较 GWAS 研究，执行荟萃分析，评估跨队列的重复性。 |
-| [tooluniverse-gwas-trait-to-gene](skills/tooluniverse-gwas-trait-to-gene/)                               | 使用 GWAS Catalog（500,000+ 关联）和 Open Targets Genetics 的 GWAS 数据发现与疾病和性状相关的基因。 |
-| [tooluniverse-immune-repertoire-analysis](skills/tooluniverse-immune-repertoire-analysis/)               | T 细胞和 B 细胞受体测序数据的全面免疫组库分析。 |
-| [tooluniverse-immunotherapy-response-prediction](skills/tooluniverse-immunotherapy-response-prediction/) | 使用多生物标志物整合预测患者对免疫检查点抑制剂（ICI）的响应。 |
-| [tooluniverse-infectious-disease](skills/tooluniverse-infectious-disease/)                               | 传染病爆发的快速病原体鉴定和药物再利用分析。 |
-| [tooluniverse-literature-deep-research](skills/tooluniverse-literature-deep-research/)                   | 进行全面的文献研究，包含靶点消歧、证据分级和结构化主题提取。 |
-| [tooluniverse-network-pharmacology](skills/tooluniverse-network-pharmacology/)                           | 构建和分析化合物-靶点-疾病网络，用于药物再利用、多药理学发现和系统药理学。 |
-| [tooluniverse-pharmacovigilance](skills/tooluniverse-pharmacovigilance/)                                 | 从 FDA 不良事件报告、标签警告和药物基因组学数据中分析药物安全信号。 |
-| [tooluniverse-polygenic-risk-score](skills/tooluniverse-polygenic-risk-score/)                           | 使用 GWAS 汇总统计为复杂疾病构建和解读多基因风险评分（PRS）。 |
-| [tooluniverse-precision-medicine-stratification](skills/tooluniverse-precision-medicine-stratification/) | 通过整合基因组、临床和治疗数据实现精准医疗的全面患者分层。 |
-| [tooluniverse-precision-oncology](skills/tooluniverse-precision-oncology/)                               | 基于分子谱分析为癌症患者提供可操作的治疗建议。 |
-| [tooluniverse-rare-disease-diagnosis](skills/tooluniverse-rare-disease-diagnosis/)                       | 基于表型和遗传数据为疑似罕见病患者提供鉴别诊断。 |
-| [tooluniverse-variant-analysis](skills/tooluniverse-variant-analysis/)                                   | 生产级 VCF 处理、变异注释、突变分析和结构变异（SV/CNV）解读。 |
-| [tooluniverse-variant-interpretation](skills/tooluniverse-variant-interpretation/)                       | 从原始变异调用到 ACMG 分类建议的系统性临床变异解读，包含结构影响分析。 |
-
-## 16. 医学 NLP 与报告
-
-
-| 技能                                                        | 描述                                                                                                                                                       |
-| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [chatehr-clinician-assistant](skills/chatehr-clinician-assistant/) | EHR 对话助手，用于临床工作流。 |
-| [checkup-report-interpreter](skills/checkup-report-interpreter/)   | 体检报告智能解读（PDF 解析 + LLM 异常识别和健康建议）。 |
-| [clinical-nlp-extractor](skills/clinical-nlp-extractor/)           | 使用正则、规则或 LLM 封装从非结构化临床文本中提取医学实体（疾病、药物、手术）。 |
-| [clinical-note-summarization](skills/clinical-note-summarization/) | 将原始临床记录结构化为 SOAP 格式摘要，明确标注矛盾、缺失数据和 ICD 关联评估。 |
-| [clinical-reports](skills/clinical-reports/)                       | 撰写全面的临床报告，包括病例报告（CARE 指南）、诊断报告、临床试验报告（ICH-E3）和患者文档（SOAP、H&P、出院小结）。 |
-| [lab-results](skills/lab-results/)                                 | 化验结果解读与追踪，用于医疗工作流。 |
-| [medical-entity-extractor](skills/medical-entity-extractor/)       | 从患者消息中提取医学实体（症状、药物、化验值、诊断）。 |
-| [medical-imaging-review](skills/medical-imaging-review/)           | 医学影像审阅与分析。 |
-| [multimodal-medical-imaging](skills/multimodal-medical-imaging/)   | 使用多模态 LLM 分析医学影像（X 光、MRI、CT），识别异常并生成报告。 |
-| [patiently-ai](skills/patiently-ai/)                               | 为患者简化医学文档。 |
-| [prior-auth-review-skill](skills/prior-auth-review-skill/)         | 自动化支付方对预授权（PA）申请的审核。 |
-| [radgpt-radiology-reporter](skills/radgpt-radiology-reporter/)     | 放射学报告生成与解读。 |
-| [treatment-plans](skills/treatment-plans/)                         | 为所有临床专科生成简洁、聚焦的 LaTeX/PDF 格式医学治疗计划。 |
-
-## 17. 科研与文献
-
-
-| 技能                                                | 描述                                                                                                                                                       |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [biomedical-search](skills/biomedical-search/)             | 综合生物医学信息搜索，结合 PubMed、预印本、临床试验和 FDA 药品说明书。Valyu 语义搜索驱动。 |
-| [citation-management](skills/citation-management/)         | 学术研究的全面引用管理。 |
-| [deep-research](skills/deep-research/)                     | 对任何主题执行自主多步骤深度研究。 |
-| [knowledge-synthesis](skills/knowledge-synthesis/)         | 将来自多个来源的搜索结果合成为连贯、去重的答案，并附带来源归属。 |
-| [leads-literature-mining](skills/leads-literature-mining/) | 自动化文献综述与挖掘。 |
-| [literature-review](skills/literature-review/)             | 使用多个学术数据库（PubMed、arXiv、bioRxiv、Semantic Scholar 等）进行全面系统的文献综述。 |
-| [literature-search](skills/literature-search/)             | 跨 PubMed、arXiv、bioRxiv、medRxiv 的全面科学文献搜索。Valyu 语义搜索驱动的自然语言查询。 |
-| [medrxiv-search](skills/medrxiv-search/)                   | 以自然语言搜索 medRxiv 医学预印本。Valyu 语义搜索驱动。 |
-| [pubmed-abstract-reader](skills/pubmed-abstract-reader/)   | 通过 PMID 批量获取 PubMed 文章摘要、作者和期刊信息。 |
-| [pubmed-search](skills/pubmed-search/)                     | 智能 PubMed 文献检索：3 层 LLM 渐进式查询 + 证据桶分类 + 分层抽样，获取高质量临床文献。 |
-| [research-lookup](skills/research-lookup/)                 | 通过 OpenRouter 使用 Perplexity 的 Sonar Pro Search 或 Sonar Reasoning Pro 模型查找最新研究信息。 |
-
-## 18. 数据科学与可视化
-
-
-| 技能                                                            | 描述                                                                                                                                                       |
-| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [data-stats-analysis](skills/data-stats-analysis/)                     | 使用 scipy 和 statsmodels 执行统计检验、假设检验、相关性分析和多重检验校正。适用于任何 LLM 提供商。 |
-| [data-visualization-biomedical](skills/data-visualization-biomedical/) | 用于生物医学和基因组学数据的出版级可视化。 |
-| [exploratory-data-analysis](skills/exploratory-data-analysis/)         | 对科学数据文件执行全面的探索性数据分析，支持 200+ 种文件格式。 |
-| [statistical-analysis](skills/statistical-analysis/)                   | 统计分析工具包。假设检验（t 检验、ANOVA、卡方检验）、回归、相关性、贝叶斯统计、功效分析、假设检查、APA 报告。 |
-
-## 19. 综合健康与生活方式
-
-
-| 技能                                                    | 描述                                                                                                                                                       |
-| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [care-coordination](skills/care-coordination/)                 | 医疗工作流中的护理协调代理。 |
-| [chronic-pain-manager](skills/chronic-pain-manager/) | 通过疼痛日记记录、模式分析、天气和活动关联性分析以及非药物干预建议来管理慢性疼痛。 |
-| [claims-appeals](skills/claims-appeals/)                       | 医疗工作流中的理赔申诉代理。 |
-| [ehr-fhir-integration](skills/ehr-fhir-integration/)           | 使用 HL7 FHIR 标准处理电子健康记录（EHR）的综合工具。 |
-| [eye-health-advisor](skills/eye-health-advisor/) | 提供眼部健康指导，包括 20-20-20 法则提醒、屏幕时间管理、视力变化追踪和干眼预防建议。 |
-| [fhir-developer-skill](skills/fhir-developer-skill/)           | 医疗互操作性 FHIR 开发工具包。 |
-| [first-aid-guide](skills/first-aid-guide/) | 提供常见紧急情况的分步急救指导，包括烧伤、骨折、窒息、中毒和出血处理。含心肺复苏指导。 |
-| [food-database-query](skills/food-database-query/)             | 综合食物营养数据库，支持搜索、对比、推荐和自动热量计算。 |
-| [gut-health-advisor](skills/gut-health-advisor/) | 通过症状追踪评估肠道健康，提供低 FODMAP 饮食指导，推荐益生菌和益生元，监测消化模式。 |
-| [longevity-advisor](skills/longevity-advisor/) | 提供循证的长寿和抗衰老生活方式建议，追踪生物年龄标志物，综合最新的健康寿命研究。 |
-| [oral-health-analyzer](skills/oral-health-analyzer/)           | 分析口腔健康数据，识别牙科问题，评估口腔健康状态，提供个性化口腔健康建议。 |
-| [posture-ergonomics-coach](skills/posture-ergonomics-coach/) | 提供姿势评估指导、工位人体工学设置建议，推荐拉伸和强化练习。 |
-| [sexual-health-analyzer](skills/sexual-health-analyzer/)       | 全面的性健康数据分析，包括 IIEF-5 评分、性病筛查管理、避孕评估和跨领域关联分析。 |
-| [skin-health-analyzer](skills/skin-health-analyzer/)           | 分析皮肤健康数据，识别皮肤问题，评估皮肤健康状态，提供个性化皮肤健康建议。 |
-| [sleep-optimizer](skills/sleep-optimizer/)                     | 基于睡眠指标、咖啡因数据、屏幕时间和运动时间，生成优先排序的个性化睡眠改善建议。 |
-| [social-health-tracker](skills/social-health-tracker/) | 追踪社交互动，通过 UCLA 孤独量表评估孤独感，映射邓巴社交圈层，生成社交健康评分，提供社交处方。 |
-| [tcm-constitution-analyzer](skills/tcm-constitution-analyzer/) | 分析中医体质数据，识别体质类型，评估体质特征，提供个性化养生建议。 |
-| [travel-health-analyzer](skills/travel-health-analyzer/)       | 分析旅行健康数据，评估目的地健康风险，提供疫苗建议，生成多语言紧急医疗信息卡。整合 WHO/CDC 数据。 |
-| [vaccination-tracker](skills/vaccination-tracker/) | 记录疫苗接种史，追踪加强针到期日期，提供旅行疫苗要求，维护免疫接种时间表。 |
-
-## 20. 工具与文档处理
-
-
-| 技能                                                  | 描述                                                                                                                                                       |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [markitdown](skills/markitdown/)                             | 将文件和办公文档转换为 Markdown。支持 PDF、DOCX、PPTX、XLSX、图片（OCR）、音频（转录）、HTML、CSV、JSON、XML、ZIP、YouTube URL、EPub 等。 |
-| [medical-research-toolkit](skills/medical-research-toolkit/) | 查询 14+ 个生物医学数据库，用于药物再利用、靶点发现、临床试验和文献研究。 |
-| [pdf](skills/pdf/)                                           | 处理 PDF 文件的通用技能。 |
-| [pdf-processing](skills/pdf-processing/)                     | 从 PDF 文件提取文本和表格，填写表单，合并文档。 |
-| [pdf-processing-pro](skills/pdf-processing-pro/)             | 生产级 PDF 处理：表单、表格、OCR、验证和批量操作。 |
-
+<!-- BEGIN GENERATED:README_CATALOG -->
+| Skill | 范围 | 分层 | user-invocable | 分类 | 描述 |
+| --- | --- | --- | --- | --- | --- |
+| [allergy-manager](skills/allergy-manager/) | `健康核心` | `core` | `false` | `health` | Manages allergy profiles including food, environmental, and drug allergies. Tracks reactions, identifies cross-reactivity risks, provides seasonal allergy forecasts, and warns about allergen exposure. Use when the user reports allergies, asks about cross-reactions, or needs allergen avoidance guidance. |
+| [annual-checkup-advisor](skills/annual-checkup-advisor/) | `健康核心` | `core` | `true` | `health-scenario` | Orchestrates comprehensive annual checkup interpretation by coordinating report parsing, lab interpretation, family history analysis, genetic risk scoring, TCM constitution assessment, and guideline lookup. Use when the user uploads a checkup report or asks for help interpreting physical examination results. |
+| [apple-health-digest](skills/apple-health-digest/) | `健康核心` | `core` | `true` | `health-data` | Parse Apple Health export (export.xml) and correlate wearable data with medical treatment history — optimized for oncology patients tracking health metrics across treatment cycles. Tracks heart rate, blood pressure, SpO2, weight, daily steps, and sleep, then overlays these onto treatment periods to reveal patterns. Generates per-metric reports and a treatment correlation analysis. Supports HealthKit MCP server integration. Works with records from medical-record-organizer. Trigger phrases: 分析我的苹果健康数据, 导入Apple Health数据, 化疗期间体重变化, 治疗期间心率, 看我的步数趋势, analyze Apple Health export, import health data, track weight during chemo, heart rate during treatment, activity trend. |
+| [blood-pressure-tracker](skills/blood-pressure-tracker/) | `健康核心` | `core` | `false` | `health` | Records and classifies blood pressure readings per current AHA/ACC adult blood pressure categories, detects morning surge, analyzes diurnal variation, and generates monthly statistics. Use when the user logs BP readings or asks about blood pressure trends. |
+| [body-composition-analyzer](skills/body-composition-analyzer/) | `健康核心` | `core` | `false` | `health` | Analyzes body composition metrics including body fat percentage, muscle mass, visceral fat, and BMI. Tracks trends over time and provides training and nutrition recommendations based on body composition goals. Use when the user logs body measurements, DEXA/BIA results, or asks about body composition. |
+| [breathing-exercise-guide](skills/breathing-exercise-guide/) | `健康核心` | `core` | `false` | `health` | Provides structured breathing exercise programs for stress relief, sleep improvement, focus enhancement, and anxiety management. Includes step-by-step guided instructions for various techniques. Use when the user wants breathing exercises, asks about breathwork, or needs quick relaxation techniques. |
+| [caffeine-sleep-advisor](skills/caffeine-sleep-advisor/) | `健康核心` | `core` | `true` | `health-scenario` | Analyzes the relationship between caffeine consumption and sleep quality by coordinating caffeine tracking, sleep analysis, and trend correlation. Identifies personal sensitivity thresholds and optimal caffeine cutoff times. Use when the user wants to understand how coffee affects their sleep. |
+| [caffeine-tracker](skills/caffeine-tracker/) | `健康核心` | `core` | `false` | `health` | Tracks daily caffeine intake from beverages, models residual caffeine using half-life decay (t1/2=5.7h), and predicts safe sleep time. Use when the user logs coffee, tea, or energy drink consumption, asks about caffeine levels, or wants to know when it is safe to sleep. |
+| [calorie-fitness-manager](skills/calorie-fitness-manager/) | `健康核心` | `core` | `true` | `health-scenario` | Manages daily calorie balance and fitness tracking by coordinating BMR/TDEE calculation, nutrition analysis, food lookup, exercise stats, trend analysis, and SMART goal tracking. Use when the user wants to track calories, manage weight loss or gain, or optimize their fitness routine. |
+| [cancer-nutrition-coach](skills/cancer-nutrition-coach/) | `健康核心` | `core` | `true` | `health-scenario` | Performs nutritional assessment and diet plan generation for cancer patients using NRS-2002 scoring and LLM-based dietary recommendations. Tracks weight, albumin, caloric intake, and generates personalized meal plans based on cancer type and treatment phase. Use when the user wants nutrition guidance during cancer treatment. |
+| [checkup-report-interpreter](skills/checkup-report-interpreter/) | `健康核心` | `core` | `true` | `health-scenario` | Interprets physical examination reports by parsing PDF files into structured data, identifying abnormalities with severity grading, generating clinical explanations with health recommendations, and optionally syncing key findings into memory/health for long-term tracking. Supports year-over-year comparison of two reports. Use when the user uploads a checkup report or asks for help understanding lab results. |
+| [chemo-side-effect-tracker](skills/chemo-side-effect-tracker/) | `健康核心` | `core` | `true` | `health-scenario` | Tracks chemotherapy side effects graded per CTCAE v5.0 standards, supporting cycle-over-cycle comparison, toxicity trend analysis, and comprehensive toxicity report generation. Use when the user wants to log or review chemo side effects. |
+| [chronic-condition-monitor](skills/chronic-condition-monitor/) | `健康核心` | `core` | `false` | `health` | Monitors multiple chronic disease indicators (BP, glucose, HbA1c, lipids, uric acid, creatinine, eGFR, liver function) against Chinese clinical guidelines. Detects abnormal trends, metabolic syndrome, and generates visit summaries. Use when the user tracks lab results or manages multiple chronic conditions. |
+| [chronic-pain-manager](skills/chronic-pain-manager/) | `健康核心` | `core` | `false` | `health` | Manages chronic pain through pain diary logging, pattern analysis, weather and activity correlation, and non-pharmacological intervention suggestions. Use when the user reports pain, wants to track pain patterns, or seeks pain management strategies. |
+| [circadian-rhythm-optimizer](skills/circadian-rhythm-optimizer/) | `健康核心` | `core` | `false` | `health` | Analyzes circadian rhythm patterns, assesses chronotype (morningness-eveningness), provides light exposure protocols, optimizes meal/exercise/sleep timing windows, and supports jet lag recovery and shift work adaptation. Use when the user asks about their body clock, optimal daily timing, light exposure, jet lag, or shift schedules. |
+| [diabetes-control-hub](skills/diabetes-control-hub/) | `健康核心` | `core` | `true` | `health-scenario` | Manages comprehensive diabetes control by coordinating blood glucose tracking, nutrition analysis, exercise correlation, kidney function monitoring, and complication risk assessment. Use when a diabetes patient logs blood sugar, meals, or exercise, or needs checkup interpretation. |
+| [drug-adverse-event-query](skills/drug-adverse-event-query/) | `健康核心` | `core` | `true` | `health` | Queries drug adverse event reports from the openFDA FAERS API, including frequency, severity, and outcome distributions. Use when the user wants to understand reported side effects for a medication. |
+| [drug-interaction-checker](skills/drug-interaction-checker/) | `健康核心` | `core` | `true` | `health` | Checks drug-drug interactions via the RxNorm API with automatic fallback to openFDA drug labels when RxNorm data is unavailable. Supports single-drug lookup, multi-drug batch checking, and FDA label retrieval. Use when the user wants to verify whether their medications interact. |
+| [drug-label-lookup](skills/drug-label-lookup/) | `健康核心` | `core` | `true` | `health` | Retrieves FDA-approved drug label information via the openFDA API, including indications, dosage, warnings, contraindications, adverse reactions, and drug interactions. Use when the user needs official prescribing information for a medication. |
+| [drug-name-resolver](skills/drug-name-resolver/) | `健康核心` | `core` | `true` | `health` | Resolves drug names (generic, brand, or development codes) to standardized RxNorm RxCUI identifiers and retrieves drug classification information. Use when the user needs to normalize a medication name or look up its drug class. |
+| [emergency-card](skills/emergency-card/) | `健康核心` | `core` | `true` | `health-scenario` | Generates a medical emergency information summary card for quick access during emergencies. Extracts critical data (allergies, medications, acute conditions, implants) from health records and outputs in multiple formats (HTML, JSON, text, QR code). Use when the user needs travel prep, emergency info, a medical card, or asks about first-aid information. |
+| [eye-health-advisor](skills/eye-health-advisor/) | `健康核心` | `core` | `false` | `health` | Provides eye health guidance including 20-20-20 rule reminders, screen time management, vision change tracking, and dry eye prevention tips. Use when the user asks about eye strain, screen time impact, vision health, or wants eye care reminders. |
+| [family-health-analyzer](skills/family-health-analyzer/) | `健康核心` | `core` | `true` | `health-analyzer` | Analyzes family medical history, assesses hereditary risk, identifies family health patterns, and provides personalized prevention recommendations. Generates visual reports including family tree diagrams, genetic risk heat maps, and disease distribution charts. Use when the user wants a family health report, hereditary risk assessment, or family disease pattern analysis. |
+| [first-aid-guide](skills/first-aid-guide/) | `健康核心` | `core` | `false` | `health` | Provides step-by-step first aid instructions for common emergencies including burns, fractures, choking, poisoning, and bleeding. Includes CPR guidance and emergency preparedness. Use when the user asks about first aid procedures, emergency response, or injury treatment. |
+| [fitness-analyzer](skills/fitness-analyzer/) | `健康核心` | `core` | `true` | `health-analyzer` | Analyzes fitness data, identifies exercise patterns, evaluates workout progress, and provides personalized training recommendations. Supports correlation analysis with chronic disease data such as blood pressure and blood glucose. Use when the user wants to review their exercise trends, track running progress, or understand how workouts affect other health metrics. |
+| [follow-up-reminder](skills/follow-up-reminder/) | `健康核心` | `core` | `true` | `health` | Manages follow-up appointment reminders by disease type, supporting checkup scheduling, periodic reminders, and completion tracking. Use when the user wants to set up or manage medical follow-up reminders. |
+| [goal-analyzer](skills/goal-analyzer/) | `健康核心` | `core` | `true` | `health-analyzer` | Analyzes health goal data, identifies goal patterns, evaluates goal progress, and provides personalized goal management recommendations. Supports SMART goal validation, habit tracking, motivation assessment, achievement systems, obstacle identification, and correlation analysis with nutrition, exercise, and sleep data. Use when the user wants to review goal progress, validate a new goal, or get habit-building advice. |
+| [google-fit-digest](skills/google-fit-digest/) | `健康核心` | `core` | `false` | `health` | Analyzes Google Fit exported data including steps, heart rate, sleep, and activity metrics. Generates health digests and trend reports from Google Fit JSON/CSV exports. Use when the user provides Google Fit data or asks about their Google Fit health metrics. |
+| [gut-health-advisor](skills/gut-health-advisor/) | `健康核心` | `core` | `false` | `health` | Assesses gut health through symptom tracking, provides FODMAP dietary guidance, recommends probiotics and prebiotics, and monitors digestive patterns. Use when the user reports digestive issues, asks about gut health, or wants dietary guidance for GI wellness. |
+| [health-memory](skills/health-memory/) | `健康核心` | `core` | `false` | `health` | Centralized health memory hub — manages daily logs and per-item longitudinal tracking files under memory/health/. WHEN TO USE: After any health skill records data, or when answering health questions that need historical context. |
+| [health-timeline](skills/health-timeline/) | `健康核心` | `core` | `true` | `health-records` | Query and visualize medical history for any patient — optimized for tracking cancer treatment progression and chronic disease management. Displays chronological treatment history, lab value trends (tumor markers CEA/CA-199/AFP/CA-125, CBC, kidney/liver function) with ASCII charts, imaging findings, and treatment response (CR/PR/SD/PD) across all lines of therapy. Flags abnormal values and generates a print-ready timeline for doctor visits. Correlates with Apple Health wearable data when available. Works with records organized by medical-record-organizer. Trigger phrases: 看我的病情时间线, CEA变化趋势, 最近肿瘤标志物, 化疗后指标, 查看治疗历史, 疗效评估, show health timeline, tumor marker trend, disease progression, treatment history, lab value trends. |
+| [health-trend-analyzer](skills/health-trend-analyzer/) | `健康核心` | `core` | `true` | `health-analyzer` | Analyzes health data trends and patterns over time. Correlates medications, symptoms, vital signs, lab results, and other health metrics. Identifies concerning trends, improvements, and provides data-driven insights with interactive HTML visualization reports (ECharts). Use when the user asks about health trends, patterns, changes over time, or 'how has my health changed?' |
+| [hormone-health-tracker](skills/hormone-health-tracker/) | `健康核心` | `core` | `false` | `health` | Tracks hormone lab results over time, analyzes trends for thyroid, sex hormones, cortisol, and metabolic markers, and provides lifestyle optimization suggestions. Use when the user logs hormone test results, asks about hormonal health, or wants to understand hormone trends. |
+| [hydration-tracker](skills/hydration-tracker/) | `健康核心` | `core` | `false` | `health` | Tracks daily water intake, calculates personalized hydration targets based on body weight, activity level, and weather conditions, and provides reminders. Use when the user logs water intake, asks about hydration needs, or wants to analyze drinking patterns. |
+| [hypertension-daily-copilot](skills/hypertension-daily-copilot/) | `健康核心` | `core` | `true` | `health-scenario` | Provides comprehensive daily hypertension management by coordinating blood pressure tracking, medication adherence, DASH diet scoring, exercise monitoring, and trend analysis. Use when a hypertension patient wants daily BP management, weekly health reports, or medication reviews. |
+| [kidney-function-tracker](skills/kidney-function-tracker/) | `健康核心` | `core` | `false` | `health` | Tracks kidney function using CKD-EPI 2021 (race-free) eGFR formula, stages CKD G1-G5, monitors albuminuria categories A1-A3, and calculates eGFR decline rate. Use when the user provides creatinine or eGFR results or asks about kidney health. |
+| [longevity-advisor](skills/longevity-advisor/) | `健康核心` | `core` | `false` | `health` | Provides evidence-based longevity and anti-aging lifestyle recommendations, tracks biological age markers, and synthesizes latest research on healthspan optimization. Use when the user asks about longevity, anti-aging strategies, biological age, or healthspan. |
+| [medical-record-organizer](skills/medical-record-organizer/) | `健康核心` | `core` | `true` | `health-records` | Archive and organize patient medical records for any condition — optimized for oncology and chronic disease management. Auto-classifies PDFs and scanned photos into a structured per-patient directory: imaging (CT/MRI/PET-CT/ultrasound), lab results (CBC, tumor markers CEA/CA-199/AFP/CA-125), pathology, gene panel (NGS/KRAS/EGFR/BRCA/TMB/MSI), immunohistochemistry (IHC/PD-L1/HER2/Ki-67), and discharge summaries. Supports bulk import via zip/rar/7z archives. Builds a navigable INDEX.md for each patient — ideal for patients and family caregivers managing multi-year records. Supports both Chinese and English medical documents. Trigger phrases: 整理这份报告, 归档这个检查单, 帮我存这份CT, 存这份化验单, 添加出院小结, organize this report, file this lab result, save this CT scan, archive discharge summary, store medical record. |
+| [medication-reminder](skills/medication-reminder/) | `健康核心` | `core` | `false` | `health` | Manages medication schedules, tracks adherence (doses taken vs. due), identifies missed dose patterns, and monitors refill timelines. Use when the user logs medications, asks about adherence, or needs a medication schedule. |
+| [menstrual-cycle-tracker](skills/menstrual-cycle-tracker/) | `健康核心` | `core` | `false` | `health` | Tracks menstrual cycles, predicts ovulation and next period, logs symptoms and flow, and provides PMS management suggestions. Use when the user logs period data, asks about cycle predictions, or wants menstrual health insights. |
+| [mental-health-analyzer](skills/mental-health-analyzer/) | `健康核心` | `core` | `true` | `health-analyzer` | Analyzes mental health data, identifies psychological patterns, evaluates mental health status, and provides personalized mental wellness recommendations. Includes PHQ-9/GAD-7 trend analysis, mood pattern recognition, therapy progress tracking, multi-level crisis risk assessment, and correlation analysis with sleep, exercise, nutrition, and chronic disease data. Use when the user wants to review mental health trends, assess crisis risk, or track therapy progress. |
+| [mental-wellness-companion](skills/mental-wellness-companion/) | `健康核心` | `core` | `true` | `health-scenario` | Provides daily mental health support by coordinating PHQ-9/GAD-7 assessment, crisis detection, sleep-mood correlation, exercise prescription, and behavioral activation. CRITICAL: Crisis detection runs FIRST every interaction. Use when the user tracks mood, reports stress, or needs psychological support. |
+| [nutrition-analyzer](skills/nutrition-analyzer/) | `健康核心` | `core` | `true` | `health-analyzer` | Analyzes nutrition data, identifies dietary patterns, evaluates nutritional status, and provides personalized nutrition recommendations. Supports correlation analysis with exercise, sleep, and chronic disease data. Use when the user wants to review nutrient intake trends, assess RDA achievement, or get dietary improvement advice. |
+| [nutrition-supplement-optimizer](skills/nutrition-supplement-optimizer/) | `健康核心` | `core` | `true` | `health-scenario` | Evaluates dietary nutrition gaps and supplement safety by coordinating nutrition analysis, food alternatives, supplement interaction checks, adverse event screening, and effect tracking. Use when the user wants to optimize their supplement stack or check supplement safety. |
+| [occupational-health-analyzer](skills/occupational-health-analyzer/) | `健康核心` | `core` | `true` | `health-analyzer` | Analyzes occupational health data, identifies work-related health risks, assesses occupational health status, and provides personalized workplace wellness recommendations. Supports correlation analysis with sleep, exercise, and mental health data. Use when the user wants to evaluate workplace ergonomics or track occupational health issues. |
+| [oral-health-analyzer](skills/oral-health-analyzer/) | `健康核心` | `core` | `true` | `health-analyzer` | Analyzes oral health data, identifies dental problem patterns, assesses oral health status, and provides personalized dental care recommendations. Supports correlation analysis with nutrition, chronic disease, and medication data. Use when the user wants to evaluate their dental health or track oral conditions. |
+| [post-surgery-recovery](skills/post-surgery-recovery/) | `健康核心` | `core` | `true` | `health-scenario` | Tracks post-surgery recovery by recording drainage volume, wound status, pain level, mobility, and dietary recovery. Supports milestone checks and follow-up appointment reminders. Use when the user is recovering from surgery and wants to log progress. |
+| [posture-ergonomics-coach](skills/posture-ergonomics-coach/) | `健康核心` | `core` | `false` | `health` | Provides posture assessment guidance, workstation ergonomics setup advice, and recommends stretching and strengthening exercises to prevent musculoskeletal issues. Use when the user asks about posture, ergonomic setup, or reports desk-related discomfort. |
+| [pregnancy-health-tracker](skills/pregnancy-health-tracker/) | `健康核心` | `core` | `false` | `health` | Provides trimester-specific pregnancy health guidance, tracks prenatal appointments, monitors symptoms, and offers nutrition and exercise recommendations for each stage. Use when the user is pregnant, planning pregnancy, or asks about prenatal health. |
+| [sexual-health-analyzer](skills/sexual-health-analyzer/) | `健康核心` | `core` | `true` | `health-analyzer` | Analyzes sexual health data including IIEF-5 scoring, STD screening management, contraception effectiveness, activity statistics, and cross-module correlation with medications, chronic conditions, mental health, nutrition, and exercise. Use when the user tracks sexual health metrics or needs reproductive health assessment. |
+| [skin-health-analyzer](skills/skin-health-analyzer/) | `健康核心` | `core` | `true` | `health-analyzer` | Analyzes skin health data, identifies dermatological problem patterns, assesses skin health status, and provides personalized skincare recommendations. Supports correlation analysis with nutrition, chronic disease, and medication data. Use when the user wants to evaluate their skin health, track moles, or optimize their skincare routine. |
+| [sleep-analyzer](skills/sleep-analyzer/) | `健康核心` | `core` | `false` | `health` | Analyzes sleep data to compute efficiency, quality score (0-100), and stage distribution. Detects patterns like irregular schedules, chronic short sleep, and weekend oversleep. Use when the user provides sleep records, imports Apple Health data, or asks about sleep quality. |
+| [sleep-optimizer](skills/sleep-optimizer/) | `健康核心` | `core` | `false` | `health` | Generates prioritized, personalized sleep improvement recommendations based on sleep metrics, caffeine data, screen time, and exercise timing. Use after sleep-analyzer identifies issues or when the user asks how to improve sleep. |
+| [social-health-tracker](skills/social-health-tracker/) | `健康核心` | `core` | `false` | `health` | Tracks social interactions, assesses loneliness via UCLA Loneliness Scale, maps Dunbar social circles, generates social health scores (0-100), and provides social prescriptions. Use when the user logs social activities, reports feeling isolated, or asks about social wellbeing patterns. |
+| [stress-management-coach](skills/stress-management-coach/) | `健康核心` | `core` | `false` | `health` | Assesses stress levels, guides breathing exercises and mindfulness practices, analyzes HRV-based stress data, and provides personalized stress reduction strategies. Use when the user reports feeling stressed, wants relaxation guidance, or asks about stress management techniques. |
+| [supplement-manager](skills/supplement-manager/) | `健康核心` | `core` | `true` | `health-scenario` | Manages daily supplement regimens by tracking intake records and adherence rates, performing RxNorm interaction checks, and providing smart timing recommendations. Use when the user wants to organize supplements or check for interactions. |
+| [tcm-constitution-analyzer](skills/tcm-constitution-analyzer/) | `健康核心` | `core` | `true` | `health-analyzer` | Analyzes Traditional Chinese Medicine (TCM) constitution data, identifies constitution types using the standardized nine-constitution framework, assesses constitution characteristics, and provides personalized wellness recommendations. Supports correlation analysis with nutrition, exercise, and sleep data. Use when the user wants a TCM constitution assessment or personalized TCM-based health advice. |
+| [travel-health-analyzer](skills/travel-health-analyzer/) | `健康核心` | `core` | `true` | `health-analyzer` | Analyzes travel health data, assesses destination health risks, provides vaccination recommendations, and generates multilingual emergency medical information cards. Supports professional-grade travel health risk assessment with WHO/CDC data integration. Use when the user is planning a trip and wants health risk evaluation or travel medical preparation guidance. |
+| [tumor-journey-summary](skills/tumor-journey-summary/) | `健康核心` | `core` | `true` | `health-scenario` | Builds a structured timeline of a cancer patient's treatment journey by scanning patient file directories and using LLM to extract clinical events. Supports manual event entry, automatic extraction from free text, and narrative summaries highlighting key treatment decisions. Use when the user wants to organize or review their cancer treatment history. |
+| [tumor-marker-trend](skills/tumor-marker-trend/) | `健康核心` | `core` | `true` | `health-scenario` | Tracks tumor markers such as CEA, CA199, and AFP over time, supporting trend analysis, spike detection, and multi-marker comparison. Use when the user wants to log or analyze tumor marker values. |
+| [vaccination-tracker](skills/vaccination-tracker/) | `健康核心` | `core` | `false` | `health` | Records vaccination history, tracks due dates for boosters, provides travel vaccination requirements, and maintains an immunization schedule. Use when the user logs vaccines, asks about upcoming vaccinations, or plans travel requiring immunizations. |
+| [weekly-health-digest](skills/weekly-health-digest/) | `健康核心` | `core` | `false` | `health` | Aggregates recent health data from health-memory into narrative weekly or monthly reports with per-domain summaries, cross-domain correlations, and actionable next-period suggestions. Use at the end of each week or month, or when the user asks for a health summary. |
+| [weightloss-analyzer](skills/weightloss-analyzer/) | `健康核心` | `core` | `true` | `health-analyzer` | Analyzes weight loss data, calculates metabolic rates (BMR/TDEE), tracks energy deficits, and manages weight loss phases including plateau detection. Provides body composition analysis and personalized calorie targets. Use when the user wants to set up a weight loss plan, calculate metabolism, or track their deficit progress. |
+| [bio-clinical-databases-tumor-mutational-burden](skills/bio-clinical-databases-tumor-mutational-burden/) | `健康核心` | `labs` | `false` | `medical-research` | Calculate tumor mutational burden from panel or WES data with proper normalization and clinical thresholds. Use when assessing immunotherapy eligibility or characterizing tumor immunogenicity. |
+| [bio-tumor-fraction-estimation](skills/bio-tumor-fraction-estimation/) | `健康核心` | `labs` | `false` | `medical-research` | Estimates circulating tumor DNA fraction from shallow whole-genome sequencing using ichorCNA. Detects copy number alterations via HMM segmentation and calculates ctDNA percentage. Requires 0.1-1x sWGS coverage. Use when quantifying tumor burden from liquid biopsy or monitoring treatment response. |
+| [clinical-trial-search](skills/clinical-trial-search/) | `健康核心` | `labs` | `true` | `health` | Searches ClinicalTrials.gov for clinical trials with multi-dimensional filtering by disease, intervention, location, and trial status. Retrieves trial details by NCT ID and formats results as structured Markdown. Use when the user wants to find relevant clinical trials. |
+| [medical-entity-extractor](skills/medical-entity-extractor/) | `健康核心` | `labs` | `false` | `medical-nlp` | Extract medical entities (symptoms, medications, lab values, diagnoses) from patient messages. |
+| [medical-imaging-review](skills/medical-imaging-review/) | `健康核心` | `labs` | `true` | `medical-research` | Write comprehensive literature reviews for medical imaging AI research. Use when writing survey papers, systematic reviews, or literature analyses on topics like segmentation, detection, classification in CT, MRI, X-ray, ultrasound, or pathology imaging. Triggers on requests for "review paper", "survey", "literature review", "综述", "systematic review", or mentions of writing academic reviews on deep learning for medical imaging. |
+| [pubmed-abstract-reader](skills/pubmed-abstract-reader/) | `健康核心` | `labs` | `true` | `health` | Retrieves PubMed article abstracts, authors, journal, and metadata in batch by PMID via the NCBI E-utilities API. Also supports keyword-based search. Use when the user has PMIDs to look up or needs article details from PubMed. |
+| [cancer-metabolism-agent](skills/cancer-metabolism-agent/) | `健康核心` | `restricted` | `false` | `medical-research` | AI-powered analysis of cancer metabolic reprogramming including Warburg effect, glutamine addiction, lipid metabolism, and metabolic vulnerabilities for therapeutic targeting. |
+| [medical-research-toolkit](skills/medical-research-toolkit/) | `健康核心` | `restricted` | `false` | `medical-research` | Query 14+ biomedical databases for drug repurposing, target discovery, clinical trials, and literature research. Access ChEMBL, PubMed, ClinicalTrials.gov, OpenTargets, OpenFDA, OMIM, Reactome, KEGG, UniProt, and more through a unified MCP endpoint. Use when researching disease targets, finding approved/investigational drugs, searching clinical evidence, discovering genetic associations, or analyzing compound bioactivity data. |
+| [microbiome-cancer-agent](skills/microbiome-cancer-agent/) | `健康核心` | `restricted` | `false` | `medical-research` | AI-powered analysis of microbiome-cancer interactions including tumor microbiome profiling, immunotherapy response prediction, and microbiome-targeted therapeutic opportunities. |
+| [multimodal-medical-imaging](skills/multimodal-medical-imaging/) | `健康核心` | `restricted` | `false` | `medical-imaging` | Analyzes medical images (X-ray, MRI, CT) using multimodal LLMs to identify anomalies and generate reports. |
+| [rehabilitation-analyzer](skills/rehabilitation-analyzer/) | `健康核心` | `restricted` | `true` | `health-analyzer` | Analyzes rehabilitation training data, identifies recovery patterns, assesses rehabilitation progress, and provides personalized rehabilitation recommendations. Tracks ROM, muscle strength, balance, pain trends, and training adherence. Use when the user wants to review rehabilitation progress or analyze recovery trends. |
+| [tumor-clonal-evolution-agent](skills/tumor-clonal-evolution-agent/) | `健康核心` | `restricted` | `false` | `medical-research` | AI-powered analysis of tumor clonal architecture, subclonal dynamics, and evolutionary trajectories from multi-region sequencing and longitudinal liquid biopsy data. |
+| [tumor-heterogeneity-agent](skills/tumor-heterogeneity-agent/) | `健康核心` | `restricted` | `false` | `medical-research` | AI-powered intratumor heterogeneity analysis for clonal architecture reconstruction, subclonal evolution tracking, and therapy resistance prediction using multi-region and longitudinal sequencing. |
+| [tumor-mutational-burden-agent](skills/tumor-mutational-burden-agent/) | `健康核心` | `restricted` | `false` | `medical-research` | Calculates and harmonizes Tumor Mutational Burden (TMB) across platforms to predict immunotherapy response. |
+| [adhd-daily-planner](skills/adhd-daily-planner/) | `本次迭代范围外` | `-` | `pending` | `Lifestyle & Personal` | Time-blind friendly planning, executive function support, and daily structure for ADHD brains. Specializes in realistic time estimation, dopamine-aware task design, and building systems that actually work for neurodivergent minds. |
+| [bio-clinical-databases-clinvar-lookup](skills/bio-clinical-databases-clinvar-lookup/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query ClinVar for variant pathogenicity classifications, review status, and disease associations via REST API or local VCF. Use when determining clinical significance of variants for diagnostic or research purposes. |
+| [bio-clinical-databases-dbsnp-queries](skills/bio-clinical-databases-dbsnp-queries/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query dbSNP for rsID lookups, variant annotations, and cross-references to other databases. Use when mapping between rsIDs and genomic coordinates or retrieving basic variant information. |
+| [bio-clinical-databases-gnomad-frequencies](skills/bio-clinical-databases-gnomad-frequencies/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query gnomAD for population allele frequencies to assess variant rarity. Use when filtering variants by population frequency for rare disease analysis or determining if a variant is common in the general population. |
+| [bio-clinical-databases-hla-typing](skills/bio-clinical-databases-hla-typing/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Call HLA alleles from NGS data using OptiType, HLA-HD, or arcasHLA for immunogenomics applications. Use when determining HLA genotype for transplant matching, neoantigen prediction, or pharmacogenomic screening. |
+| [bio-clinical-databases-myvariant-queries](skills/bio-clinical-databases-myvariant-queries/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query myvariant.info API for aggregated variant annotations from multiple databases (ClinVar, gnomAD, dbSNP, COSMIC, etc.) in a single request. Use when annotating variants with clinical and population data from multiple sources simultaneously. |
+| [bio-clinical-databases-pharmacogenomics](skills/bio-clinical-databases-pharmacogenomics/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query PharmGKB and CPIC for drug-gene interactions, pharmacogenomic annotations, and dosing guidelines. Use when predicting drug response from genetic variants or implementing clinical pharmacogenomics. |
+| [bio-clinical-databases-polygenic-risk](skills/bio-clinical-databases-polygenic-risk/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Calculate polygenic risk scores using PRSice-2, LDpred2, or PRS-CS from GWAS summary statistics. Use when predicting disease risk from genome-wide genetic variants. |
+| [bio-clinical-databases-somatic-signatures](skills/bio-clinical-databases-somatic-signatures/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Extract and analyze mutational signatures from somatic variants using SigProfiler or MutationalPatterns to characterize mutagenic processes. Use when identifying DNA damage mechanisms or etiology in cancer genomes. |
+| [bio-clinical-databases-variant-prioritization](skills/bio-clinical-databases-variant-prioritization/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Filter and prioritize variants by pathogenicity, population frequency, and clinical evidence for rare disease analysis. Use when identifying candidate disease-causing variants from exome or genome sequencing. |
+| [bio-ctdna-mutation-detection](skills/bio-ctdna-mutation-detection/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Detects somatic mutations in circulating tumor DNA using variant callers optimized for low allele fractions with UMI-based error suppression. Reliably detects mutations at VAF above 0.5 percent using consensus-based approaches. Use when identifying tumor mutations from plasma DNA or tracking specific variants. |
+| [bio-immunoinformatics-epitope-prediction](skills/bio-immunoinformatics-epitope-prediction/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Predict B-cell and T-cell epitopes using BepiPred, IEDB tools, and structure-based methods for vaccine and antibody design. Identify immunogenic regions in antigens. Use when designing vaccines, mapping antibody binding sites, or predicting immunogenic peptides. |
+| [bio-immunoinformatics-immunogenicity-scoring](skills/bio-immunoinformatics-immunogenicity-scoring/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Score and prioritize neoantigens and epitopes for immunogenicity using multi-factor models combining MHC binding, processing, expression, and sequence features. Rank candidates for vaccine design. Use when prioritizing epitopes for vaccine development or identifying the most immunogenic neoantigens. |
+| [bio-immunoinformatics-mhc-binding-prediction](skills/bio-immunoinformatics-mhc-binding-prediction/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Predict peptide-MHC class I and II binding affinity using MHCflurry and NetMHCpan neural network models. Identify potential T-cell epitopes from protein sequences. Use when predicting MHC binding for vaccine design or neoantigen identification. |
+| [bio-immunoinformatics-neoantigen-prediction](skills/bio-immunoinformatics-neoantigen-prediction/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Identify tumor neoantigens from somatic mutations using pVACtools for personalized cancer immunotherapy. Predict mutant peptides that bind patient HLA and may elicit T-cell responses. Use when identifying vaccine targets or checkpoint inhibitor response biomarkers from tumor sequencing data. |
+| [bio-liquid-biopsy-pipeline](skills/bio-liquid-biopsy-pipeline/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [bio-longitudinal-monitoring](skills/bio-longitudinal-monitoring/) | `本次迭代范围外` | `-` | `pending` | `health` | Tracks ctDNA dynamics over time for treatment response monitoring using serial liquid biopsy samples. Analyzes tumor fraction trends, mutation clearance kinetics, and defines molecular response criteria. Use when monitoring patients during therapy or detecting molecular relapse before clinical progression. |
+| [bio-methylation-based-detection](skills/bio-methylation-based-detection/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Analyzes cfDNA methylation patterns for cancer detection using cfMeDIP-seq or bisulfite sequencing with MethylDackel. Identifies cancer-specific methylation signatures and performs tissue-of-origin deconvolution. Use when using methylation biomarkers for early cancer detection or minimal residual disease. |
+| [biomedical-search](skills/biomedical-search/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Complete biomedical information search combining PubMed, preprints, clinical trials, and FDA drug labels. Powered by Valyu semantic search. |
+| [biorxiv-database](skills/biorxiv-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Efficient database search tool for bioRxiv preprint server. Use this skill when searching for life sciences preprints by keywords, authors, date ranges, or categories, retrieving paper metadata, downloading PDFs, or conducting literature reviews. |
+| [bone-marrow-ai-agent](skills/bone-marrow-ai-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [care-coordination](skills/care-coordination/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [cbioportal-database](skills/cbioportal-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query cBioPortal for cancer genomics data including somatic mutations, copy number alterations, gene expression, and survival data across hundreds of cancer studies. Essential for cancer target validation, oncogene/tumor suppressor analysis, and patient-level genomic profiling. |
+| [cellular-senescence-agent](skills/cellular-senescence-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [chatehr-clinician-assistant](skills/chatehr-clinician-assistant/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [chip-clonal-hematopoiesis-agent](skills/chip-clonal-hematopoiesis-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [chromosomal-instability-agent](skills/chromosomal-instability-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [citation-management](skills/citation-management/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Comprehensive citation management for academic research. Search Google Scholar and PubMed for papers, extract accurate metadata, validate citations, and generate properly formatted BibTeX entries. This skill should be used when you need to find papers, verify citation information, convert DOIs to BibTeX, or ensure reference accuracy in scientific writing. |
+| [claims-appeals](skills/claims-appeals/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [clinical-decision-support](skills/clinical-decision-support/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Generate professional clinical decision support (CDS) documents for pharmaceutical and clinical research settings, including patient cohort analyses (biomarker-stratified with outcomes) and treatment recommendation reports (evidence-based guidelines with decision algorithms). Supports GRADE evidence grading, statistical analysis (hazard ratios, survival curves, waterfall plots), biomarker integration, and regulatory compliance. Outputs publication-ready LaTeX/PDF format optimized for drug development, clinical research, and evidence synthesis. |
+| [clinical-diagnostic-reasoning](skills/clinical-diagnostic-reasoning/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Identify and counteract cognitive biases in medical decision-making through systematic error analysis and contextual algorithm application. For diagnostic reasoning, treatment decisions, and clinical judgment improvement. NOT for basic medical knowledge, technical procedures, or non-clinical healthcare domains. |
+| [clinical-nlp-extractor](skills/clinical-nlp-extractor/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [clinical-note-summarization](skills/clinical-note-summarization/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [clinical-reports](skills/clinical-reports/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Write comprehensive clinical reports including case reports (CARE guidelines), diagnostic reports (radiology/pathology/lab), clinical trial reports (ICH-E3, SAE, CSR), and patient documentation (SOAP, H&P, discharge summaries). Full support with templates, regulatory compliance (HIPAA, FDA, ICH-GCP), and validation tools. |
+| [clinical-trial-protocol-skill](skills/clinical-trial-protocol-skill/) | `本次迭代范围外` | `-` | `pending` | `medical-research` | Generate clinical trial protocols for medical devices or drugs. This skill should be used when users say "Create a clinical trial protocol", "Generate protocol for [device/drug]", "Help me design a clinical study", "Research similar trials for [intervention]", or when developing FDA submission documentation for investigational products. |
+| [clinical-trials-search](skills/clinical-trials-search/) | `本次迭代范围外` | `-` | `pending` | `medical-research` | Search ClinicalTrials.gov with natural language queries. Find clinical trials, enrollment, and outcomes using Valyu semantic search. |
+| [clinicaltrials-database](skills/clinicaltrials-database/) | `本次迭代范围外` | `-` | `pending` | `medical-research` | Query ClinicalTrials.gov via API v2. Search trials by condition, drug, location, status, or phase. Retrieve trial details by NCT ID, export data, for clinical research and patient matching. |
+| [clinpgx-database](skills/clinpgx-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Access ClinPGx pharmacogenomics data (successor to PharmGKB). Query gene-drug interactions, CPIC guidelines, allele functions, for precision medicine and genotype-guided dosing decisions. |
+| [clinvar-database](skills/clinvar-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query NCBI ClinVar for variant clinical significance. Search by gene/position, interpret pathogenicity classifications, access via E-utilities API or FTP, annotate VCFs, for genomic medicine. |
+| [coagulation-thrombosis-agent](skills/coagulation-thrombosis-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [cosmic-database](skills/cosmic-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Access COSMIC cancer mutation database. Query somatic mutations, Cancer Gene Census, mutational signatures, gene fusions, for cancer research and precision oncology. Requires authentication. |
+| [crisis-detection-intervention-ai](skills/crisis-detection-intervention-ai/) | `本次迭代范围外` | `-` | `pending` | `Lifestyle & Personal` | Detect crisis signals in user content using NLP, mental health sentiment analysis, and safe intervention protocols. Implements suicide ideation detection, automated escalation, and crisis resource integration. Use for mental health apps, recovery platforms, support communities. Activate on "crisis detection", "suicide prevention", "mental health NLP", "intervention protocol". NOT for general sentiment analysis, medical diagnosis, or replacing professional help. |
+| [crisis-response-protocol](skills/crisis-response-protocol/) | `本次迭代范围外` | `-` | `pending` | `Lifestyle & Personal` | Handle mental health crisis situations in AI coaching safely. Use when implementing crisis detection, safety protocols, emergency escalation, or suicide prevention features. Activates for crisis keywords, safety planning, hotline integration, and risk assessment. |
+| [ctdna-dynamics-mrd-agent](skills/ctdna-dynamics-mrd-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [cytokine-storm-analysis-agent](skills/cytokine-storm-analysis-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [data-stats-analysis](skills/data-stats-analysis/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Perform statistical tests, hypothesis testing, correlation analysis, and multiple testing corrections using scipy and statsmodels. Works with ANY LLM provider (GPT, Gemini, Claude, etc.). |
+| [data-visualization-biomedical](skills/data-visualization-biomedical/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [deep-research](skills/deep-research/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Execute autonomous multi-step deep research on any topic. Use when the user asks for comprehensive research, literature reviews, competitive analysis, topic deep-dives, or wants to understand a complex subject from multiple angles. Triggers on "deep research", "research on", "investigate", "literature review", "comprehensive analysis", "what do we know about", "summarize research on". |
+| [digital-twin-clinical-agent](skills/digital-twin-clinical-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [drug-discovery-search](skills/drug-discovery-search/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | End-to-end drug discovery platform combining ChEMBL compounds, DrugBank, targets, and FDA labels. Natural language powered by Valyu. |
+| [drug-labels-search](skills/drug-labels-search/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Search FDA drug labels with natural language queries. Official drug information, indications, and safety data via Valyu. |
+| [drug-photo](skills/drug-photo/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Medication photo to personalised PGx dosage card via Claude vision — snap a pill, get genotype-informed guidance |
+| [drugbank-database](skills/drugbank-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Access and analyze comprehensive drug information from the DrugBank database including drug properties, interactions, targets, pathways, chemical structures, and pharmacology data. This skill should be used when working with pharmaceutical data, drug discovery research, pharmacology studies, drug-drug interaction analysis, target identification, chemical similarity searches, ADMET predictions, or any task requiring detailed drug and drug target information from DrugBank. |
+| [drugbank-search](skills/drugbank-search/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Search DrugBank comprehensive drug database with natural language queries. Drug mechanisms, interactions, and safety data powered by Valyu. |
+| [ehr-fhir-integration](skills/ehr-fhir-integration/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [ensembl-database](skills/ensembl-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query Ensembl genome database REST API for 250+ species. Gene lookups, sequence retrieval, variant analysis, comparative genomics, orthologs, VEP predictions, for genomic research. |
+| [exploratory-data-analysis](skills/exploratory-data-analysis/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Perform comprehensive exploratory data analysis on scientific data files across 200+ file formats. This skill should be used when analyzing any scientific data file to understand its structure, content, quality, and characteristics. Automatically detects file type and generates detailed markdown reports with format-specific analysis, quality metrics, and downstream analysis recommendations. Covers chemistry, bioinformatics, microscopy, spectroscopy, proteomics, metabolomics, and general scientific data formats. |
+| [fda-database](skills/fda-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query openFDA API for drugs, devices, adverse events, recalls, regulatory submissions (510k, PMA), substance identification (UNII), for FDA regulatory data analysis and safety research. |
+| [fhir-developer-skill](skills/fhir-developer-skill/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | FHIR API development guide for building healthcare endpoints. Use when: (1) Creating FHIR REST endpoints (Patient, Observation, Encounter, Condition, MedicationRequest), (2) Validating FHIR resources and returning proper HTTP status codes and error responses, (3) Implementing SMART on FHIR authorization and OAuth scopes, (4) Working with Bundles, transactions, batch operations, or search pagination. Covers FHIR R4 resource structures, required fields, value sets (status codes, gender, intent), coding systems (LOINC, SNOMED, RxNorm, ICD-10), and OperationOutcome error handling. |
+| [food-database-query](skills/food-database-query/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [gene-database](skills/gene-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query NCBI Gene via E-utilities/Datasets API. Search by symbol/ID, retrieve gene info (RefSeqs, GO, locations, phenotypes), batch lookups, for gene annotation and functional analysis. |
+| [geo-database](skills/geo-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Access NCBI GEO for gene expression/genomics data. Search/download microarray and RNA-seq datasets (GSE, GSM, GPL), retrieve SOFT/Matrix files, for transcriptomics and expression analysis. |
+| [gnomad-database](skills/gnomad-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query gnomAD (Genome Aggregation Database) for population allele frequencies, variant constraint scores (pLI, LOEUF), and loss-of-function intolerance. Essential for variant pathogenicity interpretation, rare disease genetics, and identifying loss-of-function intolerant genes. |
+| [grief-companion](skills/grief-companion/) | `本次迭代范围外` | `-` | `pending` | `Lifestyle & Personal` | Compassionate bereavement support, memorial creation, grief education, and healing journey guidance. Specializes in understanding grief stages, creating meaningful tributes, and supporting the non-linear path of loss. |
+| [gwas-database](skills/gwas-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query NHGRI-EBI GWAS Catalog for SNP-trait associations. Search variants by rs ID, disease/trait, gene, retrieve p-values and summary statistics, for genetic epidemiology and polygenic risk scores. |
+| [gwas-lookup](skills/gwas-lookup/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Federated variant lookup across 9 genomic databases — GWAS Catalog, Open Targets, PheWeb (UKB, FinnGen, BBJ), GTEx, eQTL Catalogue, and more. |
+| [gwas-prs](skills/gwas-prs/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Calculate polygenic risk scores from DTC genetic data using the PGS Catalog |
+| [hemoglobinopathy-analysis-agent](skills/hemoglobinopathy-analysis-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [hmdb-database](skills/hmdb-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Access Human Metabolome Database (220K+ metabolites). Search by name/ID/structure, retrieve chemical properties, biomarker data, NMR/MS spectra, pathways, for metabolomics and identification. |
+| [hrd-analysis-agent](skills/hrd-analysis-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [hrv-alexithymia-expert](skills/hrv-alexithymia-expert/) | `本次迭代范围外` | `-` | `pending` | `Lifestyle & Personal` | Heart rate variability biometrics and emotional awareness training. Expert in HRV analysis, interoception training, biofeedback, and emotional intelligence. Activate on 'HRV', 'heart rate variability', 'alexithymia', 'biofeedback', 'vagal tone', 'interoception', 'RMSSD', 'autonomic nervous system'. NOT for general fitness tracking without HRV focus, simple heart rate monitoring, or diagnosing medical conditions (only licensed professionals diagnose). |
+| [immune-checkpoint-combination-agent](skills/immune-checkpoint-combination-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [interpro-database](skills/interpro-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query InterPro for protein family, domain, and functional site annotations. Integrates Pfam, PANTHER, PRINTS, SMART, SUPERFAMILY, and 11 other member databases. Use for protein function prediction, domain architecture analysis, evolutionary classification, and GO term mapping. |
+| [jungian-psychologist](skills/jungian-psychologist/) | `本次迭代范围外` | `-` | `pending` | `Lifestyle & Personal` | Expert in Jungian analytical psychology, depth psychology, shadow work, archetypal analysis, dream interpretation, active imagination, addiction/recovery through Jungian lens, and the individuation process - grounded in primary sources and clinical frameworks. Activate on 'Jung', 'Jungian', 'shadow work', 'archetypes', 'dream interpretation', 'active imagination', 'individuation', 'anima', 'animus', 'collective unconscious', 'addiction', 'recovery', 'spiritus contra spiritum'. NOT for therapy or diagnosis (only licensed analysts diagnose), active psychosis, severe dissociation, or replacing the relational container of actual Jungian analysis. |
+| [kegg-database](skills/kegg-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Direct REST API access to KEGG (academic use only). Pathway analysis, gene-pathway mapping, metabolic pathways, drug interactions, ID conversion. For Python workflows with multiple databases, prefer bioservices. Use this for direct HTTP/REST work or KEGG-specific control. |
+| [knowledge-synthesis](skills/knowledge-synthesis/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [lab-results](skills/lab-results/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [leads-literature-mining](skills/leads-literature-mining/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [liquid-biopsy-analytics-agent](skills/liquid-biopsy-analytics-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [literature-review](skills/literature-review/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Conduct comprehensive, systematic literature reviews using multiple academic databases (PubMed, arXiv, bioRxiv, Semantic Scholar, etc.). This skill should be used when conducting systematic literature reviews, meta-analyses, research synthesis, or comprehensive literature searches across biomedical, scientific, and technical domains. Creates professionally formatted markdown documents and PDFs with verified citations in multiple citation styles (APA, Nature, Vancouver, etc.). |
+| [literature-search](skills/literature-search/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Comprehensive scientific literature search across PubMed, arXiv, bioRxiv, medRxiv. Natural language queries powered by Valyu semantic search. |
+| [markitdown](skills/markitdown/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Convert files and office documents to Markdown. Supports PDF, DOCX, PPTX, XLSX, images (with OCR), audio (with transcription), HTML, CSV, JSON, XML, ZIP, YouTube URLs, EPubs and more. |
+| [medrxiv-search](skills/medrxiv-search/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Search medRxiv medical preprints with natural language queries. Powered by Valyu semantic search. |
+| [modern-drug-rehab-computer](skills/modern-drug-rehab-computer/) | `本次迭代范围外` | `-` | `pending` | `Lifestyle & Personal` | Comprehensive knowledge system for addiction recovery environments, supporting both residential and outpatient (IOP/PHP) patients. Expert in evidence-based treatment modalities (CBT, DBT, MI, EMDR, MAT), recovery resources, coping strategies, crisis intervention, family systems, and holistic wellness. Activate on "rehab", "addiction recovery", "substance abuse", "treatment center", "IOP", "PHP", "detox", "sobriety support", "MAT", "Suboxone", "methadone", "12 step", "SMART Recovery". NOT for prescribing medications (consult medical professionals), emergency overdose situations (call 911), or replacing licensed counselors/therapists. |
+| [monarch-database](skills/monarch-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query the Monarch Initiative knowledge graph for disease-gene-phenotype associations across species. Integrates OMIM, ORPHANET, HPO, ClinVar, and model organism databases. Use for rare disease gene discovery, phenotype-to-gene mapping, cross-species disease modeling, and HPO term lookup. |
+| [mpn-progression-monitor-agent](skills/mpn-progression-monitor-agent/) | `本次迭代范围外` | `-` | `pending` | `health` | pending description |
+| [mpn-research-assistant](skills/mpn-research-assistant/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [mrd-edge-detection-agent](skills/mrd-edge-detection-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [multi-ancestry-prs-agent](skills/multi-ancestry-prs-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [myeloma-mrd-agent](skills/myeloma-mrd-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [nk-cell-therapy-agent](skills/nk-cell-therapy-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [nutrigx_advisor](skills/nutrigx_advisor/) | `本次迭代范围外` | `-` | `pending` | `health-scenario` | pending description |
+| [openalex-database](skills/openalex-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query and analyze scholarly literature using the OpenAlex database. This skill should be used when searching for academic papers, analyzing research trends, finding works by authors or institutions, tracking citations, discovering open access publications, or conducting bibliometric analysis across 240M+ scholarly works. Use for literature searches, research output analysis, citation analysis, and academic database queries. |
+| [opentargets-database](skills/opentargets-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query Open Targets Platform for target-disease associations, drug target discovery, tractability/safety data, genetics/omics evidence, known drugs, for therapeutic target identification. |
+| [patiently-ai](skills/patiently-ai/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Patiently AI simplifies medical documents for patients. Takes doctor's letters, test results, prescriptions, discharge summaries, and clinical notes and explains them in clear, personalised language. Built by PharmaTools.AI. |
+| [pdf](skills/pdf/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Use this skill whenever the user wants to do anything with PDF files. This includes reading or extracting text/tables from PDFs, combining or merging multiple PDFs into one, splitting PDFs apart, rotating pages, adding watermarks, creating new PDFs, filling PDF forms, encrypting/decrypting PDFs, extracting images, and OCR on scanned PDFs to make them searchable. If the user mentions a .pdf file or asks to produce one, use this skill. |
+| [pdf-processing](skills/pdf-processing/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Extract text and tables from PDF files, fill forms, merge documents. Use when working with PDF files or when the user mentions PDFs, forms, or document extraction. |
+| [pdf-processing-pro](skills/pdf-processing-pro/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Production-ready PDF processing with forms, tables, OCR, validation, and batch operations. Use when working with complex PDF workflows in production environments, processing large volumes of PDFs, or requiring robust error handling and validation. |
+| [pharmacogenomics-agent](skills/pharmacogenomics-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [pharmgx-reporter](skills/pharmgx-reporter/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Pharmacogenomic report from DTC genetic data (23andMe/AncestryDNA) — 12 genes, 31 SNPs, 51 drugs |
+| [prior-auth-review-skill](skills/prior-auth-review-skill/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Automate payer review of prior authorization (PA) requests. This skill should be used when users say "Review this PA request", "Process prior authorization for [procedure]", "Assess medical necessity", "Generate PA decision", or when processing clinical documentation for coverage policy validation and authorization decisions. |
+| [psychologist-analyst](skills/psychologist-analyst/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Analyzes events through psychological lens using cognitive psychology, social psychology, developmental psychology, clinical psychology, and neuroscience. Provides insights on behavior, cognition, emotion, motivation, group dynamics, decision-making biases, mental health, and individual differences. Use when: Behavioral patterns, decision-making, group behavior, mental health, leadership, persuasion, trauma, development. Evaluates: Cognitive processes, emotional responses, motivations, biases, group dynamics, personality, mental states. |
+| [pubchem-database](skills/pubchem-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query PubChem via PUG-REST API/PubChemPy (110M+ compounds). Search by name/CID/SMILES, retrieve properties, similarity/substructure searches, bioactivity, for cheminformatics. |
+| [pubmed-database](skills/pubmed-database/) | `本次迭代范围外` | `-` | `pending` | `medical-research` | Direct REST API access to PubMed. Advanced Boolean/MeSH queries, E-utilities API, batch processing, citation management. For Python workflows, prefer biopython (Bio.Entrez). Use this for direct HTTP/REST work or custom API implementations. |
+| [radgpt-radiology-reporter](skills/radgpt-radiology-reporter/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [reactome-database](skills/reactome-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query Reactome REST API for pathway analysis, enrichment, gene-pathway mapping, disease pathways, molecular interactions, expression analysis, for systems biology studies. |
+| [recovery-community-moderator](skills/recovery-community-moderator/) | `本次迭代范围外` | `-` | `pending` | `Lifestyle & Personal` | Trauma-informed AI moderator for addiction recovery communities. Applies harm reduction principles, honors 12-step traditions, distinguishes healthy conflict from abuse, detects crisis posts. Activate on 'community moderation', 'moderate forum', 'review post', 'check content', 'crisis detection'. NOT for legal documents (use recovery-app-legal-terms), app development (use domain skills), or therapy (use jungian-psychologist). |
+| [research-lookup](skills/research-lookup/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Look up current research information using Perplexity's Sonar Pro Search or Sonar Reasoning Pro models through OpenRouter. Automatically selects the best model based on query complexity. Search academic papers, recent studies, technical documentation, and general research information with citations. |
+| [speech-pathology-ai](skills/speech-pathology-ai/) | `本次迭代范围外` | `-` | `pending` | `AI & Machine Learning` | Expert speech-language pathologist specializing in AI-powered speech therapy, phoneme analysis, articulation visualization, voice disorders, fluency intervention, and assistive communication technology. Activate on 'speech therapy', 'articulation', 'phoneme analysis', 'voice disorder', 'fluency', 'stuttering', 'AAC', 'pronunciation', 'speech recognition', 'mellifluo.us'. NOT for general audio processing, music production, or voice acting coaching without clinical context. |
+| [statistical-analysis](skills/statistical-analysis/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Statistical analysis toolkit. Hypothesis tests (t-test, ANOVA, chi-square), regression, correlation, Bayesian stats, power analysis, assumption checks, APA reporting, for academic research. |
+| [string-database](skills/string-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Query STRING API for protein-protein interactions (59M proteins, 20B interactions). Network analysis, GO/KEGG enrichment, interaction discovery, 5000+ species, for systems biology. |
+| [tooluniverse-adverse-event-detection](skills/tooluniverse-adverse-event-detection/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Detect and analyze adverse drug event signals using FDA FAERS data, drug labels, disproportionality analysis (PRR, ROR, IC), and biomedical evidence. Generates quantitative safety signal scores (0-100) with evidence grading. Use for post-market surveillance, pharmacovigilance, drug safety assessment, adverse event investigation, and regulatory decision support. |
+| [tooluniverse-clinical-guidelines](skills/tooluniverse-clinical-guidelines/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Search and retrieve clinical practice guidelines across 12+ authoritative sources including NICE, WHO, ADA, AHA/ACC, NCCN, SIGN, CPIC, CMA, CTFPHC, GIN, MAGICapp, PubMed, EuropePMC, TRIP, and OpenAlex. Covers disease management, cardiology, oncology, diabetes, pharmacogenomics, and more. Use when users ask about clinical guidelines, treatment recommendations, standard of care, evidence-based medicine, or drug-gene dosing recommendations. |
+| [tooluniverse-clinical-trial-design](skills/tooluniverse-clinical-trial-design/) | `本次迭代范围外` | `-` | `pending` | `medical-research` | Strategic clinical trial design feasibility assessment using ToolUniverse. Evaluates patient population sizing, biomarker prevalence, endpoint selection, comparator analysis, safety monitoring, and regulatory pathways. Creates comprehensive feasibility reports with evidence grading, enrollment projections, and trial design recommendations. Use when planning Phase 1/2 trials, assessing trial feasibility, or designing biomarker-driven studies. |
+| [tooluniverse-disease-research](skills/tooluniverse-disease-research/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Generate comprehensive disease research reports using 100+ ToolUniverse tools. Creates a detailed markdown report file and progressively updates it with findings from 10 research dimensions. All information includes source references. Use when users ask about diseases, syndromes, or need systematic disease analysis. |
+| [tooluniverse-drug-drug-interaction](skills/tooluniverse-drug-drug-interaction/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Comprehensive drug-drug interaction (DDI) prediction and risk assessment. Analyzes interaction mechanisms (CYP450, transporters, pharmacodynamic), severity classification, clinical evidence grading, and provides management strategies. Supports single drug pairs, polypharmacy analysis (3+ drugs), and alternative drug recommendations. Use when users ask about drug interactions, medication safety, polypharmacy risks, or need DDI assessment for clinical decision support. |
+| [tooluniverse-drug-repurposing](skills/tooluniverse-drug-repurposing/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Identify drug repurposing candidates using ToolUniverse for target-based, compound-based, and disease-driven strategies. Searches existing drugs for new therapeutic indications by analyzing targets, bioactivity, safety profiles, and literature evidence. Use when exploring drug repurposing opportunities, finding new indications for approved drugs, or when users mention drug repositioning, off-label uses, or therapeutic alternatives. |
+| [tooluniverse-drug-research](skills/tooluniverse-drug-research/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Generates comprehensive drug research reports with compound disambiguation, evidence grading, and mandatory completeness sections. Covers identity, chemistry, pharmacology, targets, clinical trials, safety, pharmacogenomics, and ADMET properties. Use when users ask about drugs, medications, therapeutics, or need drug profiling, safety assessment, or clinical development research. |
+| [tooluniverse-drug-target-validation](skills/tooluniverse-drug-target-validation/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Comprehensive computational validation of drug targets for early-stage drug discovery. Evaluates targets across 10 dimensions (disambiguation, disease association, druggability, chemical matter, clinical precedent, safety, pathway context, validation evidence, structural insights, validation roadmap) using 60+ ToolUniverse tools. Produces a quantitative Target Validation Score (0-100) with GO/NO-GO recommendation. Use when users ask about target validation, druggability assessment, target prioritization, or "is X a good drug target for Y?" |
+| [tooluniverse-gwas-drug-discovery](skills/tooluniverse-gwas-drug-discovery/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Transform GWAS signals into actionable drug targets and repurposing opportunities. Performs locus-to-gene mapping, target druggability assessment, existing drug identification, safety profile evaluation, and clinical trial matching. Use when discovering drug targets from GWAS data, finding drug repurposing opportunities from genetic associations, or translating GWAS findings into therapeutic leads. |
+| [tooluniverse-gwas-finemapping](skills/tooluniverse-gwas-finemapping/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Identify and prioritize causal variants at GWAS loci using statistical fine-mapping and locus-to-gene predictions. Computes posterior probabilities for causal variants, links variants to genes via L2G predictions, annotates functional consequences, and suggests validation strategies. Use when asked to fine-map GWAS loci, prioritize causal variants, identify credible sets, or link GWAS signals to causal genes. |
+| [tooluniverse-gwas-snp-interpretation](skills/tooluniverse-gwas-snp-interpretation/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Interpret genetic variants (SNPs) from GWAS studies by aggregating evidence from multiple databases (GWAS Catalog, Open Targets Genetics, ClinVar). Retrieves variant annotations, GWAS trait associations, fine-mapping evidence, locus-to-gene predictions, and clinical significance. Use when asked to interpret a SNP by rsID, find disease associations for a variant, assess clinical significance, or answer questions like "What diseases is rs429358 associated with?" or "Interpret rs7903146". |
+| [tooluniverse-gwas-study-explorer](skills/tooluniverse-gwas-study-explorer/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Compare GWAS studies, perform meta-analyses, and assess replication across cohorts. Integrates NHGRI-EBI GWAS Catalog and Open Targets Genetics to compare study designs, effect sizes, ancestry diversity, and heterogeneity statistics. Use when comparing GWAS studies for a trait, performing meta-analysis of genetic loci, assessing replication across cohorts, or exploring the genetic architecture of complex diseases. |
+| [tooluniverse-gwas-trait-to-gene](skills/tooluniverse-gwas-trait-to-gene/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Discover genes associated with diseases and traits using GWAS data from the GWAS Catalog (500,000+ associations) and Open Targets Genetics (L2G predictions). Identifies genetic risk factors, prioritizes causal genes via locus-to-gene scoring, and assesses druggability. Use when asked to find genes associated with a disease or trait, discover genetic risk factors, translate GWAS signals to gene targets, or answer questions like "What genes are associated with type 2 diabetes?" |
+| [tooluniverse-immune-repertoire-analysis](skills/tooluniverse-immune-repertoire-analysis/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Comprehensive immune repertoire analysis for T-cell and B-cell receptor sequencing data. Analyze TCR/BCR repertoires to assess clonality, diversity, V(D)J gene usage, CDR3 characteristics, convergence, and predict epitope specificity. Integrate with single-cell data for clonotype-phenotype associations. Use for adaptive immune response profiling, cancer immunotherapy research, vaccine response assessment, autoimmune disease studies, or repertoire diversity analysis in immunology research. |
+| [tooluniverse-immunotherapy-response-prediction](skills/tooluniverse-immunotherapy-response-prediction/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Predict patient response to immune checkpoint inhibitors (ICIs) using multi-biomarker integration. Given a cancer type, somatic mutations, and optional biomarkers (TMB, PD-L1, MSI status), performs systematic analysis across 11 phases covering TMB classification, neoantigen burden estimation, MSI/MMR assessment, PD-L1 evaluation, immune microenvironment profiling, mutation-based resistance/sensitivity prediction, clinical evidence retrieval, and multi-biomarker score integration. Generates a quantitative ICI Response Score (0-100), response likelihood tier, specific ICI drug recommendations with evidence, resistance risk factors, and a monitoring plan. Use when oncologists ask about immunotherapy eligibility, checkpoint inhibitor selection, or biomarker-guided ICI treatment decisions. |
+| [tooluniverse-infectious-disease](skills/tooluniverse-infectious-disease/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Rapid pathogen characterization and drug repurposing analysis for infectious disease outbreaks. Identifies pathogen taxonomy, essential proteins, predicts structures, and screens existing drugs via docking. Use when facing novel pathogens, emerging infections, or needing rapid therapeutic options during outbreaks. |
+| [tooluniverse-literature-deep-research](skills/tooluniverse-literature-deep-research/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Conduct comprehensive literature research with target disambiguation, evidence grading, and structured theme extraction. Creates a detailed report with mandatory completeness checklist, biological model synthesis, and testable hypotheses. For biological targets, resolves official IDs (Ensembl/UniProt), synonyms, naming collisions, and gathers expression/pathway context before literature search. Default deliverable is a report file; for single factoid questions, uses a fast verification mode and may include an inline answer. Use when users need thorough literature reviews, target profiles, or to verify specific claims from the literature. |
+| [tooluniverse-network-pharmacology](skills/tooluniverse-network-pharmacology/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Construct and analyze compound-target-disease networks for drug repurposing, polypharmacology discovery, and systems pharmacology. Builds multi-layer networks from ChEMBL, OpenTargets, STRING, DrugBank, Reactome, FAERS, and 60+ other ToolUniverse tools. Calculates Network Pharmacology Scores (0-100), identifies repurposing candidates, predicts mechanisms, and analyzes polypharmacology. Use when users ask about drug repurposing via network analysis, multi-target drug effects, compound-target-disease networks, systems pharmacology, or polypharmacology. |
+| [tooluniverse-pharmacovigilance](skills/tooluniverse-pharmacovigilance/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Analyze drug safety signals from FDA adverse event reports, label warnings, and pharmacogenomic data. Calculates disproportionality measures (PRR, ROR), identifies serious adverse events, assesses pharmacogenomic risk variants. Use when asked about drug safety, adverse events, post-market surveillance, or risk-benefit assessment. |
+| [tooluniverse-polygenic-risk-score](skills/tooluniverse-polygenic-risk-score/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Build and interpret polygenic risk scores (PRS) for complex diseases using GWAS summary statistics. Calculates genetic risk profiles, interprets PRS percentiles, and assesses disease predisposition across conditions including type 2 diabetes, coronary artery disease, and Alzheimer's disease. Use when asked to calculate polygenic risk scores, interpret genetic risk for complex diseases, build custom PRS from GWAS data, or answer questions like "What is my genetic predisposition to breast cancer?" |
+| [tooluniverse-precision-medicine-stratification](skills/tooluniverse-precision-medicine-stratification/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Comprehensive patient stratification for precision medicine by integrating genomic, clinical, and therapeutic data. Given a disease/condition, genomic data (germline variants, somatic mutations, expression), and optional clinical parameters, performs multi-phase analysis across 9 phases covering disease disambiguation, genetic risk assessment, disease-specific molecular stratification, pharmacogenomic profiling, comorbidity/DDI risk, pathway analysis, clinical evidence and guideline mapping, clinical trial matching, and integrated outcome prediction. Generates a quantitative Precision Medicine Risk Score (0-100) with risk tier assignment (Low/Intermediate/High/Very High), treatment algorithm (1st/2nd/3rd line), pharmacogenomic guidance, clinical trial matches, and monitoring plan. Use when clinicians ask about patient risk stratification, treatment selection, prognosis prediction, or personalized therapeutic strategy across cancer, metabolic, cardiovascular, neurological, or rare diseases. |
+| [tooluniverse-rare-disease-diagnosis](skills/tooluniverse-rare-disease-diagnosis/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Provide differential diagnosis for patients with suspected rare diseases based on phenotype and genetic data. Matches symptoms to HPO terms, identifies candidate diseases from Orphanet/OMIM, prioritizes genes for testing, interprets variants of uncertain significance. Use when clinician asks about rare disease diagnosis, unexplained phenotypes, or genetic testing interpretation. |
+| [tooluniverse-variant-analysis](skills/tooluniverse-variant-analysis/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Production-ready VCF processing, variant annotation, mutation analysis, and structural variant (SV/CNV) interpretation for bioinformatics questions. Parses VCF files (streaming, large files), classifies mutation types (missense, nonsense, synonymous, frameshift, splice, intronic, intergenic) and structural variants (deletions, duplications, inversions, translocations), applies VAF/depth/quality/consequence filters, annotates with ClinVar/dbSNP/gnomAD/CADD via ToolUniverse, interprets SV/CNV clinical significance using ClinGen dosage sensitivity scores, computes variant statistics, and generates reports. Solves questions like "What fraction of variants with VAF < 0.3 are missense?", "How many non-reference variants remain after filtering intronic/intergenic?", "What is the pathogenicity of this deletion affecting BRCA1?", or "Which dosage-sensitive genes overlap this CNV?". Use when processing VCF files, annotating variants, filtering by VAF/depth/consequence, classifying mutations, interpreting structural variants, assessing CNV pathogenicity, comparing cohorts, or answering variant analysis questions. |
+| [tooluniverse-variant-interpretation](skills/tooluniverse-variant-interpretation/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Systematic clinical variant interpretation from raw variant calls to ACMG-classified recommendations with structural impact analysis. Aggregates evidence from ClinVar, gnomAD, CIViC, UniProt, and PDB across ACMG criteria. Produces pathogenicity scores (0-100), clinical recommendations, and treatment implications. Use when interpreting genetic variants, classifying variants of uncertain significance (VUS), performing ACMG variant classification, or translating variant calls to clinical actionability. |
+| [treatment-plans](skills/treatment-plans/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Generate concise (3-4 page), focused medical treatment plans in LaTeX/PDF format for all clinical specialties. Supports general medical treatment, rehabilitation therapy, mental health care, chronic disease management, perioperative care, and pain management. Includes SMART goal frameworks, evidence-based interventions with minimal text citations, regulatory compliance (HIPAA), and professional formatting. Prioritizes brevity and clinical actionability. |
+| [trial-eligibility-agent](skills/trial-eligibility-agent/) | `本次迭代范围外` | `-` | `pending` | `medical-research` | pending description |
+| [trialgpt-matching](skills/trialgpt-matching/) | `本次迭代范围外` | `-` | `pending` | `medical-research` | pending description |
+| [uniprot-database](skills/uniprot-database/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | Direct REST API access to UniProt. Protein searches, FASTA retrieval, ID mapping, Swiss-Prot/TrEMBL. For Python workflows with multiple databases, prefer bioservices (unified interface to 40+ services). Use this for direct HTTP/REST work or UniProt-specific control. |
+| [varcadd-pathogenicity](skills/varcadd-pathogenicity/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [variant-interpretation-acmg](skills/variant-interpretation-acmg/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+| [wearable-analysis-agent](skills/wearable-analysis-agent/) | `本次迭代范围外` | `-` | `pending` | `uncategorized` | pending description |
+<!-- END GENERATED:README_CATALOG -->
 ---
 
 ## 场景应用

@@ -46,8 +46,9 @@
 
 ## 数据存储
 
-- 本技能不直接调用 `health-memory` 进行数据持久化
-- 如需长期追踪，建议将关键指标录入 `memory/health/items/` 下的对应文件（如 `blood-lipids.md`）
+- 默认场景说明仍以编排为主
+- 其底层 `checkup-report-interpreter` 现在已经支持在传入 `--memory-dir` 或 `--workspace-root` 时，把体检摘要、血压、体重、空腹血糖、HbA1c 写回 `memory/health/`
+- 这意味着年度体检结果可以直接进入长期健康档案，而不是只看一次报告
 
 ## 医学免责声明
 

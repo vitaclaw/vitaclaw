@@ -1,3 +1,15 @@
+---
+name: cancer-metabolism-agent
+description: AI-powered analysis of cancer metabolic reprogramming including Warburg effect, glutamine addiction, lipid metabolism, and metabolic vulnerabilities for therapeutic targeting.
+version: 1.0.0
+user-invocable: false
+allowed-tools: Read, Grep, Glob, Write, Edit, Bash
+metadata:
+  openclaw:
+    category: medical-research
+    measurable_outcome: Execute skill workflow successfully with valid output within 15 minutes.
+---
+
 <!--
 # COPYRIGHT NOTICE
 # This file is part of the "Universal Biomedical Skills" project.
@@ -10,16 +22,6 @@
 # Provenance: Authenticated by MD BABU MIA
 
 -->
-
----
-name: 'cancer-metabolism-agent'
-description: 'AI-powered analysis of cancer metabolic reprogramming including Warburg effect, glutamine addiction, lipid metabolism, and metabolic vulnerabilities for therapeutic targeting.'
-measurable_outcome: Execute skill workflow successfully with valid output within 15 minutes.
-allowed-tools:
-  - read_file
-  - run_shell_command
----
-
 
 # Cancer Metabolism Agent
 

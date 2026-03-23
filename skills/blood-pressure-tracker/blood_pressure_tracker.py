@@ -15,6 +15,7 @@ import matplotlib.dates as mdates
 import sys as _sys
 _sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '_shared'))
 from health_data_store import HealthDataStore
+from health_memory import HealthMemoryWriter
 
 
 # ---------------------------------------------------------------------------
@@ -50,32 +51,49 @@ def plot_trend(values, dates, title, ylabel, ref_lines=None, output_path=None):
 class BloodPressureTracker:
     """血压趋势分析：记录、分级、晨峰检测、日记和统计。"""
 
-    # WHO/ISH classification thresholds
-    CLASSIFICATIONS = [
-        ("normal", "正常", 120, 80),
-        ("normal_high", "正常高值", 140, 90),
-        ("grade1", "1级高血压", 160, 100),
-        ("grade2", "2级高血压", 999, 999),
-    ]
-
-    def __init__(self, data_dir: str = None):
+    def __init__(
+        self,
+        data_dir: str = None,
+        memory_dir: str = None,
+        workspace_root: str = None,
+        auto_sync_memory: bool | None = None,
+        now_fn=None,
+    ):
         self.store = HealthDataStore("blood-pressure-tracker", data_dir=data_dir)
+        env = os.environ
+        if auto_sync_memory is None:
+            auto_sync_memory = bool(
+                memory_dir
+                or workspace_root
+                or env.get("VITACLAW_MEMORY_DIR")
+                or env.get("OPENCLAW_WORKSPACE")
+                or env.get("VITACLAW_WORKSPACE")
+            )
+        self.memory_writer = (
+            HealthMemoryWriter(
+                workspace_root=workspace_root,
+                memory_root=memory_dir,
+                now_fn=now_fn,
+            )
+            if auto_sync_memory
+            else None
+        )
 
     # ----- classify -----
 
     def classify(self, systolic: int, diastolic: int) -> dict:
-        """Classify BP reading per WHO guidelines.
+        """Classify BP reading per current AHA adult categories.
 
         Returns dict with code, label_cn, and description.
         """
         if systolic < 120 and diastolic < 80:
             return {"code": "normal", "label": "正常", "description": "收缩压<120 且 舒张压<80 mmHg"}
+        elif 120 <= systolic < 130 and diastolic < 80:
+            return {"code": "elevated", "label": "血压升高", "description": "收缩压 120-129 且 舒张压<80 mmHg"}
         elif systolic < 140 and diastolic < 90:
-            return {"code": "normal_high", "label": "正常高值", "description": "收缩压 120-139 或 舒张压 80-89 mmHg"}
-        elif systolic < 160 and diastolic < 100:
-            return {"code": "grade1", "label": "1级高血压", "description": "收缩压 140-159 或 舒张压 90-99 mmHg"}
+            return {"code": "grade1", "label": "1级高血压", "description": "收缩压 130-139 或 舒张压 80-89 mmHg"}
         else:
-            return {"code": "grade2", "label": "2级高血压", "description": "收缩压≥160 或 舒张压≥100 mmHg"}
+            return {"code": "grade2", "label": "2级高血压", "description": "收缩压≥140 或 舒张压≥90 mmHg"}
 
     # ----- flag_urgent -----
 
@@ -85,8 +103,16 @@ class BloodPressureTracker:
 
     # ----- record -----
 
-    def record(self, systolic: int, diastolic: int, hr: int = None,
-               context: str = "", arm: str = "", position: str = "") -> dict:
+    def record(
+        self,
+        systolic: int,
+        diastolic: int,
+        hr: int = None,
+        context: str = "",
+        arm: str = "",
+        position: str = "",
+        timestamp: str = None,
+    ) -> dict:
         """Record a BP reading and auto-classify.
 
         Args:
@@ -111,7 +137,7 @@ class BloodPressureTracker:
         if hr is not None:
             data["hr"] = hr
 
-        record = self.store.append("bp", data, note=grade["label"])
+        record = self.store.append("bp", data, note=grade["label"], timestamp=timestamp)
 
         print(f"[记录成功] {systolic}/{diastolic} mmHg" + (f" HR:{hr}" if hr else ""))
         print(f"  分级: {grade['label']} ({grade['description']})")
@@ -122,7 +148,34 @@ class BloodPressureTracker:
         if urgent:
             print(f"  [!!!紧急!!!] 血压极高 ({systolic}/{diastolic})，疑似高血压危象，请立即就医！")
 
+        synced_path = self.sync_memory(latest_record=record)
+        if synced_path:
+            print(f"  已同步健康记忆: {synced_path}")
+
         return record
+
+    def sync_memory(self, latest_record: dict | None = None) -> str | None:
+        if not self.memory_writer:
+            return None
+
+        if latest_record is None:
+            latest = self.store.get_latest("bp", n=1)
+            latest_record = latest[0] if latest else None
+        if not latest_record:
+            return None
+
+        timestamp = latest_record.get("timestamp", "")
+        latest_dt = datetime.fromisoformat(timestamp)
+        date_str = latest_dt.date().isoformat()
+        week_start = (latest_dt.date() - timedelta(days=6)).isoformat()
+
+        day_records = self.store.query("bp", start=date_str, end=date_str)
+        window_records = self.store.query("bp", start=week_start, end=date_str)
+        return self.memory_writer.update_blood_pressure(
+            latest_record=latest_record,
+            day_records=day_records,
+            window_records=window_records,
+        )
 
     # ----- detect_morning_surge -----
 
@@ -184,7 +237,7 @@ class BloodPressureTracker:
 
         grade_labels = {
             "normal": "正常",
-            "normal_high": "正常高值",
+            "elevated": "血压升高",
             "grade1": "1级",
             "grade2": "2级",
         }
@@ -342,7 +395,10 @@ def main():
     p_rec.add_argument("--context", default="", help="时段 (morning/evening)")
     p_rec.add_argument("--arm", default="", help="测量臂 (left/right)")
     p_rec.add_argument("--position", default="", help="体位 (sitting/standing/supine)")
+    p_rec.add_argument("--timestamp", default=None, help="记录时间 (ISO 8601)")
     p_rec.add_argument("--data-dir", default=None, help="数据目录")
+    p_rec.add_argument("--memory-dir", default=None, help="memory/health 目录")
+    p_rec.add_argument("--workspace-root", default=None, help="OpenClaw workspace 根目录")
 
     # diary
     p_diary = sub.add_parser("diary", help="血压日记")
@@ -370,11 +426,16 @@ def main():
         parser.print_help()
         return
 
-    tracker = BloodPressureTracker(data_dir=getattr(args, "data_dir", None))
+    tracker = BloodPressureTracker(
+        data_dir=getattr(args, "data_dir", None),
+        memory_dir=getattr(args, "memory_dir", None),
+        workspace_root=getattr(args, "workspace_root", None),
+    )
 
     if args.command == "record":
         tracker.record(args.systolic, args.diastolic, hr=args.hr,
-                       context=args.context, arm=args.arm, position=args.position)
+                       context=args.context, arm=args.arm, position=args.position,
+                       timestamp=args.timestamp)
     elif args.command == "diary":
         tracker.generate_bp_diary(days=args.days)
     elif args.command == "stats":

@@ -11,6 +11,9 @@ import re
 import sys
 from typing import Any
 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "_shared"))
+from health_memory import HealthMemoryWriter
+
 
 # ---------------------------------------------------------------------------
 # LLM Configuration
@@ -258,10 +261,33 @@ def _parse_llm_json(raw: str) -> Any:
 class CheckupReportInterpreter:
     """体检报告智能解读：PDF解析、结构化提取、异常分级、临床解读、健康建议。"""
 
-    def __init__(self):
+    def __init__(
+        self,
+        memory_dir: str | None = None,
+        workspace_root: str | None = None,
+        now_fn=None,
+    ):
         self.reference_ranges = REFERENCE_RANGES
         self.priority_levels = PRIORITY_LEVELS
         self.critical_thresholds = CRITICAL_THRESHOLDS
+        self._now_fn = now_fn or __import__("datetime").datetime.now
+        env = os.environ
+        auto_sync = bool(
+            memory_dir
+            or workspace_root
+            or env.get("VITACLAW_MEMORY_DIR")
+            or env.get("OPENCLAW_WORKSPACE")
+            or env.get("VITACLAW_WORKSPACE")
+        )
+        self.memory_writer = (
+            HealthMemoryWriter(
+                workspace_root=workspace_root,
+                memory_root=memory_dir,
+                now_fn=self._now_fn,
+            )
+            if auto_sync
+            else None
+        )
 
     # ----- extract_items -----
 
@@ -588,6 +614,7 @@ class CheckupReportInterpreter:
         self,
         pdf_path: str,
         previous_items: list[dict[str, Any]] | None = None,
+        report_date: str | None = None,
     ) -> str:
         """Full pipeline: parse → extract → interpret → prioritize → report.
 
@@ -624,6 +651,12 @@ class CheckupReportInterpreter:
         # Step 3: Prioritize abnormalities
         print("\n[3/5] 正在进行异常分级...")
         items = self.prioritize(items)
+        if self.memory_writer:
+            self.persist_items_to_memory(
+                items,
+                report_date=report_date,
+                report_path=pdf_path,
+            )
 
         priority_counts: dict[str, int] = {}
         for item in items:
@@ -677,6 +710,165 @@ class CheckupReportInterpreter:
         print(full_report)
 
         return full_report
+
+    def _find_item(self, items: list[dict[str, Any]], names: tuple[str, ...]) -> dict[str, Any] | None:
+        normalized = {name.lower() for name in names}
+        for item in items:
+            item_name = str(item.get("item", "") or "").lower()
+            if item_name in normalized:
+                return item
+        return None
+
+    def _extract_numeric(self, item: dict[str, Any] | None) -> float | None:
+        if not item:
+            return None
+        value = str(item.get("value", "") or "").strip()
+        if _is_numeric(value):
+            return float(value)
+        match = re.search(r"-?\d+(?:\.\d+)?", value)
+        return float(match.group()) if match else None
+
+    def persist_items_to_memory(
+        self,
+        items: list[dict[str, Any]],
+        report_date: str | None = None,
+        report_path: str | None = None,
+    ) -> list[str]:
+        if not self.memory_writer or not items:
+            return []
+
+        date_str = report_date or self._now_fn().date().isoformat()
+        source_name = os.path.basename(report_path) if report_path else "annual-checkup-report"
+        written_paths = [
+            self.memory_writer.update_checkup_summary(
+                report_date=date_str,
+                items=items,
+                source_name=source_name,
+            )
+        ]
+        top_abnormal = [
+            f"{item.get('item', 'Unknown')}: {item.get('value', '')}{(' ' + str(item.get('unit', '')).strip()) if str(item.get('unit', '')).strip() else ''}"
+            for item in items
+            if item.get("status") != "正常"
+        ][:3]
+        written_paths.append(
+            self.memory_writer.update_annual_checkup(
+                report_date=date_str,
+                source_name=source_name,
+                notes="; ".join(top_abnormal) if top_abnormal else "本次体检未见明显异常汇总",
+            )
+        )
+
+        height_cm = self._extract_numeric(self._find_item(items, ("身高", "height")))
+        weight_kg = self._extract_numeric(self._find_item(items, ("体重", "weight")))
+        if weight_kg is not None:
+            weight_path = self.memory_writer.update_weight(
+                latest_record={
+                    "timestamp": f"{date_str}T08:00:00",
+                    "type": "weight",
+                    "note": "Annual checkup",
+                    "data": {"kg": weight_kg},
+                },
+                window_records=[
+                    {
+                        "timestamp": f"{date_str}T08:00:00",
+                        "type": "weight",
+                        "note": "Annual checkup",
+                        "data": {"kg": weight_kg},
+                    }
+                ],
+                height_cm=height_cm,
+            )
+            if weight_path:
+                written_paths.append(weight_path)
+
+        bp_item = self._find_item(items, ("血压", "blood pressure", "bp"))
+        systolic_item = self._find_item(items, ("收缩压", "systolic blood pressure"))
+        diastolic_item = self._find_item(items, ("舒张压", "diastolic blood pressure"))
+        hr_item = self._find_item(items, ("心率", "静息心率", "heart rate"))
+
+        systolic = self._extract_numeric(systolic_item)
+        diastolic = self._extract_numeric(diastolic_item)
+        if bp_item and (systolic is None or diastolic is None):
+            bp_match = re.search(r"(\d+)\s*/\s*(\d+)", str(bp_item.get("value", "")))
+            if bp_match:
+                systolic = float(bp_match.group(1))
+                diastolic = float(bp_match.group(2))
+
+        if systolic is not None and diastolic is not None:
+            bp_path = self.memory_writer.update_blood_pressure(
+                latest_record={
+                    "timestamp": f"{date_str}T08:30:00",
+                    "type": "bp",
+                    "note": str((bp_item or {}).get("status", "") or "Checkup reading"),
+                    "data": {
+                        "sys": int(round(systolic)),
+                        "dia": int(round(diastolic)),
+                        "hr": int(round(self._extract_numeric(hr_item))) if self._extract_numeric(hr_item) is not None else None,
+                        "context": "checkup",
+                    },
+                },
+                day_records=[
+                    {
+                        "timestamp": f"{date_str}T08:30:00",
+                        "type": "bp",
+                        "note": str((bp_item or {}).get("status", "") or "Checkup reading"),
+                        "data": {
+                            "sys": int(round(systolic)),
+                            "dia": int(round(diastolic)),
+                            "hr": int(round(self._extract_numeric(hr_item))) if self._extract_numeric(hr_item) is not None else None,
+                            "context": "checkup",
+                        },
+                    }
+                ],
+                window_records=[
+                    {
+                        "timestamp": f"{date_str}T08:30:00",
+                        "type": "bp",
+                        "note": str((bp_item or {}).get("status", "") or "Checkup reading"),
+                        "data": {
+                            "sys": int(round(systolic)),
+                            "dia": int(round(diastolic)),
+                            "hr": int(round(self._extract_numeric(hr_item))) if self._extract_numeric(hr_item) is not None else None,
+                            "context": "checkup",
+                        },
+                    }
+                ],
+            )
+            if bp_path:
+                written_paths.append(bp_path)
+
+        fasting_glucose = self._extract_numeric(self._find_item(items, ("空腹血糖", "fpg", "fasting glucose")))
+        hba1c = self._extract_numeric(self._find_item(items, ("糖化血红蛋白", "hba1c")))
+        if fasting_glucose is not None or hba1c is not None:
+            glucose_records = []
+            if fasting_glucose is not None:
+                glucose_records.append(
+                    {
+                        "timestamp": f"{date_str}T08:40:00",
+                        "type": "glucose",
+                        "note": "Checkup fasting glucose",
+                        "data": {"value": fasting_glucose, "context": "fasting"},
+                    }
+                )
+            if hba1c is not None:
+                glucose_records.append(
+                    {
+                        "timestamp": f"{date_str}T08:45:00",
+                        "type": "glucose",
+                        "note": "Checkup HbA1c",
+                        "data": {"value": hba1c, "context": "hba1c", "kind": "hba1c"},
+                    }
+                )
+            glucose_path = self.memory_writer.update_blood_sugar(
+                day_records=glucose_records,
+                window_records=glucose_records,
+                measurement_date=date_str,
+            )
+            if glucose_path:
+                written_paths.append(glucose_path)
+
+        return written_paths
 
     # ----- Internal formatting helpers -----
 
@@ -894,6 +1086,9 @@ def main():
     # report - full interpretation pipeline
     p_report = sub.add_parser("report", help="完整解读体检报告")
     p_report.add_argument("pdf", help="体检报告 PDF 文件路径")
+    p_report.add_argument("--memory-dir", default=None, help="memory/health 目录")
+    p_report.add_argument("--workspace-root", default=None, help="OpenClaw workspace 根目录")
+    p_report.add_argument("--report-date", default=None, help="报告日期 YYYY-MM-DD")
 
     # parse - extract raw text only
     p_parse = sub.add_parser("parse", help="仅解析 PDF 提取文本")
@@ -902,11 +1097,17 @@ def main():
     # extract - extract structured items
     p_extract = sub.add_parser("extract", help="提取结构化检查项目")
     p_extract.add_argument("pdf", help="体检报告 PDF 文件路径")
+    p_extract.add_argument("--memory-dir", default=None, help="memory/health 目录")
+    p_extract.add_argument("--workspace-root", default=None, help="OpenClaw workspace 根目录")
+    p_extract.add_argument("--report-date", default=None, help="报告日期 YYYY-MM-DD")
 
     # compare - compare two years
     p_compare = sub.add_parser("compare", help="对比两年体检报告")
     p_compare.add_argument("current_pdf", help="今年体检报告 PDF 文件路径")
     p_compare.add_argument("previous_pdf", help="往年体检报告 PDF 文件路径")
+    p_compare.add_argument("--memory-dir", default=None, help="memory/health 目录")
+    p_compare.add_argument("--workspace-root", default=None, help="OpenClaw workspace 根目录")
+    p_compare.add_argument("--report-date", default=None, help="报告日期 YYYY-MM-DD")
 
     args = parser.parse_args()
 
@@ -914,7 +1115,10 @@ def main():
         parser.print_help()
         return
 
-    interpreter = CheckupReportInterpreter()
+    interpreter = CheckupReportInterpreter(
+        memory_dir=getattr(args, "memory_dir", None),
+        workspace_root=getattr(args, "workspace_root", None),
+    )
 
     if args.command == "parse":
         try:
@@ -940,11 +1144,17 @@ def main():
 
         # Prioritize and display
         items = interpreter.prioritize(items)
+        if interpreter.memory_writer:
+            interpreter.persist_items_to_memory(
+                items,
+                report_date=args.report_date,
+                report_path=args.pdf,
+            )
         print(f"\n提取到 {len(items)} 个检查项目:\n")
         print(json.dumps(items, ensure_ascii=False, indent=2))
 
     elif args.command == "report":
-        interpreter.generate_report(args.pdf)
+        interpreter.generate_report(args.pdf, report_date=args.report_date)
 
     elif args.command == "compare":
         # Parse and extract from both PDFs
@@ -967,7 +1177,11 @@ def main():
             sys.exit(1)
 
         # Generate full report with comparison
-        interpreter.generate_report(args.current_pdf, previous_items=items_previous)
+        interpreter.generate_report(
+            args.current_pdf,
+            previous_items=items_previous,
+            report_date=args.report_date,
+        )
 
 
 if __name__ == "__main__":

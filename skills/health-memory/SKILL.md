@@ -3,6 +3,7 @@ name: health-memory
 description: "Centralized health memory hub — manages daily logs and per-item longitudinal tracking files under memory/health/. WHEN TO USE: After any health skill records data, or when answering health questions that need historical context."
 version: 1.0.0
 user-invocable: false
+allowed-tools: Read, Grep, Glob, Write, Edit
 metadata: {"openclaw":{"emoji":"🧠","category":"health"}}
 ---
 

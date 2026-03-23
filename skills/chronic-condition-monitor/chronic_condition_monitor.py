@@ -14,6 +14,7 @@ import matplotlib.dates as mdates
 import sys as _sys
 _sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '_shared'))
 from health_data_store import HealthDataStore
+from health_memory import HealthMemoryWriter
 
 
 # ---------------------------------------------------------------------------
@@ -84,8 +85,34 @@ class ChronicConditionMonitor:
 
     METRIC_TYPES = ("bp", "glucose", "weight", "uric_acid", "creatinine", "egfr", "custom")
 
-    def __init__(self, data_dir: str = None):
+    def __init__(
+        self,
+        data_dir: str = None,
+        memory_dir: str = None,
+        workspace_root: str = None,
+        auto_sync_memory: bool | None = None,
+        now_fn=None,
+    ):
         self.store = HealthDataStore("chronic-condition-monitor", data_dir=data_dir)
+        self._now_fn = now_fn or datetime.now
+        env = os.environ
+        if auto_sync_memory is None:
+            auto_sync_memory = bool(
+                memory_dir
+                or workspace_root
+                or env.get("VITACLAW_MEMORY_DIR")
+                or env.get("OPENCLAW_WORKSPACE")
+                or env.get("VITACLAW_WORKSPACE")
+            )
+        self.memory_writer = (
+            HealthMemoryWriter(
+                workspace_root=workspace_root,
+                memory_root=memory_dir,
+                now_fn=self._now_fn,
+            )
+            if auto_sync_memory
+            else None
+        )
         self._init_thresholds()
 
     def _init_thresholds(self):
@@ -99,7 +126,14 @@ class ChronicConditionMonitor:
 
     # ----- record -----
 
-    def record(self, metric_type: str, values: dict, context: str = "", note: str = "") -> dict:
+    def record(
+        self,
+        metric_type: str,
+        values: dict,
+        context: str = "",
+        note: str = "",
+        timestamp: str = None,
+    ) -> dict:
         """Record a metric reading.
 
         Args:
@@ -111,9 +145,59 @@ class ChronicConditionMonitor:
         if metric_type not in self.METRIC_TYPES:
             raise ValueError(f"未知指标类型: {metric_type}，支持: {self.METRIC_TYPES}")
         data = {**values, "context": context}
-        record = self.store.append(metric_type, data, note=note)
+        record = self.store.append(metric_type, data, note=note, timestamp=timestamp)
         print(f"[记录成功] {metric_type} | {values} | 上下文: {context or '无'}")
+        synced_path = self.sync_memory(latest_record=record)
+        if synced_path:
+            print(f"  已同步健康记忆: {synced_path}")
         return record
+
+    def sync_memory(self, latest_record: dict | None = None) -> str | None:
+        if not self.memory_writer:
+            return None
+
+        if latest_record is None:
+            all_records = self.store.get_latest(n=1)
+            latest_record = all_records[0] if all_records else None
+        if not latest_record:
+            return None
+
+        metric_type = latest_record.get("type")
+        timestamp = latest_record.get("timestamp", "")
+        date_str = timestamp[:10]
+        record_date = datetime.fromisoformat(timestamp).date()
+        day_start = date_str
+        window_start = (record_date - timedelta(days=29)).isoformat()
+
+        if metric_type == "glucose":
+            day_records = self.store.query("glucose", start=day_start, end=day_start)
+            window_records = self.store.query("glucose", start=window_start, end=day_start)
+            return self.memory_writer.update_blood_sugar(
+                day_records=day_records,
+                window_records=window_records,
+                measurement_date=date_str,
+            )
+
+        if metric_type == "weight":
+            window_records = self.store.query("weight", start=window_start, end=day_start)
+            height_cm = latest_record.get("data", {}).get("height_cm")
+            return self.memory_writer.update_weight(
+                latest_record=latest_record,
+                window_records=window_records,
+                height_cm=float(height_cm) if height_cm not in (None, "") else None,
+            )
+
+        if metric_type == "bp":
+            day_records = self.store.query("bp", start=day_start, end=day_start)
+            bp_window_start = (record_date - timedelta(days=6)).isoformat()
+            window_records = self.store.query("bp", start=bp_window_start, end=day_start)
+            return self.memory_writer.update_blood_pressure(
+                latest_record=latest_record,
+                day_records=day_records,
+                window_records=window_records,
+            )
+
+        return None
 
     # ----- query -----
 
@@ -350,7 +434,10 @@ def main():
     p_rec.add_argument("values", type=str, help="指标值 (JSON)")
     p_rec.add_argument("--context", default="", help="测量上下文")
     p_rec.add_argument("--note", default="", help="备注")
+    p_rec.add_argument("--timestamp", default=None, help="记录时间 (ISO 8601)")
     p_rec.add_argument("--data-dir", default=None, help="数据目录")
+    p_rec.add_argument("--memory-dir", default=None, help="memory/health 目录")
+    p_rec.add_argument("--workspace-root", default=None, help="OpenClaw workspace 根目录")
 
     # query
     p_query = sub.add_parser("query", help="查询记录")
@@ -386,11 +473,21 @@ def main():
         parser.print_help()
         return
 
-    monitor = ChronicConditionMonitor(data_dir=getattr(args, "data_dir", None))
+    monitor = ChronicConditionMonitor(
+        data_dir=getattr(args, "data_dir", None),
+        memory_dir=getattr(args, "memory_dir", None),
+        workspace_root=getattr(args, "workspace_root", None),
+    )
 
     if args.command == "record":
         values = json.loads(args.values)
-        monitor.record(args.metric_type, values, context=args.context, note=args.note)
+        monitor.record(
+            args.metric_type,
+            values,
+            context=args.context,
+            note=args.note,
+            timestamp=args.timestamp,
+        )
     elif args.command == "query":
         monitor.query(metric_type=args.metric_type, days=args.days)
     elif args.command == "trend":

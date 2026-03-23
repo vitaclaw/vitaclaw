@@ -1,0 +1,31 @@
+{
+  "name": "vitaclaw-core",
+  "tier": "stable",
+  "description": "Chief-led core health team package with templates, config, scripts, docs, and shared runtime.",
+  "include": [
+    "AGENTS.md",
+    "BOOTSTRAP.md",
+    "HEARTBEAT.md",
+    "MEMORY.md",
+    "SOUL.md",
+    "USER.md",
+    "IDENTITY.md",
+    "configs/openclaw.health.json5",
+    "docs/health-agent-architecture.zh.md",
+    "docs/health-agent-quickstart.zh.md",
+    "docs/health-data-contract.md",
+    "docs/health-memory-spec.zh.md",
+    "docs/health-release-packages.zh.md",
+    "scripts/init_health_workspace.py",
+    "scripts/run_health_chief_of_staff.py",
+    "scripts/run_health_heartbeat.py",
+    "scripts/run_health_operations.py",
+    "scripts/run_hypertension_daily_copilot.py",
+    "scripts/run_diabetes_control_hub.py",
+    "scripts/run_annual_checkup_advisor.py",
+    "scripts/build_vitaclaw_release.py",
+    "skills/_shared/*.py",
+    "templates/openclaw-health-agent/**",
+    "templates/openclaw-health-research-agent/**"
+  ]
+}

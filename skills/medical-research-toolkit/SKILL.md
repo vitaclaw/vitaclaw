@@ -1,6 +1,12 @@
 ---
 name: medical-research-toolkit
 description: Query 14+ biomedical databases for drug repurposing, target discovery, clinical trials, and literature research. Access ChEMBL, PubMed, ClinicalTrials.gov, OpenTargets, OpenFDA, OMIM, Reactome, KEGG, UniProt, and more through a unified MCP endpoint. Use when researching disease targets, finding approved/investigational drugs, searching clinical evidence, discovering genetic associations, or analyzing compound bioactivity data.
+version: 1.0.0
+user-invocable: false
+allowed-tools: Read, Grep, Glob, Write, Edit, WebFetch
+metadata:
+  openclaw:
+    category: medical-research
 ---
 
 # Medical Research Toolkit
