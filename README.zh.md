@@ -40,25 +40,25 @@ VitaClaw 建立在三大支柱之上：
 
 ## 安装
 
-### 方式 A —— Git Clone（推荐）
+### 推荐方式 —— 让你的 Agent 直接安装 VitaClaw
 
-```bash
-# 克隆到 OpenClaw 共享技能目录
-git clone https://github.com/vitaclaw/vitaclaw.git ~/.openclaw/skills/vitaclaw
+把下面这段提示词直接发给你的 Agent：
 
-# 或克隆到工作区
-git clone https://github.com/vitaclaw/vitaclaw.git ./skills/vitaclaw
+```text
+帮我安装 VitaClaw，仓库地址是 https://github.com/vitaclaw/vitaclaw/tree/beta。
+
+安装前请先理解 VitaClaw 的核心原理、工作区结构、记忆契约和健康团队工作流，再检查我当前的 Agent 架构、技能目录、工作区布局和本机环境，然后按当前环境做适配，让 VitaClaw 真正融入这台机器，而不是生硬移植。
+
+要求：
+- 使用 beta 分支。
+- 尽量保留现有 Agent 和 workspace 约定。
+- 把 VitaClaw 安装到这台机器最合适的 skills 目录中。
+- 除非必要，不要重复安装或覆盖已有 skills。
+- 如果需要 bootstrap 或 onboarding，请执行合适的初始化步骤，并说明初始化了什么。
+- 安装完成后，验证 skills 已可被发现，并总结做了哪些改动、安装到了哪里，以及接下来如何开始使用。
 ```
 
-### 方式 B —— 按需挑选
-
-```bash
-# 只复制你需要的技能
-cp -r vitaclaw/skills/blood-pressure-tracker ~/.openclaw/skills/
-cp -r vitaclaw/skills/diabetes-control-hub   ~/.openclaw/skills/
-```
-
-无需强制构建步骤，也无需全局安装。OpenClaw 会自动发现技能目录中的 `SKILL.md` 文件；如果你希望直接初始化健康工作区，可以运行 `python3 scripts/init_health_workspace.py --onboard`。
+VitaClaw 不需要强制构建步骤，也不需要全局安装。兼容 OpenClaw 的运行时会自动发现技能目录中的 `SKILL.md` 文件；如果你希望直接初始化健康工作区，也可以运行 `python3 scripts/init_health_workspace.py --onboard`。
 
 ---
 

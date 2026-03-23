@@ -40,25 +40,25 @@ VitaClaw is built on three pillars:
 
 ## Installation
 
-### Option A — Git Clone (recommended)
+### Recommended — Ask your agent to install VitaClaw
 
-```bash
-# Clone into OpenClaw shared skills directory
-git clone https://github.com/vitaclaw/vitaclaw.git ~/.openclaw/skills/vitaclaw
+Copy the prompt below into your agent:
 
-# Or clone into a workspace
-git clone https://github.com/vitaclaw/vitaclaw.git ./skills/vitaclaw
+```text
+Help me install VitaClaw from https://github.com/vitaclaw/vitaclaw/tree/beta.
+
+Before making changes, first understand VitaClaw's core principles, workspace structure, memory contract, and health-team workflow. Then inspect my current agent architecture, skills directories, workspace layout, and local environment, and adapt the installation so VitaClaw fits naturally into this machine instead of being copied in mechanically.
+
+Requirements:
+- Use the beta branch.
+- Preserve existing agent and workspace conventions when possible.
+- Install VitaClaw into the most appropriate skills location for this machine.
+- Avoid duplicating or overwriting existing skills unless necessary.
+- If workspace bootstrap or onboarding is needed, run the appropriate setup and explain what was initialized.
+- After installation, verify that the skills are discoverable and summarize what changed, where VitaClaw was installed, and how to start using it.
 ```
 
-### Option B — Cherry-pick individual skills
-
-```bash
-# Copy only the skills you need
-cp -r vitaclaw/skills/blood-pressure-tracker ~/.openclaw/skills/
-cp -r vitaclaw/skills/diabetes-control-hub   ~/.openclaw/skills/
-```
-
-No mandatory build step and no global install step. OpenClaw automatically discovers `SKILL.md` files in its skills directories, and VitaClaw now ships an optional workspace onboarding flow via `python3 scripts/init_health_workspace.py --onboard`.
+VitaClaw does not require a mandatory build step or global install step. OpenClaw-compatible runtimes discover `SKILL.md` files automatically, and VitaClaw also ships an optional workspace onboarding flow via `python3 scripts/init_health_workspace.py --onboard`.
 
 ---
 
