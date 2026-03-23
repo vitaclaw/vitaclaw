@@ -15,12 +15,15 @@
 
 ## 包含的 skills
 
+- `web-access`
+- `doctor-profile-harvester`
 - `department-fit-router`
 - `doctor-evidence-profiler`
 - `doctor-fit-finder`
 
 chief-led 场景入口：
 
+- `python3 scripts/run_doctor_profile_harvester.py ...`
 - `python3 scripts/run_health_chief_of_staff.py doctor-match ...`
 - `python3 scripts/run_doctor_match_workflow.py ...`
 
@@ -65,6 +68,27 @@ chief-led 场景入口：
 ]
 ```
 
+### `doctor-sources.json`
+
+如果你还没有 `doctors.json`，可以先从医院官网采集：
+
+```json
+[
+  {
+    "source_url": "https://hospital.example/cardiology",
+    "hospital": "瑞和国际门诊",
+    "city": "上海",
+    "district": "徐汇",
+    "department_hint": "心内科 / 高血压门诊",
+    "allowed_domains": ["hospital.example"],
+    "entry_selector": "a",
+    "link_substrings": ["doctor", "expert", "医生", "专家"],
+    "limit": 6,
+    "mode": "auto"
+  }
+]
+```
+
 ## 推荐运行方式
 
 ### 直接跑工作流
@@ -78,6 +102,19 @@ python3 scripts/run_doctor_match_workflow.py \
   --pubmed-mode auto
 ```
 
+### 先从医院公开页采集，再进入匹配
+
+```bash
+python3 scripts/run_doctor_match_workflow.py \
+  --workspace-root ~/openclaw/workspace-health-main \
+  --memory-dir ~/openclaw/workspace-health-main/memory/health \
+  --patient-json /path/to/patient.json \
+  --doctor-seeds-json /path/to/doctor-sources.json \
+  --harvest-mode auto \
+  --harvest-output /tmp/doctors.json \
+  --pubmed-mode auto
+```
+
 ### 走 chief-led 单入口
 
 ```bash
@@ -85,7 +122,9 @@ python3 scripts/run_health_chief_of_staff.py doctor-match \
   --workspace-root ~/openclaw/workspace-health-main \
   --memory-dir ~/openclaw/workspace-health-main/memory/health \
   --patient-json /path/to/patient.json \
-  --doctors-json /path/to/doctors.json \
+  --doctor-seeds-json /path/to/doctor-sources.json \
+  --harvest-mode auto \
+  --harvest-output /tmp/doctors.json \
   --pubmed-mode auto
 ```
 
@@ -116,5 +155,6 @@ python3 scripts/run_health_chief_of_staff.py doctor-match \
 - 不自动挂号，不替用户点微信小程序
 - 不做医生能力绝对排名
 - 不把公开论文数量当成唯一标准
+- `web-access` 只作为公开医院页面的受控采集层，不开放社媒、支付、账号变更等浏览器能力
 - 不替代急症分诊
 - 若出现急性危险症状，应优先线下急诊或尽快就医

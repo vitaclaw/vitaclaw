@@ -1,37 +1,37 @@
 {
-  "generated_at": "2026-03-23T22:15:10",
+  "generated_at": "2026-03-24T00:47:04",
   "repo_root": "/Users/baozhiwei/Library/CloudStorage/坚果云-452858265@qq.com/我的坚果云/其他项目/vitaclaw-main",
   "summary": {
-    "skill_count": 222,
-    "health_skill_count": 80,
-    "with_frontmatter": 184,
-    "frontmatter_valid": 80,
-    "with_code": 113,
+    "skill_count": 224,
+    "health_skill_count": 82,
+    "with_frontmatter": 186,
+    "frontmatter_valid": 82,
+    "with_code": 115,
     "with_tests": 24,
-    "with_cli_entrypoints": 47,
-    "user_invocable_true": 43,
+    "with_cli_entrypoints": 48,
+    "user_invocable_true": 44,
     "user_invocable_missing": 142,
-    "health_core_core": 66,
+    "health_core_core": 68,
     "health_core_labs": 6,
     "health_core_restricted": 8,
-    "health_core_audit_pass": 72,
+    "health_core_audit_pass": 74,
     "out_of_scope_count": 142
   },
   "health_core": {
     "summary": {
-      "skill_count": 80,
-      "health_skill_count": 80,
-      "with_frontmatter": 80,
-      "frontmatter_valid": 80,
-      "with_code": 32,
+      "skill_count": 82,
+      "health_skill_count": 82,
+      "with_frontmatter": 82,
+      "frontmatter_valid": 82,
+      "with_code": 34,
       "with_tests": 7,
-      "with_cli_entrypoints": 26,
-      "user_invocable_true": 43,
+      "with_cli_entrypoints": 27,
+      "user_invocable_true": 44,
       "user_invocable_missing": 0,
-      "health_core_core": 66,
+      "health_core_core": 68,
       "health_core_labs": 6,
       "health_core_restricted": 8,
-      "health_core_audit_pass": 72,
+      "health_core_audit_pass": 74,
       "out_of_scope_count": 0
     },
     "skills": [
@@ -374,6 +374,24 @@
           "Edit"
         ],
         "category": "health",
+        "frontmatter_valid": true,
+        "frontmatter_validation_errors": []
+      },
+      {
+        "slug": "doctor-profile-harvester",
+        "path": "skills/doctor-profile-harvester",
+        "distribution_tier": "core",
+        "audit_status": "pass",
+        "license_evidence": "frontmatter license: MIT",
+        "user_invocable": true,
+        "allowed_tools": [
+          "Read",
+          "Grep",
+          "Glob",
+          "Write",
+          "Edit"
+        ],
+        "category": "health-records",
         "frontmatter_valid": true,
         "frontmatter_validation_errors": []
       },
@@ -1185,6 +1203,24 @@
           "Edit"
         ],
         "category": "health",
+        "frontmatter_valid": true,
+        "frontmatter_validation_errors": []
+      },
+      {
+        "slug": "web-access",
+        "path": "skills/web-access",
+        "distribution_tier": "core",
+        "audit_status": "pass",
+        "license_evidence": "frontmatter license: MIT",
+        "user_invocable": false,
+        "allowed_tools": [
+          "Read",
+          "Grep",
+          "Glob",
+          "Write",
+          "Edit"
+        ],
+        "category": "health-infrastructure",
         "frontmatter_valid": true,
         "frontmatter_validation_errors": []
       },

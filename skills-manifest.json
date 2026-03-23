@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-03-23T22:15:10",
+  "generated_at": "2026-03-24T00:47:04",
   "repo_root": "/Users/baozhiwei/Library/CloudStorage/坚果云-452858265@qq.com/我的坚果云/其他项目/vitaclaw-main",
   "summary": {
-    "skill_count": 222,
-    "health_skill_count": 80,
-    "with_frontmatter": 184,
-    "frontmatter_valid": 80,
-    "with_code": 113,
+    "skill_count": 224,
+    "health_skill_count": 82,
+    "with_frontmatter": 186,
+    "frontmatter_valid": 82,
+    "with_code": 115,
     "with_tests": 24,
-    "with_cli_entrypoints": 47,
-    "user_invocable_true": 43,
+    "with_cli_entrypoints": 48,
+    "user_invocable_true": 44,
     "user_invocable_missing": 142,
-    "health_core_core": 66,
+    "health_core_core": 68,
     "health_core_labs": 6,
     "health_core_restricted": 8,
-    "health_core_audit_pass": 72,
+    "health_core_audit_pass": 74,
     "out_of_scope_count": 142
   },
   "skills": [
@@ -3511,6 +3511,61 @@
       "is_health_skill": true
     },
     {
+      "slug": "doctor-profile-harvester",
+      "path": "skills/doctor-profile-harvester",
+      "has_skill_md": true,
+      "has_readme": false,
+      "has_frontmatter": true,
+      "frontmatter_parse_errors": [],
+      "frontmatter_valid": true,
+      "frontmatter_validation_errors": [],
+      "name": "doctor-profile-harvester",
+      "description": "Harvest public doctor candidates from hospital public pages and doctor profile pages, using controlled web-access browser fallback only when static fetch is insufficient. Use before doctor-fit-finder when the user has official hospital pages but not a ready-made doctors.json shortlist.",
+      "version": "1.0.0",
+      "user_invocable": true,
+      "allowed_tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Write",
+        "Edit"
+      ],
+      "category": "health-records",
+      "metadata": {
+        "openclaw": {
+          "emoji": "🏥",
+          "category": "health-records"
+        }
+      },
+      "has_code": true,
+      "code_file_count": 1,
+      "code_files": [
+        "doctor_profile_harvester.py"
+      ],
+      "languages": [
+        "python"
+      ],
+      "primary_language": "python",
+      "has_dependencies": false,
+      "dependency_files": [],
+      "root_python_files": [
+        "doctor_profile_harvester.py"
+      ],
+      "cli_entrypoints": [
+        "doctor_profile_harvester.py"
+      ],
+      "primary_cli_entrypoint": "doctor_profile_harvester.py",
+      "has_tests": false,
+      "test_files": [],
+      "license_files": [],
+      "license_status": "present",
+      "license_evidence": "frontmatter license: MIT",
+      "governance_scope": "health-core",
+      "distribution_tier": "core",
+      "audit_status": "pass",
+      "is_health_skill": true
+    },
+    {
       "slug": "drug-adverse-event-query",
       "path": "skills/drug-adverse-event-query",
       "has_skill_md": true,
@@ -6415,14 +6470,17 @@
         }
       },
       "has_code": true,
-      "code_file_count": 7,
+      "code_file_count": 10,
       "code_files": [
         "scripts/check_gpu.py",
+        "scripts/copy_patient_document.py",
+        "scripts/ensure_redaction_runtime.py",
         "scripts/extract_docx.py",
         "scripts/extract_excel.py",
         "scripts/extract_pdf.py",
         "scripts/init_patient.py",
         "scripts/redact_ocr.py",
+        "scripts/repair_patient_images.py",
         "scripts/unpack_archive.py"
       ],
       "languages": [
@@ -10911,6 +10969,60 @@
       "distribution_tier": null,
       "audit_status": "needs-review",
       "is_health_skill": false
+    },
+    {
+      "slug": "web-access",
+      "path": "skills/web-access",
+      "has_skill_md": true,
+      "has_readme": true,
+      "has_frontmatter": true,
+      "frontmatter_parse_errors": [],
+      "frontmatter_valid": true,
+      "frontmatter_validation_errors": [],
+      "name": "web-access",
+      "description": "Controlled browser and network access for VitaClaw public-health workflows. Use when official hospital pages, doctor profile pages, dynamic health portals, or other public medical pages require browser fallback beyond static fetch. Do not use for social posting, payment, or sensitive account automation.",
+      "version": "1.0.0",
+      "user_invocable": false,
+      "allowed_tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Write",
+        "Edit"
+      ],
+      "category": "health-infrastructure",
+      "metadata": {
+        "openclaw": {
+          "emoji": "🌐",
+          "category": "health-infrastructure"
+        }
+      },
+      "has_code": true,
+      "code_file_count": 3,
+      "code_files": [
+        "scripts/cdp-proxy.mjs",
+        "scripts/check-deps.sh",
+        "scripts/match-site.sh"
+      ],
+      "languages": [
+        "javascript",
+        "shell"
+      ],
+      "primary_language": "javascript",
+      "has_dependencies": false,
+      "dependency_files": [],
+      "root_python_files": [],
+      "cli_entrypoints": [],
+      "primary_cli_entrypoint": null,
+      "has_tests": false,
+      "test_files": [],
+      "license_files": [],
+      "license_status": "present",
+      "license_evidence": "frontmatter license: MIT",
+      "governance_scope": "health-core",
+      "distribution_tier": "core",
+      "audit_status": "pass",
+      "is_health_skill": true
     },
     {
       "slug": "weekly-health-digest",

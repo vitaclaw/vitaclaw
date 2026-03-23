@@ -1,0 +1,14 @@
+[
+  {
+    "source_url": "https://hospital.example/cardiology",
+    "hospital": "瑞和国际门诊",
+    "city": "上海",
+    "district": "徐汇",
+    "department_hint": "心内科 / 高血压门诊",
+    "allowed_domains": ["hospital.example"],
+    "entry_selector": "a",
+    "link_substrings": ["doctor", "expert", "医生", "专家"],
+    "limit": 6,
+    "mode": "auto"
+  }
+]

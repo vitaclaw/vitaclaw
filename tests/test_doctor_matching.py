@@ -21,7 +21,9 @@ from doctor_matching import (  # noqa: E402
     DoctorFitFinder,
     PubMedClient,
 )
+from doctor_profile_harvester import DoctorProfileHarvester  # noqa: E402
 from health_team_runtime import HealthTeamOrchestrator  # noqa: E402
+from web_access_runtime import PageSnapshot, WebAccessHealthPolicy, WebAccessRuntime  # noqa: E402
 
 
 PROFILE_HTML = """
@@ -36,6 +38,34 @@ PROFILE_HTML = """
   </body>
 </html>
 """
+
+DIRECTORY_HTML = """
+<html>
+  <body>
+    <h1>心内科专家团队</h1>
+    <a href="/doctor-li">李明主任医师</a>
+    <a href="/doctor-wang">王琪副主任医师</a>
+  </body>
+</html>
+"""
+
+LOADING_HTML = """
+<html>
+  <head><title>Loading...</title></head>
+  <body>Please enable JavaScript to continue.</body>
+</html>
+"""
+
+DOCTOR_WANG_BROWSER = PageSnapshot(
+    url="https://hospital.example/doctor-wang",
+    title="王琪医生",
+    text="王琪医生 消化内科 / 肝病门诊 擅长脂肪肝、转氨酶异常、代谢相关肝病。门诊时间 周四上午。提供慢病长期随访。",
+    headings=["王琪", "消化内科 / 肝病门诊"],
+    anchors=[],
+    selected_anchors=[],
+    mode_used="browser",
+    meta_description="脂肪肝与肝功能异常专长",
+)
 
 
 ESEARCH_JSON = {
@@ -88,9 +118,46 @@ def fake_fetcher(url: str) -> str:
         return json.dumps(ESEARCH_JSON, ensure_ascii=False)
     if "efetch.fcgi" in url:
         return EFETCH_XML
+    if url.rstrip("/") == "https://hospital.example/cardiology":
+        return DIRECTORY_HTML
     if "doctor-li" in url:
         return PROFILE_HTML
+    if "doctor-wang" in url:
+        return LOADING_HTML
     raise AssertionError(f"unexpected URL: {url}")
+
+
+def fake_browser_fetcher(url: str, entry_selector=None):
+    if url.rstrip("/") == "https://hospital.example/cardiology":
+        return PageSnapshot(
+            url=url,
+            title="心内科专家团队",
+            text="心内科专家团队 李明主任医师 王琪副主任医师",
+            headings=["心内科专家团队"],
+            anchors=[
+                {"href": "https://hospital.example/doctor-li", "text": "李明主任医师"},
+                {"href": "https://hospital.example/doctor-wang", "text": "王琪副主任医师"},
+            ],
+            selected_anchors=[
+                {"href": "https://hospital.example/doctor-li", "text": "李明主任医师"},
+                {"href": "https://hospital.example/doctor-wang", "text": "王琪副主任医师"},
+            ],
+            mode_used="browser",
+        )
+    if "doctor-wang" in url:
+        return DOCTOR_WANG_BROWSER
+    if "doctor-li" in url:
+        return PageSnapshot(
+            url=url,
+            title="李明医生",
+            text="李明医生 心内科 / 高血压门诊 擅长高血压、血脂管理和慢病随访。门诊时间 周二下午 / 周五上午。",
+            headings=["李明", "心内科 / 高血压门诊"],
+            anchors=[],
+            selected_anchors=[],
+            mode_used="browser",
+            meta_description="高血压和血脂管理",
+        )
+    raise AssertionError(f"unexpected browser URL: {url}")
 
 
 def fake_fit_finder() -> DoctorFitFinder:
@@ -158,6 +225,22 @@ DOCTOR_CANDIDATES = [
 
 
 class DoctorMatchingTest(unittest.TestCase):
+    def test_health_web_policy_blocks_social_domains(self):
+        policy = WebAccessHealthPolicy()
+        allowed, reason = policy.validate_url("https://www.xiaohongshu.com/user/profile/123")
+        self.assertFalse(allowed)
+        self.assertIn("Blocked", reason)
+
+    def test_web_runtime_auto_falls_back_to_browser_for_js_heavy_pages(self):
+        runtime = WebAccessRuntime(
+            static_fetcher=fake_fetcher,
+            browser_fetcher=fake_browser_fetcher,
+            runtime_checker=lambda: {"ready": True, "reason": "ok"},
+        )
+        page = runtime.fetch_page("https://hospital.example/doctor-wang", mode="auto")
+        self.assertEqual(page.mode_used, "browser")
+        self.assertIn("脂肪肝", page.text)
+
     def test_department_router_prioritizes_cardiology_and_endocrinology(self):
         result = DepartmentFitRouter().route(PATIENT_PROFILE)
         departments = [item["department"] for item in result["recommendations"]]
@@ -189,6 +272,38 @@ class DoctorMatchingTest(unittest.TestCase):
         top = result["ranked_doctors"][0]
         self.assertEqual(top["doctor"]["name"], "李明")
         self.assertGreater(top["score"], result["ranked_doctors"][1]["score"])
+
+    def test_doctor_profile_harvester_builds_candidates_from_hospital_pages(self):
+        harvester = DoctorProfileHarvester(
+            web_runtime=WebAccessRuntime(
+                static_fetcher=fake_fetcher,
+                browser_fetcher=fake_browser_fetcher,
+                runtime_checker=lambda: {"ready": True, "reason": "ok"},
+            )
+        )
+        result = harvester.harvest_sources(
+            [
+                {
+                    "source_url": "https://hospital.example/cardiology",
+                    "hospital": "瑞和国际门诊",
+                    "city": "上海",
+                    "district": "徐汇",
+                    "department_hint": "心内科 / 高血压门诊",
+                    "allowed_domains": ["hospital.example"],
+                    "entry_selector": "a",
+                    "link_substrings": ["doctor"],
+                    "limit": 3,
+                }
+            ],
+            mode="auto",
+        )
+        self.assertEqual(len(result["candidates"]), 2)
+        names = {item["name"] for item in result["candidates"]}
+        self.assertIn("李明", names)
+        self.assertIn("王琪", names)
+        wang = next(item for item in result["candidates"] if item["name"] == "王琪")
+        self.assertEqual(wang["harvest_mode"], "browser")
+        self.assertTrue(wang["accepts_long_term_followup"])
 
     def test_doctor_match_workflow_writes_output_and_care_team_item(self):
         with tempfile.TemporaryDirectory() as workspace_dir:

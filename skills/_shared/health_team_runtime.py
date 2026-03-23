@@ -56,8 +56,8 @@ ROLE_DEFINITIONS = {
     "health-records": {
         "label": "病历秘书",
         "package": "core",
-        "tool_policy": "local-records-only",
-        "sandbox": "local-no-web",
+        "tool_policy": "local-records-plus-controlled-web",
+        "sandbox": "local-controlled-public-web",
         "can_write": ["archive-summary", "timeline", "role-brief"],
         "long_term_memory": False,
         "raw_archive": True,
@@ -168,6 +168,7 @@ ROUTE_TABLE = {
     "hypertension-daily-copilot": ["health-metrics", "health-lifestyle"],
     "diabetes-control-hub": ["health-metrics", "health-lifestyle"],
     "annual-checkup-advisor": ["health-records", "health-metrics"],
+    "doctor-profile-harvester": ["health-records"],
     "doctor-fit-finder": ["health-records", "health-research", "health-metrics"],
     "mental-support": ["health-mental"],
     "research-brief": ["health-research"],

@@ -16,6 +16,11 @@ if SHARED_DIR not in sys.path:
     sys.path.insert(0, SHARED_DIR)
 
 from health_team_runtime import HealthTeamOrchestrator  # noqa: E402
+from doctor_profile_harvester import (  # noqa: E402
+    DoctorProfileHarvester,
+    load_sources_file,
+    merge_doctor_candidates,
+)
 
 
 def _parse_packages(raw: str | None) -> list[str]:
@@ -77,7 +82,10 @@ def _parser() -> argparse.ArgumentParser:
 
     doctor = subparsers.add_parser("doctor-match", help="Run chief-led doctor matching workflow")
     doctor.add_argument("--patient-json", required=True)
-    doctor.add_argument("--doctors-json", required=True)
+    doctor.add_argument("--doctors-json", default=None)
+    doctor.add_argument("--doctor-seeds-json", default=None)
+    doctor.add_argument("--harvest-mode", choices=("auto", "static", "browser"), default="auto")
+    doctor.add_argument("--harvest-output", default=None)
     doctor.add_argument("--top-n", type=int, default=5)
     doctor.add_argument("--pubmed-mode", choices=("off", "auto", "required"), default="auto")
 
@@ -126,6 +134,23 @@ def _parse_checkup_items(entries: list[str]) -> list[dict]:
 
 def _load_json(path: str):
     return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def _load_or_harvest_doctors(args) -> tuple[list[dict], dict | None]:
+    doctors = _load_json(args.doctors_json) if args.doctors_json else []
+    harvest_result = None
+    if args.doctor_seeds_json:
+        harvest_result = DoctorProfileHarvester().harvest_sources(
+            load_sources_file(args.doctor_seeds_json),
+            mode=args.harvest_mode,
+        )
+        doctors = merge_doctor_candidates(doctors, harvest_result["candidates"])
+        if args.harvest_output:
+            Path(args.harvest_output).write_text(
+                json.dumps(doctors, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+    return doctors, harvest_result
 
 
 def _render_markdown(result: dict) -> str:
@@ -212,16 +237,22 @@ def main() -> None:
             context=args.context,
         )
     elif args.command == "doctor-match":
+        if not args.doctors_json and not args.doctor_seeds_json:
+            parser.error("doctor-match requires --doctors-json or --doctor-seeds-json")
+        doctors, harvest_result = _load_or_harvest_doctors(args)
         result = orchestrator.dispatch_flagship_scenario(
             "doctor-fit-finder",
             payload={
                 "patient_profile": _load_json(args.patient_json),
-                "doctors": _load_json(args.doctors_json),
+                "doctors": doctors,
                 "top_n": args.top_n,
                 "pubmed_mode": args.pubmed_mode,
             },
             context=args.context,
         )
+        if harvest_result is not None:
+            result["harvest"] = harvest_result
+            result["harvested_candidate_count"] = len(harvest_result["candidates"])
     else:
         result = orchestrator.run_team_heartbeat()
         result["scenario"] = "team-heartbeat"

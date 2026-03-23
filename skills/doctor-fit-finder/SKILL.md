@@ -49,6 +49,8 @@ Array of doctor candidates, each with fields such as:
 - `accepts_long_term_followup`
 - `pubmed_query`
 
+If you do not already have `doctors.json`, run `doctor-profile-harvester` first against official hospital pages.
+
 ## CLI
 
 ```bash
