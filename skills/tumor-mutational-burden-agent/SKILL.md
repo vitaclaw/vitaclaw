@@ -1,3 +1,21 @@
+---
+name: tumor-mutational-burden-agent
+description: Calculates and harmonizes Tumor Mutational Burden (TMB) across platforms to predict immunotherapy response.
+version: 1.0.0
+user-invocable: false
+allowed-tools: Read, Grep, Glob, Write, Edit, Bash
+metadata:
+  openclaw:
+    category: medical-research
+    keywords:
+      - tmb
+      - immunotherapy
+      - biomarker
+      - harmonization
+      - oncology
+    measurable_outcome: Harmonizes TMB scores across 5+ assay platforms with <5% variance from WES gold standard.
+---
+
 <!--
 # COPYRIGHT NOTICE
 # This file is part of the "Universal Biomedical Skills" project.
@@ -10,22 +28,6 @@
 # Provenance: Authenticated by MD BABU MIA
 
 -->
-
----
-name: 'tumor-mutational-burden-agent'
-description: 'Calculates and harmonizes Tumor Mutational Burden (TMB) across platforms to predict immunotherapy response.'
-keywords:
-  - tmb
-  - immunotherapy
-  - biomarker
-  - harmonization
-  - oncology
-measurable_outcome: 'Harmonizes TMB scores across 5+ assay platforms with <5% variance from WES gold standard.'
-allowed-tools:
-  - read_file
-  - run_shell_command
----
-
 
 # Tumor Mutational Burden Agent
 

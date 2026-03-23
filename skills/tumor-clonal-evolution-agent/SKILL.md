@@ -1,3 +1,15 @@
+---
+name: tumor-clonal-evolution-agent
+description: AI-powered analysis of tumor clonal architecture, subclonal dynamics, and evolutionary trajectories from multi-region sequencing and longitudinal liquid biopsy data.
+version: 1.0.0
+user-invocable: false
+allowed-tools: Read, Grep, Glob, Write, Edit, Bash
+metadata:
+  openclaw:
+    category: medical-research
+    measurable_outcome: Execute skill workflow successfully with valid output within 15 minutes.
+---
+
 <!--
 # COPYRIGHT NOTICE
 # This file is part of the "Universal Biomedical Skills" project.
@@ -10,16 +22,6 @@
 # Provenance: Authenticated by MD BABU MIA
 
 -->
-
----
-name: 'tumor-clonal-evolution-agent'
-description: 'AI-powered analysis of tumor clonal architecture, subclonal dynamics, and evolutionary trajectories from multi-region sequencing and longitudinal liquid biopsy data.'
-measurable_outcome: Execute skill workflow successfully with valid output within 15 minutes.
-allowed-tools:
-  - read_file
-  - run_shell_command
----
-
 
 # Tumor Clonal Evolution Agent
 

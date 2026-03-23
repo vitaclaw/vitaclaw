@@ -1,8 +1,14 @@
 ---
 name: bio-clinical-databases-tumor-mutational-burden
 description: Calculate tumor mutational burden from panel or WES data with proper normalization and clinical thresholds. Use when assessing immunotherapy eligibility or characterizing tumor immunogenicity.
-tool_type: python
-primary_tool: cyvcf2
+version: 1.0.0
+user-invocable: false
+allowed-tools: Read, Grep, Glob, Write, Edit, Bash
+metadata:
+  openclaw:
+    category: medical-research
+    tool_type: python
+    primary_tool: cyvcf2
 ---
 
 ## Version Compatibility

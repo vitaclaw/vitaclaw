@@ -1,0 +1,34 @@
+# Personal health data
+memory/health/daily/*.md
+!memory/health/daily/.gitkeep
+
+memory/health/weekly/*.md
+!memory/health/weekly/.gitkeep
+
+memory/health/monthly/*.md
+!memory/health/monthly/.gitkeep
+
+memory/health/quarterly/*.md
+!memory/health/quarterly/.gitkeep
+
+memory/health/files/*
+!memory/health/files/.gitkeep
+
+memory/health/heartbeat/task-board.md
+memory/health/heartbeat/task-state.json
+
+memory/health/team/tasks/*.md
+!memory/health/team/tasks/.gitkeep
+memory/health/team/briefs/*.md
+!memory/health/team/briefs/.gitkeep
+memory/health/team/audit/*.jsonl
+!memory/health/team/audit/.gitkeep
+memory/health/team/team-board.md
+
+data/
+reports/
+dist/
+
+# Keep baseline templates and item definitions
+!memory/health/_health-profile.md
+!memory/health/items/*.md

@@ -2,6 +2,7 @@
 """每周健康周报 -- 聚合多源健康数据，生成叙事性周报并写入 Health Memory。"""
 
 import argparse
+import calendar
 import json
 import os
 import sys
@@ -68,10 +69,24 @@ class WeeklyHealthDigest:
     - medication-reminder: 用药记录（如有）
     """
 
-    def __init__(self, data_dir: str = None):
+    def __init__(
+        self,
+        data_dir: str = None,
+        memory_dir: str = None,
+        workspace_root: str = None,
+        now_fn=None,
+    ):
+        self._now_fn = now_fn or datetime.now
         self.store = HealthDataStore("weekly-health-digest", data_dir=data_dir)
-        self.memory_writer = HealthMemoryWriter()
+        self.memory_writer = HealthMemoryWriter(
+            memory_root=memory_dir,
+            workspace_root=workspace_root,
+            now_fn=self._now_fn,
+        )
         self.reader = CrossSkillReader(data_dir=data_dir)
+
+    def _now(self) -> datetime:
+        return self._now_fn()
 
     # ------------------------------------------------------------------
     # Week range helper
@@ -92,15 +107,32 @@ class WeeklyHealthDigest:
                 ref = datetime.strptime(week_of, "%Y-%m-%d")
             except ValueError:
                 print(f"[错误] 日期格式不正确: {week_of}，请使用 YYYY-MM-DD 格式")
-                ref = datetime.now()
+                ref = self._now()
         else:
-            ref = datetime.now()
+            ref = self._now()
 
         # Monday of that week (weekday 0 = Monday)
         monday = ref - timedelta(days=ref.weekday())
         sunday = monday + timedelta(days=6)
 
         return monday.strftime("%Y-%m-%d"), sunday.strftime("%Y-%m-%d")
+
+    def _get_month_range(self, month_of: str = None) -> tuple:
+        """Return (month_start_iso, month_end_iso) for the target calendar month."""
+        if month_of:
+            try:
+                ref = datetime.strptime(month_of, "%Y-%m-%d")
+            except ValueError:
+                print(f"[错误] 日期格式不正确: {month_of}，请使用 YYYY-MM-DD 格式")
+                ref = self._now()
+        else:
+            ref = self._now()
+
+        month_start = ref.replace(day=1)
+        month_end = ref.replace(
+            day=calendar.monthrange(ref.year, ref.month)[1]
+        )
+        return month_start.strftime("%Y-%m-%d"), month_end.strftime("%Y-%m-%d")
 
     # ------------------------------------------------------------------
     # Aggregate metrics for a given week
@@ -401,6 +433,253 @@ class WeeklyHealthDigest:
 
         return "\n".join(lines)
 
+    def _metric_row(self, label: str, current, previous, higher_is_better: bool | None = None) -> str:
+        if current is None:
+            current_text = "无数据"
+        else:
+            current_text = str(current)
+        if previous is None:
+            previous_text = "无数据"
+        else:
+            previous_text = str(previous)
+
+        arrow = "→"
+        if current is None or previous is None:
+            arrow = "→"
+        else:
+            diff = float(current) - float(previous)
+            if abs(diff) < 0.5:
+                arrow = "→"
+            elif higher_is_better is True:
+                arrow = "↑" if diff > 0 else "↓"
+            elif higher_is_better is False:
+                arrow = "↓" if diff > 0 else "↑"
+            else:
+                arrow = "↑" if diff > 0 else "↓"
+        return f"| {label} | {current_text} | {previous_text} | {arrow} |"
+
+    def _fallback_digest_content(self, week_start: str, week_end: str, metrics: dict, prev_metrics: dict | None = None) -> str:
+        prev_metrics = prev_metrics or {}
+        highlights = []
+        warnings = []
+        suggestions = []
+
+        sleep = metrics.get("sleep")
+        if sleep and sleep.get("avg_score") is not None:
+            highlights.append(f"本周记录了 {sleep.get('nights_tracked', 0)} 晚睡眠，平均评分 {sleep['avg_score']}/100。")
+            if sleep["avg_score"] < 75:
+                warnings.append("睡眠质量偏低，建议优先修复作息和夜间干扰因素。")
+                suggestions.append("本周把上床时间固定在同一时段，并减少晚间咖啡因。")
+
+        supplements = metrics.get("supplements")
+        if supplements:
+            highlights.append(f"补剂依从率为 {supplements['overall_adherence_pct']}%。")
+            if supplements["overall_adherence_pct"] < 80:
+                warnings.append("补剂依从率不足 80%，长期计划容易中断。")
+                suggestions.append("把补剂绑定到固定时点，并补录漏服原因。")
+
+        caffeine = metrics.get("caffeine")
+        if caffeine:
+            if caffeine["daily_avg_mg"] <= 200:
+                highlights.append(f"日均咖啡因 {caffeine['daily_avg_mg']}mg，整体控制较稳。")
+            elif caffeine["daily_avg_mg"] > 300:
+                warnings.append(f"日均咖啡因 {caffeine['daily_avg_mg']}mg 偏高，可能影响睡眠和焦虑。")
+                suggestions.append("把高咖啡因饮品尽量前移到中午前。")
+
+        bp = metrics.get("blood_pressure")
+        if bp and bp.get("avg_systolic") is not None:
+            highlights.append(f"本周共测量 {bp['readings']} 次血压，平均约 {bp['avg_systolic']}/{bp.get('avg_diastolic', '?')} mmHg。")
+            if bp["avg_systolic"] >= 140 or (bp.get("avg_diastolic") or 0) >= 90:
+                warnings.append("血压周均值仍高于常见目标范围，需继续跟踪。")
+                suggestions.append("保留晨起和晚间双时点测量，并结合症状和诱因补充记录。")
+
+        medication = metrics.get("medication")
+        if medication:
+            if medication["adherence_pct"] < 90:
+                warnings.append(f"用药依从率 {medication['adherence_pct']}%，仍有提升空间。")
+                suggestions.append("为最容易漏服的时段设置更明确的提醒或绑定餐点。")
+            else:
+                highlights.append(f"用药依从率达到 {medication['adherence_pct']}%。")
+
+        if not highlights:
+            highlights.append("本周已有数据沉淀，健康档案在继续变完整。")
+        if not warnings:
+            warnings.append("本周无明显高风险预警，但仍建议保持连续记录。")
+        if not suggestions:
+            suggestions.append("继续保持连续记录，并在周末前补齐缺失项目。")
+        if len(suggestions) < 2:
+            suggestions.append("下周优先处理 1 个最影响长期趋势的问题，避免目标过多。")
+
+        rows = [
+            self._metric_row(
+                "睡眠评分",
+                sleep.get("avg_score") if sleep else None,
+                (prev_metrics.get("sleep") or {}).get("avg_score"),
+                higher_is_better=True,
+            ),
+            self._metric_row(
+                "咖啡因日均(mg)",
+                caffeine.get("daily_avg_mg") if caffeine else None,
+                (prev_metrics.get("caffeine") or {}).get("daily_avg_mg"),
+                higher_is_better=False,
+            ),
+            self._metric_row(
+                "补剂依从率(%)",
+                supplements.get("overall_adherence_pct") if supplements else None,
+                (prev_metrics.get("supplements") or {}).get("overall_adherence_pct"),
+                higher_is_better=True,
+            ),
+            self._metric_row(
+                "血压收缩压均值",
+                bp.get("avg_systolic") if bp else None,
+                (prev_metrics.get("blood_pressure") or {}).get("avg_systolic"),
+                higher_is_better=False,
+            ),
+            self._metric_row(
+                "用药依从率(%)",
+                medication.get("adherence_pct") if medication else None,
+                (prev_metrics.get("medication") or {}).get("adherence_pct"),
+                higher_is_better=True,
+            ),
+        ]
+
+        parts = [
+            f"# 健康周报 -- {week_start} ~ {week_end}",
+            "",
+            "## 本周亮点",
+            *[f"- {line}" for line in highlights[:4]],
+            "",
+            "## 数据概览",
+            "| 指标 | 本周 | 上周 | 趋势 |",
+            "|------|------|------|------|",
+            *rows,
+            "",
+            "## 预警",
+            *[f"- {line}" for line in warnings[:4]],
+            "",
+            "## 建议",
+            *[f"- {line}" for line in suggestions[:4]],
+        ]
+        return "\n".join(parts)
+
+    def _fallback_monthly_digest_content(
+        self,
+        month_start: str,
+        month_end: str,
+        metrics: dict,
+        prev_metrics: dict | None = None,
+    ) -> str:
+        prev_metrics = prev_metrics or {}
+        month_label = month_start[:7]
+        highlights = []
+        warnings = []
+        suggestions = []
+
+        sleep = metrics.get("sleep")
+        if sleep and sleep.get("avg_score") is not None:
+            highlights.append(
+                f"本月共记录 {sleep.get('nights_tracked', 0)} 晚睡眠，平均评分 {sleep['avg_score']}/100。"
+            )
+            if sleep["avg_score"] < 75:
+                warnings.append("本月睡眠质量整体偏低，值得作为下月优先改善点。")
+                suggestions.append("固定起床时点，优先把晚间刺激因素和补录质量提上来。")
+
+        caffeine = metrics.get("caffeine")
+        if caffeine:
+            highlights.append(
+                f"本月有 {caffeine['days_tracked']} 天记录咖啡因，日均 {caffeine['daily_avg_mg']}mg。"
+            )
+            if caffeine["daily_avg_mg"] > 250:
+                warnings.append("本月咖啡因平均摄入偏高，可能影响睡眠和焦虑管理。")
+                suggestions.append("先把高咖啡因饮品集中在上午，并减少下午补咖啡的频率。")
+
+        supplements = metrics.get("supplements")
+        if supplements:
+            highlights.append(
+                f"补剂总体依从率为 {supplements['overall_adherence_pct']}%。"
+            )
+            if supplements["overall_adherence_pct"] < 80:
+                warnings.append("补剂依从率不足 80%，长期计划执行稳定性不足。")
+                suggestions.append("挑出最容易漏掉的 1 个时段，先做单点修复。")
+
+        bp = metrics.get("blood_pressure")
+        if bp and bp.get("avg_systolic") is not None:
+            highlights.append(
+                f"本月共测量 {bp['readings']} 次血压，平均约 {bp['avg_systolic']}/{bp.get('avg_diastolic', '?')} mmHg。"
+            )
+            if bp["avg_systolic"] >= 140 or (bp.get("avg_diastolic") or 0) >= 90:
+                warnings.append("月均血压仍高于常见目标，建议继续和医生口径对齐。")
+                suggestions.append("优先补足家庭血压晨晚双时点记录，为下次就医准备连续证据。")
+
+        medication = metrics.get("medication")
+        if medication:
+            if medication["adherence_pct"] >= 90:
+                highlights.append(f"用药依从率达到 {medication['adherence_pct']}%。")
+            else:
+                warnings.append(f"用药依从率仅 {medication['adherence_pct']}%，存在管理风险。")
+                suggestions.append("把漏服原因写进 daily，区分是忘记、断药还是作息冲突。")
+
+        if not highlights:
+            highlights.append("本月已有健康数据沉淀，长期画像在继续变完整。")
+        if not warnings:
+            warnings.append("本月未见明显高风险聚集，但仍建议继续保持连续记录。")
+        if not suggestions:
+            suggestions.append("下月只抓 1-2 个最影响长期趋势的目标，减少计划分散。")
+
+        rows = [
+            self._metric_row(
+                "睡眠评分",
+                sleep.get("avg_score") if sleep else None,
+                (prev_metrics.get("sleep") or {}).get("avg_score"),
+                higher_is_better=True,
+            ),
+            self._metric_row(
+                "咖啡因日均(mg)",
+                caffeine.get("daily_avg_mg") if caffeine else None,
+                (prev_metrics.get("caffeine") or {}).get("daily_avg_mg"),
+                higher_is_better=False,
+            ),
+            self._metric_row(
+                "补剂依从率(%)",
+                supplements.get("overall_adherence_pct") if supplements else None,
+                (prev_metrics.get("supplements") or {}).get("overall_adherence_pct"),
+                higher_is_better=True,
+            ),
+            self._metric_row(
+                "血压收缩压均值",
+                bp.get("avg_systolic") if bp else None,
+                (prev_metrics.get("blood_pressure") or {}).get("avg_systolic"),
+                higher_is_better=False,
+            ),
+            self._metric_row(
+                "用药依从率(%)",
+                medication.get("adherence_pct") if medication else None,
+                (prev_metrics.get("medication") or {}).get("adherence_pct"),
+                higher_is_better=True,
+            ),
+        ]
+
+        parts = [
+            f"# 健康月报 -- {month_label}",
+            "",
+            f"统计区间：{month_start} ~ {month_end}",
+            "",
+            "## 本月总览",
+            *[f"- {line}" for line in highlights[:5]],
+            "",
+            "## 指标对比",
+            "| 指标 | 本月 | 上月 | 趋势 |",
+            "|------|------|------|------|",
+            *rows,
+            "",
+            "## 风险与断点",
+            *[f"- {line}" for line in warnings[:5]],
+            "",
+            "## 下月建议",
+            *[f"- {line}" for line in suggestions[:5]],
+        ]
+        return "\n".join(parts)
+
     # ------------------------------------------------------------------
     # generate
     # ------------------------------------------------------------------
@@ -479,12 +758,19 @@ class WeeklyHealthDigest:
 
         user_prompt = f"以下是我本周的健康数据统计：\n\n{metrics_text}"
 
-        print("正在使用 LLM 生成周报...")
-        digest_content = _llm_call(system_prompt, user_prompt)
+        digest_content = ""
+        if OPENROUTER_API_KEY:
+            print("正在使用 LLM 生成周报...")
+            digest_content = _llm_call(system_prompt, user_prompt)
 
-        if digest_content.startswith("[错误]") or digest_content.startswith("[LLM调用失败]"):
-            print(f"  {digest_content}")
-            return
+        if not digest_content or digest_content.startswith("[错误]") or digest_content.startswith("[LLM调用失败]"):
+            print("未检测到可用 LLM，使用本地规则生成周报...")
+            digest_content = self._fallback_digest_content(
+                week_start=week_start,
+                week_end=week_end,
+                metrics=metrics,
+                prev_metrics=prev_metrics,
+            )
 
         # Print the generated digest
         print("\n" + "=" * 60)
@@ -499,7 +785,7 @@ class WeeklyHealthDigest:
                 "week_end": week_end,
                 "metrics": metrics,
                 "content": digest_content,
-                "generated_at": datetime.now().isoformat(),
+                "generated_at": self._now().isoformat(),
             },
             note=f"周报 {week_start} ~ {week_end}",
         )
@@ -507,6 +793,86 @@ class WeeklyHealthDigest:
         # Write to memory
         self.memory_writer.update_weekly_digest(digest_content)
         print(f"\n已保存周报并更新 Health Memory (memory/health/weekly-digest.md)")
+        return digest_content
+
+    def generate_monthly(self, month_of: str = None):
+        """Generate the monthly health digest for the specified month."""
+        month_start, month_end = self._get_month_range(month_of)
+        month_label = month_start[:7]
+        print(f"生成月报: {month_start} ~ {month_end}")
+
+        metrics = self._compute_weekly_metrics(month_start, month_end)
+        has_data = any(v is not None for v in metrics.values())
+        if not has_data:
+            print(f"\n本月 ({month_start} ~ {month_end}) 无任何健康数据。")
+            print("请先记录至少一个核心指标后再生成月报。")
+            return
+
+        month_start_dt = datetime.strptime(month_start, "%Y-%m-%d")
+        prev_month_end_dt = month_start_dt - timedelta(days=1)
+        prev_month_start_dt = prev_month_end_dt.replace(day=1)
+        prev_start = prev_month_start_dt.strftime("%Y-%m-%d")
+        prev_end = prev_month_end_dt.strftime("%Y-%m-%d")
+
+        prev_metrics = None
+        previous_digests = self.store.query(record_type="monthly_digest")
+        for digest in reversed(previous_digests):
+            if digest.get("data", {}).get("month") == prev_start[:7]:
+                prev_metrics = digest["data"].get("metrics")
+                break
+
+        if prev_metrics is None:
+            prev_metrics = self._compute_weekly_metrics(prev_start, prev_end)
+            prev_has_data = any(v is not None for v in prev_metrics.values())
+            if not prev_has_data:
+                prev_metrics = None
+
+        digest_content = ""
+        if OPENROUTER_API_KEY:
+            print("正在使用 LLM 生成月报...")
+            system_prompt = (
+                "你是一位健康数据分析师。根据用户本月健康数据生成一份简洁的中文月报。\n\n"
+                f"标题必须是：# 健康月报 -- {month_label}\n"
+                f"统计区间写为：{month_start} ~ {month_end}\n"
+                "请输出四部分：本月总览、指标对比、风险与断点、下月建议。\n"
+                "要求：简洁、可执行、基于数据，不要装医生。"
+            )
+            metrics_text = self._format_metrics_for_llm(metrics, prev_metrics)
+            user_prompt = (
+                f"以下是我本月的健康数据统计（统计区间 {month_start} ~ {month_end}）：\n\n"
+                f"{metrics_text}"
+            )
+            digest_content = _llm_call(system_prompt, user_prompt)
+
+        if not digest_content or digest_content.startswith("[错误]") or digest_content.startswith("[LLM调用失败]"):
+            print("未检测到可用 LLM，使用本地规则生成月报...")
+            digest_content = self._fallback_monthly_digest_content(
+                month_start=month_start,
+                month_end=month_end,
+                metrics=metrics,
+                prev_metrics=prev_metrics,
+            )
+
+        print("\n" + "=" * 60)
+        print(digest_content)
+        print("=" * 60)
+
+        self.store.append(
+            "monthly_digest",
+            {
+                "month": month_label,
+                "month_start": month_start,
+                "month_end": month_end,
+                "metrics": metrics,
+                "content": digest_content,
+                "generated_at": self._now().isoformat(),
+            },
+            note=f"月报 {month_label}",
+        )
+
+        self.memory_writer.update_monthly_digest(digest_content)
+        print("\n已保存月报并更新 Health Memory (memory/health/monthly-digest.md)")
+        return digest_content
 
     # ------------------------------------------------------------------
     # view
@@ -554,6 +920,40 @@ class WeeklyHealthDigest:
         print(content)
         print("=" * 60)
 
+    def view_monthly(self, month_of: str = None):
+        """Display a previously generated monthly digest."""
+        digests = self.store.query(record_type="monthly_digest")
+        if not digests:
+            print("尚无已生成的月报。")
+            print("  请先运行: python weekly_health_digest.py generate-monthly")
+            return
+
+        if month_of:
+            month_label = self._get_month_range(month_of)[0][:7]
+            target = None
+            for digest in digests:
+                if digest.get("data", {}).get("month") == month_label:
+                    target = digest
+                    break
+            if not target:
+                print(f"未找到 {month_label} 的月报。")
+                print("已有月报:")
+                for digest in digests:
+                    print(f"  - {digest.get('data', {}).get('month', '?')}")
+                print(f"\n可运行: python weekly_health_digest.py generate-monthly --month-of {month_label}-15")
+                return
+        else:
+            target = digests[-1]
+
+        month_label = target.get("data", {}).get("month", "?")
+        gen_at = target.get("data", {}).get("generated_at", "?")
+        content = target.get("data", {}).get("content", "")
+
+        print(f"月报: {month_label} (生成于 {gen_at[:16] if len(gen_at) > 16 else gen_at})")
+        print("=" * 60)
+        print(content)
+        print("=" * 60)
+
     # ------------------------------------------------------------------
     # trend
     # ------------------------------------------------------------------
@@ -564,7 +964,7 @@ class WeeklyHealthDigest:
         Args:
             weeks: Number of weeks to compare (default: 4).
         """
-        today = datetime.now()
+        today = self._now()
         # Start from the most recent Monday
         current_monday = today - timedelta(days=today.weekday())
 
@@ -727,6 +1127,20 @@ def main():
         default=None,
         help="目标周内任意日期 (YYYY-MM-DD)，默认为本周",
     )
+    p_gen.add_argument("--data-dir", default=None, help="数据目录")
+    p_gen.add_argument("--memory-dir", default=None, help="memory/health 目录")
+    p_gen.add_argument("--workspace-root", default=None, help="OpenClaw workspace 根目录")
+
+    # generate-monthly
+    p_gen_month = sub.add_parser("generate-monthly", help="生成本月月报")
+    p_gen_month.add_argument(
+        "--month-of",
+        default=None,
+        help="目标月内任意日期 (YYYY-MM-DD)，默认为本月",
+    )
+    p_gen_month.add_argument("--data-dir", default=None, help="数据目录")
+    p_gen_month.add_argument("--memory-dir", default=None, help="memory/health 目录")
+    p_gen_month.add_argument("--workspace-root", default=None, help="OpenClaw workspace 根目录")
 
     # view
     p_view = sub.add_parser("view", help="查看已生成的周报")
@@ -735,6 +1149,16 @@ def main():
         default=None,
         help="目标周内任意日期 (YYYY-MM-DD)，默认为最近一期",
     )
+    p_view.add_argument("--data-dir", default=None, help="数据目录")
+
+    # view-monthly
+    p_view_month = sub.add_parser("view-monthly", help="查看已生成的月报")
+    p_view_month.add_argument(
+        "--month-of",
+        default=None,
+        help="目标月内任意日期 (YYYY-MM-DD)，默认为最近一期",
+    )
+    p_view_month.add_argument("--data-dir", default=None, help="数据目录")
 
     # trend
     p_trend = sub.add_parser("trend", help="显示多周趋势对比")
@@ -744,14 +1168,23 @@ def main():
         default=4,
         help="对比周数 (默认: 4)",
     )
+    p_trend.add_argument("--data-dir", default=None, help="数据目录")
 
     args = parser.parse_args()
-    digest = WeeklyHealthDigest()
+    digest = WeeklyHealthDigest(
+        data_dir=getattr(args, "data_dir", None),
+        memory_dir=getattr(args, "memory_dir", None),
+        workspace_root=getattr(args, "workspace_root", None),
+    )
 
     if args.command == "generate":
         digest.generate(week_of=args.week_of)
+    elif args.command == "generate-monthly":
+        digest.generate_monthly(month_of=args.month_of)
     elif args.command == "view":
         digest.view(week_of=args.week_of)
+    elif args.command == "view-monthly":
+        digest.view_monthly(month_of=args.month_of)
     elif args.command == "trend":
         digest.trend(weeks=args.weeks)
     else:

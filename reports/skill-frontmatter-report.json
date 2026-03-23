@@ -1,0 +1,29 @@
+{
+  "scope": "health-core",
+  "required_keys": [
+    "name",
+    "description",
+    "version",
+    "user-invocable",
+    "allowed-tools",
+    "metadata"
+  ],
+  "summary": {
+    "skill_count": 79,
+    "health_skill_count": 79,
+    "with_frontmatter": 79,
+    "frontmatter_valid": 79,
+    "with_code": 31,
+    "with_tests": 8,
+    "with_cli_entrypoints": 24,
+    "user_invocable_true": 42,
+    "user_invocable_missing": 0,
+    "health_core_core": 63,
+    "health_core_labs": 8,
+    "health_core_restricted": 8,
+    "health_core_audit_pass": 71,
+    "out_of_scope_count": 0
+  },
+  "invalid_count": 0,
+  "invalid_skills": []
+}

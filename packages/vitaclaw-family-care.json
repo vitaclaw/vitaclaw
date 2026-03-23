@@ -1,0 +1,14 @@
+{
+  "name": "vitaclaw-family-care",
+  "tier": "stable",
+  "description": "Family caregiver extension package for VitaClaw team workflows.",
+  "include": [
+    "docs/health-agent-architecture.zh.md",
+    "docs/health-agent-quickstart.zh.md",
+    "docs/health-release-packages.zh.md",
+    "scripts/init_health_workspace.py",
+    "scripts/run_health_chief_of_staff.py",
+    "skills/_shared/*.py",
+    "templates/openclaw-health-family-agent/**"
+  ]
+}

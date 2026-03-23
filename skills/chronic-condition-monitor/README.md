@@ -13,6 +13,18 @@
 - 自动触发: 当用户提供慢病相关指标数值时自动调用
 - 由场景技能调用: hypertension-daily-copilot、diabetes-control-hub 等场景技能可调用本技能记录指标
 
+### CLI 示例
+
+```bash
+python3 skills/chronic-condition-monitor/chronic_condition_monitor.py record glucose '{"value": 7.2}' \
+  --context fasting \
+  --timestamp 2026-03-10T07:00:00 \
+  --data-dir /path/to/data \
+  --memory-dir /path/to/workspace/memory/health
+```
+
+当传入 `--memory-dir` 或 `--workspace-root` 时，`glucose`、`weight`、`bp` 会自动同步到 `memory/health/daily/` 和对应的 `items/*.md`。
+
 ## 输入格式
 自然语言输入指标值，例如：
 - "血压 135/88，空腹血糖 6.8，尿酸 398"

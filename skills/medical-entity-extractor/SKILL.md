@@ -1,11 +1,15 @@
 ---
 name: medical-entity-extractor
 description: Extract medical entities (symptoms, medications, lab values, diagnoses) from patient messages.
+version: 1.0.0
+user-invocable: false
+allowed-tools: Read, Write, Edit
 license: MIT
 metadata:
   author: "NAPSTER AI"
   maintainer: "NAPSTER AI"
   openclaw:
+    category: medical-nlp
     requires:
       bins: []
 ---
@@ -141,4 +145,3 @@ const result = await execFileAsync('openclaw', [
 - All processing happens locally via OpenClaw
 - No data is sent to external services (except Claude API for LLM processing)
 - Extracted entities remain in your local environment
-

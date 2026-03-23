@@ -1,0 +1,720 @@
+{
+  "generated_at": "2026-03-23T21:35:01",
+  "mode": "health-core",
+  "scope": "health-core",
+  "result_count": 52,
+  "passed": 52,
+  "failed": 0,
+  "results": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/annual-checkup-advisor/scripts/generate_test_report.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 110.8,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "annual-checkup-advisor::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/apple-health-digest/scripts/parse_apple_health.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 51.2,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "apple-health-digest::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/bio-clinical-databases-tumor-mutational-burden/examples/tmb_calculation.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 89.7,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "bio-clinical-databases-tumor-mutational-burden::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/blood-pressure-tracker/blood_pressure_tracker.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 523.0,
+      "stdout": "usage: blood_pressure_tracker.py [-h] {record,diary,stats,chart,surge} ...\n\n血压趋势分析\n\npositional arguments:\n  {record,diary,stats,chart,surge}\n    record              记录血压\n    diary               血压日记\n    stats               月度统计\n    chart               生成趋势图\n    surge               晨峰血压检测\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": "",
+      "ok": true,
+      "slug": "blood-pressure-tracker::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/blood-pressure-tracker/blood_pressure_tracker.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 79.5,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "blood-pressure-tracker::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/caffeine-tracker/caffeine_tracker.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 493.9,
+      "stdout": "usage: caffeine_tracker.py [-h] {log,status,cutoff,history,chart} ...\n\n咖啡因追踪\n\npositional arguments:\n  {log,status,cutoff,history,chart}\n    log                 记录咖啡因摄入\n    status              当前咖啡因状态\n    cutoff              咖啡因截止建议\n    history             摄入历史\n    chart               生成衰减曲线图\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": "",
+      "ok": true,
+      "slug": "caffeine-tracker::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/caffeine-tracker/caffeine_tracker.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 63.2,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "caffeine-tracker::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/cancer-nutrition-coach/cancer_nutrition_coach.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 147.8,
+      "stdout": "usage: cancer_nutrition_coach.py [-h]\n                                 {record,screen,weight-alert,bmi,diet-plan,report}\n                                 ...\n\n肿瘤患者营养教练 (NRS-2002 + LLM饮食方案)\n\npositional arguments:\n  {record,screen,weight-alert,bmi,diet-plan,report}\n                        可用命令\n    record              记录营养数据\n    screen              NRS-2002营养风险筛查\n    weight-alert        体重预警\n    bmi                 BMI计算\n    diet-plan           生成个性化饮食方案\n    report              生成综合营养报告\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": "",
+      "ok": true,
+      "slug": "cancer-nutrition-coach::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/cancer-nutrition-coach/cancer_nutrition_coach.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 114.4,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "cancer-nutrition-coach::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/checkup-report-interpreter/checkup_report_interpreter.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 43.7,
+      "stdout": "usage: checkup_report_interpreter.py [-h] {report,parse,extract,compare} ...\n\n体检报告智能解读（PDF解析 + LLM异常识别与健康建议）\n\npositional arguments:\n  {report,parse,extract,compare}\n    report              完整解读体检报告\n    parse               仅解析 PDF 提取文本\n    extract             提取结构化检查项目\n    compare             对比两年体检报告\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": "",
+      "ok": true,
+      "slug": "checkup-report-interpreter::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/checkup-report-interpreter/checkup_report_interpreter.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 119.2,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "checkup-report-interpreter::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/chemo-side-effect-tracker/chemo_side_effect_tracker.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 498.9,
+      "stdout": "usage: chemo_side_effect_tracker.py [-h] {record,trend,worst,report,chart} ...\n\n化疗副作用追踪 (CTCAE v5.0)\n\npositional arguments:\n  {record,trend,worst,report,chart}\n                        可用命令\n    record              记录副作用\n    trend               副作用趋势分析\n    worst               列出严重毒性(≥3级)\n    report              生成综合毒性报告\n    chart               生成毒性图表\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": "",
+      "ok": true,
+      "slug": "chemo-side-effect-tracker::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/chemo-side-effect-tracker/chemo_side_effect_tracker.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 152.0,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "chemo-side-effect-tracker::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/chronic-condition-monitor/chronic_condition_monitor.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 413.5,
+      "stdout": "usage: chronic_condition_monitor.py [-h]\n                                    {record,query,trend,alert,consecutive,summary}\n                                    ...\n\n慢病指标监测\n\npositional arguments:\n  {record,query,trend,alert,consecutive,summary}\n    record              记录指标\n    query               查询记录\n    trend               趋势分析\n    alert               异常告警检查\n    consecutive         连续变化检查\n    summary             就诊摘要\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": "",
+      "ok": true,
+      "slug": "chronic-condition-monitor::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/chronic-condition-monitor/chronic_condition_monitor.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 111.8,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "chronic-condition-monitor::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/clinical-trial-search/clinical_trial_search.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 563.5,
+      "stdout": "=== ClinicalTrials.gov 搜索: --help ===\n\n**ClinicalTrials.gov 搜索结果**\n\n**搜索条件**:\n- 肿瘤类型: --help\n- 生物标志物: N/A\n- 干预措施: N/A\n- 地区: China\n- 状态: RECRUITING\n\n**匹配试验（共5项）**:\n\n---\n\n### 1. NCT06793969 - Swartz Sheath With Angioplasty Guidewire-Assisted Technique for Patent Foramen Ovale Closure (STAGE-PFO)\n\n**Phase**: NA\n**状态**: RECRUITING\n**入组人数**: 120 patients\n**资助方**: RenJi Hospital\n**药物**: Swartz sheath with Angioplasty Guidewire-Assisted Technique for PFO tunnel passage (PROCEDURE), Conventional technique to pass the PFO tunnel (PROCEDURE)\n\n**关键入组标准**:\nInclusion Criteria:\n\n* Aged between 18 and 65\n* Confirmed diagnosis of PFO by transthoracic and transesophageal echocardiography\n* A history of cryptogenic stroke (CS) or transient ischemic attack (TIA)\n\nExclusion Criteria:\n\n* Confirmed pregnancy\n* Confirmed diagnosis of intracardiac thrombosis\n* Confirmed diagnosis of pulmonary hypertension\n* Confirmed diagnosis of rheumatic heart disease, or valvular heart disease\n* Past medical history of myocardial infarction, unstable angina and intracranial hemorrhage\n\n**中国中心**:\n- Renji Hospital (Shanghai)\n\n**参考**: https://clinicaltrials.gov/study/NCT06793969\n\n---\n\n### 2. NCT06756139 - Effects of Cognitive Behavioral Therapy Through a Mobile App on Patients With Refractory Functional Dyspepsia\n\n**Phase**: NA\n**状态**: RECRUITING\n**入组人数**: 88 patients\n**资助方**: Air Force Military Medical University, China\n**药物**: cognitive behavioural therapy mobile application (PROCEDURE), Flupentixol and Melitracen Tablets (DRUG)\n\n**关键入组标准**:\nInclusion Criteria:\n\n1. Age 18-80\n2. Refractory functional dyspepsia (patients with Rome IV functional dyspepsia remained symptomatic after treatment of 8 weeks of proton pump inhibitor and 4 weeks of prokinetics)\n3. Negative or unrelated-to-FD symptom findings of gastroscopy, upper abdominal ultrasound, Hp test and routine blood tests within the past 1 year.\n\nExclusion Criteria:\n\n1. Severe mental illness (PHQ-9 ≥20 or GAD-7 ≥15) or suicidal ideation;\n2. Known hp infection, active gastrointestinal peptic ulcer, cholecystitis, gallstones, suspected or known bowel obstruction, gastroparesis, major gastrointestinal surgery etc.;\n3. Known or suspected malignant tumor, significant heart/brain/liver/kidney diseases, obvious hematologic abnormalities or endocrine diseases etc., which may be -related to FD symptoms;\n4. Known or suspected drug-related FD (e.g.NSAIDs-related FD);\n5. Unable to access to mobile networks or unable to manage mobile APP properly.\n6. Allergy or other contradictions to flupenthixol or melitracen\n7. Taking any antipsychotics drugs or CBT interference within 12 weeks\n8. Pregnant or lactating women;\n9. Unable to provide informed consent.\n\n**中国中心**:\n- Hainan General Hospital (Hainan Affifiliated Hospital ofHainan Medical University) (Haikou)\n- Air Force Military Medical University, China (Xi'an)\n- Shaanxi Second People's Hospital (Xi'an)\n- Tangdu Hospital (Xi'an)\n- Xi'an 986 Hospital (Xi'an)\n- Xi'an People's Hospital (Xi'an)\n- Mianyang Third Hospital (Mianyang)\n\n**参考**: https://clinicaltrials.gov/study/NCT06756139\n\n---\n\n### 3. NCT07473739 - AI-Based Ultrasound Prediction of Pregnancy Outcomes in Placental-Related Fetal Growth Restriction (MVM-FGR): A Prospective Cohort Study\n\n**Phase**: N/A\n**状态**: RECRUITING\n**入组人数**: 300 patients\n**资助方**: Xinhua Hospital, Shanghai Jiao Tong University School of Medicine\n**药物**: new ultrasound index and MRI (OTHER)\n\n**关键入组标准**:\nInclusion Criteria:\n\n* Singleton pregnancy.\n* Isolated early-onset placental insufficiency-related fetal growth restriction (FGR), with priority given to cases with abnormal umbilical artery Doppler flow.\n* Pregnancies in which expectant management is continued.\n\nExclusion Criteria:\n\n* Multiple pregnancy complicated by selective fetal growth restriction (sFGR).\n* FGR caused by fetal structural anomalies, genetic abnormalities, or intrauterine infection.\n* Twin pregnancy with intrauterine fetal demise (IUFD) of one fetus.\n\n**中国中心**:\n- Xinhua Hospital Affiliated to Shanghai Jiaotong University School of Medicine Shanghai, Shanghai, China (Shanghai)\n\n**参考**: https://clinicaltrials.gov/study/NCT07473739\n\n---\n\n### 4. NCT06988579 - The Impact of AI Assistance on Radiologist Performance and Healthcare Costs in LDCT-Based Lung Cancer Screening\n\n**Phase**: NA\n**状态**: RECRUITING\n**入组人数**: 7294 patients\n**资助方**: The First Affiliated Hospital of Guangzhou Medical University\n**药物**: AI (OTHER)\n\n**关键入组标准**:\nInclusion Criteria:\n\n1. Aged 45-74 years\n2. Permanent resident of participating study communities\n3. No prior history of lung cancer and no lung cancer screening within the past 3 months\n4. Able to comprehend and voluntarily sign informed consent, with willingness to participate in long-term follow-up\n\nExclusion Criteria:\n\n1. Individuals with a confirmed diagnosis of lung cancer\n2. Those with severe comorbidities contraindicating CT imaging\n3. Inability to understand study protocols or provide informed consent due to cognitive impairment\n4. Concurrent participation in other clinical trials that may interfere with study outcomes\n5. Unable to comply with follow-up requirements\n\n**中国中心**:\n- the First Affiliated Hospital of Guangzhou Medical University, (Guangzhou)\n\n**参考**: https://clinicaltrials.gov/study/NCT06988579\n\n---\n\n### 5. NCT07144423 - Neuroendoscopy-assisted Drainage Versus Burr Hole Drainage for Chronic Subdural Hematoma\n\n**Phase**: NA\n**状态**: RECRUITING\n**入组人数**: 770 patients\n**资助方**: Beijing Tiantan Hospital\n**药物**: Endoscope-assisted hematoma drainage (PROCEDURE), Burr hole hematoma drainage (PROCEDURE)\n\n**关键入组标准**:\nInclusion Criteria:\n\n1. Patient (18 years to 90 years) presenting with clinical symptoms and neurological deficits of CSDH.\n2. CSDH verified on cranial computed tomography or magnetic resonance imaging.\n3. Written informed consent from patients or their next of kin according to the patient's cognitive status.\n\nExclusion Criteria:\n\n1. No clinical symptoms correlating with chronic subdural hematoma.\n2. Lack of mass effect and midline shift \\< 5 mm on the radiological image, or no need surgery judged clinically by neurosurgeons.\n3. Previous surgery for CSDH during the past 6 months.\n4. Previous intracranial surgery for any other neurological disorder.\n5. Poor medication conditions or the presence of severe comorbidities so that surgery cannot be tolerated, or follow-up cannot be completed.\n6. Severe coagulopathy or a high risk of life-threatening bleeding (including any one of the following three criteria: prothrombin time or activated partial thromboplastin time prolonged by more than 10 seconds; international normalized ratio \\> 3.0; absolute platelet count \\< 100×109/L).\n7. Postoperative compliance is suspected to be insufficient for 3-month follow-up visit.\n8. Reproductive-age women without verified negative pregnancy testing.\n9. Participating in another research.\n\n**中国中心**:\n- Beijing Tiantan Hospital, Capital Medical University (Beijing)\n- First Affiliated Hospital of Xiamen University (Xiamen)\n- Jiangmen Central Hospital (Jiangmen)\n- Shantou central hosital (Shantou)\n- People's Hospital of Longhua, Shenzhen (Shenzhen)\n- Liuzhou worker's Hospital (Liuchow)\n- The Second Affiliated Hospital of Guangxi Medical University (Nanning)\n- Nanning First People's Hospital (Nanning)\n- The First Affiliated Hospital of Guangxi University of Traditional Chinese Medicine (Nanning)\n- Wuzhou Gongren Hospital (Wuzhou)\n- Hebei University of Engineering Affiliated Hospital (Handan)\n- Xingtai Central Hospital (Xingtai)\n- Changde First People's Hospital (Changde)\n- People's Hospital of Xiangxi Prefecture, Hunan Province (Jishou)\n- Yueyang Central Hospital (Yueyang)\n- Heji Hospital affiliated with Changzhi Medical College (Changzhi)\n- Linfen People's Hospital (Linfen)\n- Shanxi Provincial People's Hospital,Shanxi Medical University (Taiyuan)\n- The Second Affiliated Hospital of Xi'an Medical University (Xi’an)\n- Mianyang 404 Hospital (Mianyang)\n- the First People'S Hospital of Yibin (Yibin)\n- First Affiliated Hospital of Xinjiang Medical University (Ürümqi)\n- Pu'er People's Hospital (Pu'er)\n- First Affiliated Hospital of Wenzhou Medical University (Wenzhou)\n\n**参考**: https://clinicaltrials.gov/study/NCT07144423\n\n---\n\n\n**备注**: 以上为实时数据，实际试验入组需联系各中心PI确认资格。",
+      "stderr": "2026-03-23 21:34:43,303 [DEBUG] [CT.gov] 搜索: --help, 干预: None, 地点: China, 状态: RECRUITING\n2026-03-23 21:34:43,304 [DEBUG] Starting new HTTPS connection (1): clinicaltrials.gov:443\n2026-03-23 21:34:43,764 [DEBUG] https://clinicaltrials.gov:443 \"GET /api/v2/studies?format=json&pageSize=5&query.cond=--help&filter.overallStatus=RECRUITING&query.locn=China&fields=NCTId%2CBriefTitle%2COfficialTitle%2CPhase%2COverallStatus%2CCondition%2CInterventionName%2CInterventionType%2CLocationFacility%2CLocationCity%2CLocationCountry%2CLeadSponsorName%2CEnrollmentCount%2CStartDate%2CPrimaryCompletionDate%2CEligibilityCriteria HTTP/1.1\" 200 None\n2026-03-23 21:34:43,765 [DEBUG] [CT.gov] 找到 5 项试验",
+      "ok": true,
+      "slug": "clinical-trial-search::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/clinical-trial-search/clinical_trial_search.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 84.4,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "clinical-trial-search::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/drug-adverse-event-query/drug_adverse_event.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 1854.5,
+      "stdout": "=== FDA 不良反应查询: --help ===\n\n**FDA 不良反应报告 (FAERS)**\n\n**药物**: --help\n\n**总报告数**: 8,626\n**严重事件占比**: 7,479 (86.7%)\n\n### 最常报告的不良反应\n\n| 排名 | 不良反应 | 报告数 |\n|------|---------|--------|\n| 1 | COMPLETED SUICIDE | 762 |\n| 2 | DEATH | 535 |\n| 3 | ARTHRALGIA | 507 |\n| 4 | NAUSEA | 475 |\n| 5 | FATIGUE | 466 |\n| 6 | INFUSION RELATED REACTION | 465 |\n| 7 | DRUG INEFFECTIVE | 449 |\n| 8 | PAIN | 433 |\n| 9 | DYSPNOEA | 427 |\n| 10 | DRUG HYPERSENSITIVITY | 397 |\n| 11 | DIARRHOEA | 383 |\n| 12 | HEADACHE | 374 |\n| 13 | PYREXIA | 374 |\n| 14 | CARDIAC ARREST | 363 |\n| 15 | TOXICITY TO VARIOUS AGENTS | 355 |\n\n### 最常报告的严重不良反应\n\n| 排名 | 不良反应 | 报告数 |\n|------|---------|--------|\n| 1 | COMPLETED SUICIDE | 761 |\n| 2 | DEATH | 534 |\n| 3 | ARTHRALGIA | 477 |\n| 4 | INFUSION RELATED REACTION | 451 |\n| 5 | NAUSEA | 411 |\n| 6 | PAIN | 409 |\n| 7 | FATIGUE | 394 |\n| 8 | DRUG INEFFECTIVE | 392 |\n| 9 | DYSPNOEA | 392 |\n| 10 | CARDIAC ARREST | 362 |\n| 11 | PYREXIA | 362 |\n| 12 | TOXICITY TO VARIOUS AGENTS | 352 |\n| 13 | HYPOTENSION | 342 |\n| 14 | DIARRHOEA | 331 |\n| 15 | BLOOD PRESSURE INCREASED | 329 |\n\n\n**数据来源**: [FDA FAERS](https://www.fda.gov/drugs/questions-and-answers-fdas-adverse-event-reporting-system-faers/fda-adverse-event-reporting-system-faers-public-dashboard)\n**注意**: FAERS 为自发报告系统，报告数不等于发生率，不能用于直接比较药物安全性。",
+      "stderr": "",
+      "ok": true,
+      "slug": "drug-adverse-event-query::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/drug-adverse-event-query/drug_adverse_event.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 38.8,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "drug-adverse-event-query::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/drug-interaction-checker/drug_interaction.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 3359.8,
+      "stdout": "=== 药物相互作用检查: --help ===\n\n**RxNorm 药物查询结果**\n\n**药物**: --help\n**RxCUI**: 311372\n\n未找到药物相互作用记录。\n\n**参考**: [RxNorm: --help](https://mor.nlm.nih.gov/RxNav/search?searchBy=RXCUI&searchTerm=311372)",
+      "stderr": "2026-03-23 21:34:48,121 [ERROR] __main__: [RxNorm] 查询相互作用失败: 404 Client Error: Not Found for url: https://rxnav.nlm.nih.gov/REST/interaction/interaction.json?rxcui=311372",
+      "ok": true,
+      "slug": "drug-interaction-checker::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/drug-interaction-checker/drug_interaction.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 106.8,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "drug-interaction-checker::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/drug-label-lookup/drug_label.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 1026.7,
+      "stdout": "**FDA 药品说明书**\n\n**药物**: BENZALKONIUM CHLORIDE\n**商品名**: help it Antiseptic\n**生产商**: Nantong Health & Beyond Hygienic Products Inc.\n\n### 适应症\nUses To help prevent infection in minor cuts, scrapes, and burns\n\n### 剂量与用法\nDirections: Clean affected area and spray 1-3 times daily Cover with a sterile bandage Not to be used on children under 12 years of age\n\n### 警告与注意事项\nWarnings For external use only. Flammable: keep away from fire or flames\n\n\n**参考**: [FDA: BENZALKONIUM CHLORIDE](https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=0b22f423-eb11-445f-a484-9326c1fe3ad5)",
+      "stderr": "",
+      "ok": true,
+      "slug": "drug-label-lookup::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/drug-label-lookup/drug_label.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 80.3,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "drug-label-lookup::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/drug-name-resolver/drug_name_resolver.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 1977.1,
+      "stdout": "=== Drug Name Resolver: --help ===\n{\n  \"rxcui\": \"311372\",\n  \"name\": \"--help\",\n  \"properties\": {\n    \"Prescribable Synonym\": \"loratadine 10 MG 24HR Oral Tablet\",\n    \"RXNAV_STR\": \"loratadine 10 MG Oral Tablet\",\n    \"RxNorm Name\": \"loratadine 10 MG Oral Tablet\",\n    \"RxNorm Synonym\": \"loratadine 10 MG 24 HR Oral Tablet\"\n  },\n  \"drug_class\": []\n}",
+      "stderr": "DEBUG urllib3.connectionpool: Starting new HTTPS connection (1): rxnav.nlm.nih.gov:443\nDEBUG urllib3.connectionpool: https://rxnav.nlm.nih.gov:443 \"GET /REST/rxcui.json?name=--help HTTP/1.1\" 200 None\nDEBUG urllib3.connectionpool: https://rxnav.nlm.nih.gov:443 \"GET /REST/approximateTerm.json?term=--help&maxEntries=1 HTTP/1.1\" 200 None\nDEBUG urllib3.connectionpool: https://rxnav.nlm.nih.gov:443 \"GET /REST/rxcui/311372/allProperties.json?prop=names HTTP/1.1\" 200 None\nDEBUG urllib3.connectionpool: https://rxnav.nlm.nih.gov:443 \"GET /REST/rxcui/311372/class.json HTTP/1.1\" 404 None\nDEBUG __main__: [RxNorm] 获取药物分类失败: 404 Client Error: Not Found for url: https://rxnav.nlm.nih.gov/REST/rxcui/311372/class.json",
+      "ok": true,
+      "slug": "drug-name-resolver::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/drug-name-resolver/drug_name_resolver.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 97.3,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "drug-name-resolver::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/follow-up-reminder/follow_up_reminder.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 39.8,
+      "stdout": "usage: follow_up_reminder.py [-h] {add,due,done,remove,checklist,list} ...\n\n复查提醒管理工具\n\npositional arguments:\n  {add,due,done,remove,checklist,list}\n                        子命令\n    add                 添加复查提醒\n    due                 查看即将到期的提醒\n    done                标记提醒已完成\n    remove              停用提醒\n    checklist           生成复查清单\n    list                列出所有活跃提醒\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": "",
+      "ok": true,
+      "slug": "follow-up-reminder::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/follow-up-reminder/follow_up_reminder.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 74.9,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "follow-up-reminder::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/health-timeline/scripts/update_timeline.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 147.1,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "health-timeline::py_compile"
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "skills/health-trend-analyzer/templates/charts-config.js"
+      ],
+      "returncode": 0,
+      "duration_ms": 40.1,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "health-trend-analyzer::node_check::charts-config.js"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/kidney-function-tracker/kidney_function_tracker.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 399.9,
+      "stdout": "usage: kidney_function_tracker.py [-h]\n                                  {record,report,chart,stage,deterioration,recheck}\n                                  ...\n\n肾功能追踪\n\npositional arguments:\n  {record,report,chart,stage,deterioration,recheck}\n    record              记录肾功能指标\n    report              生成综合报告\n    chart               生成趋势图\n    stage               查看 CKD 分期\n    deterioration       恶化检测\n    recheck             复查提醒\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": "",
+      "ok": true,
+      "slug": "kidney-function-tracker::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/kidney-function-tracker/kidney_function_tracker.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 71.0,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "kidney-function-tracker::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/medical-record-organizer/scripts/check_gpu.py",
+        "skills/medical-record-organizer/scripts/extract_docx.py",
+        "skills/medical-record-organizer/scripts/extract_excel.py",
+        "skills/medical-record-organizer/scripts/extract_pdf.py",
+        "skills/medical-record-organizer/scripts/init_patient.py",
+        "skills/medical-record-organizer/scripts/redact_ocr.py",
+        "skills/medical-record-organizer/scripts/unpack_archive.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 380.2,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "medical-record-organizer::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/medication-reminder/medication_reminder.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 42.3,
+      "stdout": "usage: medication_reminder.py [-h]\n                              {add,list,remove,log,due,adherence,missed,report}\n                              ...\n\n用药提醒与依从性追踪工具\n\npositional arguments:\n  {add,list,remove,log,due,adherence,missed,report}\n                        子命令\n    add                 添加用药计划\n    list                列出所有活跃用药\n    remove              停用药物\n    log                 记录服药\n    due                 查看当前应服药物\n    adherence           查看依从率\n    missed              查看漏服药物\n    report              生成综合用药报告\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": "",
+      "ok": true,
+      "slug": "medication-reminder::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/medication-reminder/medication_reminder.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 76.2,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "medication-reminder::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/multimodal-medical-imaging/multimodal_agent.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 35.4,
+      "stdout": "usage: multimodal_agent.py [-h] --image IMAGE --prompt PROMPT [--model MODEL]\n                           [--output OUTPUT]\n\nMedical Imaging Analysis Agent\n\noptions:\n  -h, --help       show this help message and exit\n  --image IMAGE    Path to image file\n  --prompt PROMPT  Clinical question or instruction\n  --model MODEL    VLM to use (gemini-1.5-pro, gpt-4o)\n  --output OUTPUT  Path to save JSON output",
+      "stderr": "",
+      "ok": true,
+      "slug": "multimodal-medical-imaging::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/multimodal-medical-imaging/multimodal_agent.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 35.0,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "multimodal-medical-imaging::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/post-surgery-recovery/post_surgery_recovery.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 400.8,
+      "stdout": "usage: post_surgery_recovery.py [-h]\n                                {configure,record,progress,milestones,recheck,chart}\n                                ...\n\n术后康复追踪\n\npositional arguments:\n  {configure,record,progress,milestones,recheck,chart}\n                        可用命令\n    configure           配置手术信息\n    record              记录康复数据\n    progress            康复进度报告\n    milestones          里程碑检查\n    recheck             复查提醒\n    chart               生成趋势图表\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": "",
+      "ok": true,
+      "slug": "post-surgery-recovery::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/post-surgery-recovery/post_surgery_recovery.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 45.8,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "post-surgery-recovery::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/pubmed-abstract-reader/pubmed_abstract.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 6095.9,
+      "stdout": "正在获取 1 篇文献: --help\n\n未找到结果。",
+      "stderr": "DEBUG urllib3.connectionpool: Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443\nDEBUG urllib3.util.retry: Incremented Retry for (url='/entrez/eutils/efetch.fcgi?db=pubmed&id=--help&rettype=xml&retmode=xml&email=user%40example.com'): Retry(total=2, connect=None, read=None, redirect=None, status=None)\nWARNING urllib3.connectionpool: Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:1002)'))': /entrez/eutils/efetch.fcgi?db=pubmed&id=--help&rettype=xml&retmode=xml&email=user%40example.com\nDEBUG urllib3.connectionpool: Starting new HTTPS connection (2): eutils.ncbi.nlm.nih.gov:443\nDEBUG urllib3.connectionpool: https://eutils.ncbi.nlm.nih.gov:443 \"GET /entrez/eutils/efetch.fcgi?db=pubmed&id=--help&rettype=xml&retmode=xml&email=user%40example.com HTTP/1.1\" 400 None\nERROR __main__: 获取摘要失败: 400 Client Error: Bad Request for url: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=--help&rettype=xml&retmode=xml&email=user%40example.com",
+      "ok": true,
+      "slug": "pubmed-abstract-reader::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/pubmed-abstract-reader/pubmed_abstract.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 68.7,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "pubmed-abstract-reader::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/sleep-analyzer/sleep_analyzer.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 348.5,
+      "stdout": "usage: sleep_analyzer.py [-h] {log,import,score,trend,correlate,chart} ...\n\n睡眠分析\n\npositional arguments:\n  {log,import,score,trend,correlate,chart}\n    log                 记录睡眠\n    import              导入 Apple Health 数据\n    score               睡眠评分详情\n    trend               睡眠趋势\n    correlate           睡眠-咖啡因关联分析\n    chart               生成睡眠阶段图\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": "",
+      "ok": true,
+      "slug": "sleep-analyzer::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/sleep-analyzer/sleep_analyzer.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 67.6,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "sleep-analyzer::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/sleep-optimizer/sleep_optimizer.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 91.0,
+      "stdout": "usage: sleep_optimizer.py [-h] {recommend,bedtime,review} ...\n\n睡眠优化建议 - 基于多源健康数据生成个性化睡眠改善方案\n\npositional arguments:\n  {recommend,bedtime,review}\n                        可用命令\n    recommend           生成完整的个性化睡眠优化建议（睡眠+咖啡因+补剂综合分析）\n    bedtime             分析最佳入睡时间\n    review              生成综合睡眠健康评估报告\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": "",
+      "ok": true,
+      "slug": "sleep-optimizer::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/sleep-optimizer/sleep_optimizer.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 31.2,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "sleep-optimizer::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/supplement-manager/supplement_manager.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 92.5,
+      "stdout": "usage: supplement_manager.py [-h]\n                             {add,log,list,remove,interactions,adherence,due}\n                             ...\n\n补剂管理 — 方案管理、服用记录、依从率、交互检查\n\npositional arguments:\n  {add,log,list,remove,interactions,adherence,due}\n                        子命令\n    add                 添加补剂\n    log                 记录服用\n    list                列出所有活跃补剂\n    remove              停用补剂\n    interactions        检查补剂间交互\n    adherence           查看依从率\n    due                 查看当前应服用的补剂\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": "",
+      "ok": true,
+      "slug": "supplement-manager::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/supplement-manager/supplement_manager.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 71.7,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "supplement-manager::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/tumor-journey-summary/tumor_journey_summary.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 91.6,
+      "stdout": "usage: tumor_journey_summary.py [-h]\n                                {add,list,scan,extract,summary,timeline} ...\n\n肿瘤病程时间线总结 - 构建结构化治疗旅程时间线\n\npositional arguments:\n  {add,list,scan,extract,summary,timeline}\n                        可用命令\n    add                 添加病程事件\n    list                列出病程事件\n    scan                扫描患者文件目录\n    extract             从文本或文件提取病程事件\n    summary             生成病程叙事总结 (需要 LLM)\n    timeline            导出 Markdown 时间线\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": "",
+      "ok": true,
+      "slug": "tumor-journey-summary::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/tumor-journey-summary/tumor_journey_summary.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 70.7,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "tumor-journey-summary::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/tumor-marker-trend/tumor_marker_trend.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 380.6,
+      "stdout": "usage: tumor_marker_trend.py [-h] {record,trend,surge,compare} ...\n\n肿瘤标志物趋势追踪\n\npositional arguments:\n  {record,trend,surge,compare}\n                        可用命令\n    record              记录标志物值\n    trend               趋势分析\n    surge               突增检测\n    compare             多标志物对比\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": "",
+      "ok": true,
+      "slug": "tumor-marker-trend::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/tumor-marker-trend/tumor_marker_trend.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 74.3,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "tumor-marker-trend::py_compile"
+    },
+    {
+      "command": [
+        "python3",
+        "skills/weekly-health-digest/weekly_health_digest.py",
+        "--help"
+      ],
+      "returncode": 0,
+      "duration_ms": 88.2,
+      "stdout": "usage: weekly_health_digest.py [-h]\n                               {generate,generate-monthly,view,view-monthly,trend}\n                               ...\n\n每周健康周报 - 聚合多源健康数据，生成叙事性周报\n\npositional arguments:\n  {generate,generate-monthly,view,view-monthly,trend}\n                        可用命令\n    generate            生成本周周报\n    generate-monthly    生成本月月报\n    view                查看已生成的周报\n    view-monthly        查看已生成的月报\n    trend               显示多周趋势对比\n\noptions:\n  -h, --help            show this help message and exit",
+      "stderr": "",
+      "ok": true,
+      "slug": "weekly-health-digest::help"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "skills/weekly-health-digest/weekly_health_digest.py"
+      ],
+      "returncode": 0,
+      "duration_ms": 80.5,
+      "stdout": "",
+      "stderr": "",
+      "ok": true,
+      "slug": "weekly-health-digest::py_compile"
+    }
+  ]
+}
