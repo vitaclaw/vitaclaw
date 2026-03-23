@@ -1,7 +1,7 @@
 # 血压追踪 (blood-pressure-tracker)
 
 ## 概述
-记录血压读数并按当前 AHA/ACC 成人血压分类自动分级，追踪血压趋势，检测晨峰血压和昼夜节律变化，计算脉压和心率分析，生成月度统计报告。
+记录血压读数并按 ACC/AHA 2017 指南自动分级，追踪血压趋势，检测晨峰血压和昼夜节律变化，计算脉压和心率分析，生成月度统计报告。
 
 ## 适用场景
 - 用户报告血压测量结果
@@ -12,18 +12,6 @@
 ## 使用方式
 - 自动触发: 用户提到血压读数或询问血压相关问题时自动激活
 - 由场景技能调用: hypertension-daily-copilot、weekly-health-digest 等场景技能会调用此底层技能
-
-### CLI 示例
-
-```bash
-python3 skills/blood-pressure-tracker/blood_pressure_tracker.py record 132 84 72 \
-  --context evening \
-  --timestamp 2026-03-14T20:10:00 \
-  --data-dir /path/to/data \
-  --memory-dir /path/to/workspace/memory/health
-```
-
-传入 `--memory-dir` 或 `--workspace-root` 后，记录会自动同步到 `memory/health/daily/` 和 `memory/health/items/blood-pressure.md`。
 
 ## 输入格式
 自然语言即可，例如：
@@ -49,7 +37,6 @@ python3 skills/blood-pressure-tracker/blood_pressure_tracker.py record 132 84 72
 ## 数据存储
 - 每日文件: `memory/health/daily/YYYY-MM-DD.md`
 - 指标文件: `memory/health/items/blood-pressure.md`
-- 原始记录: `data/blood-pressure-tracker/records.jsonl`
 
 ## 医学免责声明
 本技能仅供健康参考，不构成医疗建议。血压达到危象水平（收缩压>=180 或 舒张压>=120）时请立即就医。如有健康问题，请咨询专业医疗人员。

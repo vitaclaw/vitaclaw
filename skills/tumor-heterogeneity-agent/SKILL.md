@@ -1,15 +1,3 @@
----
-name: tumor-heterogeneity-agent
-description: AI-powered intratumor heterogeneity analysis for clonal architecture reconstruction, subclonal evolution tracking, and therapy resistance prediction using multi-region and longitudinal sequencing.
-version: 1.0.0
-user-invocable: false
-allowed-tools: Read, Grep, Glob, Write, Edit, Bash
-metadata:
-  openclaw:
-    category: medical-research
-    measurable_outcome: Execute skill workflow successfully with valid output within 15 minutes.
----
-
 <!--
 # COPYRIGHT NOTICE
 # This file is part of the "Universal Biomedical Skills" project.
@@ -22,6 +10,16 @@ metadata:
 # Provenance: Authenticated by MD BABU MIA
 
 -->
+
+---
+name: 'tumor-heterogeneity-agent'
+description: 'AI-powered intratumor heterogeneity analysis for clonal architecture reconstruction, subclonal evolution tracking, and therapy resistance prediction using multi-region and longitudinal sequencing.'
+measurable_outcome: Execute skill workflow successfully with valid output within 15 minutes.
+allowed-tools:
+  - read_file
+  - run_shell_command
+---
+
 
 # Tumor Heterogeneity Agent
 

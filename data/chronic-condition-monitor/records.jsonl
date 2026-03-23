@@ -1,3 +1,0 @@
-{"id": "glucose_20260319T070000_1ee81fdb", "type": "glucose", "timestamp": "2026-03-19T07:00:00", "skill": "chronic-condition-monitor", "note": "", "data": {"value": 6.8, "context": "fasting"}}
-{"id": "glucose_20260319T140000_91c0c91a", "type": "glucose", "timestamp": "2026-03-19T14:00:00", "skill": "chronic-condition-monitor", "note": "", "data": {"value": 9.4, "context": "post_lunch_2h"}}
-{"id": "weight_20260319T070500_ab52b6a2", "type": "weight", "timestamp": "2026-03-19T07:05:00", "skill": "chronic-condition-monitor", "note": "Diabetes daily log", "data": {"kg": 72.4, "height_cm": 170.0, "context": ""}}

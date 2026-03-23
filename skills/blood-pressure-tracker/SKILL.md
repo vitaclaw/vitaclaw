@@ -1,6 +1,6 @@
 ---
 name: blood-pressure-tracker
-description: "Records and classifies blood pressure readings per current AHA/ACC adult blood pressure categories, detects morning surge, analyzes diurnal variation, and generates monthly statistics. Use when the user logs BP readings or asks about blood pressure trends."
+description: "Records and classifies blood pressure readings per ACC/AHA 2017 guidelines, detects morning surge, analyzes diurnal variation, and generates monthly statistics. Use when the user logs BP readings or asks about blood pressure trends."
 version: 1.0.0
 user-invocable: false
 allowed-tools: Read, Grep, Glob, Write, Edit
@@ -9,7 +9,7 @@ metadata: {"openclaw":{"emoji":"💓","category":"health"}}
 
 # Blood Pressure Tracker
 
-Records blood pressure readings with automatic classification (current AHA/ACC adult blood pressure categories), tracks trends, detects morning surge and diurnal patterns, computes pulse pressure and heart rate analysis, and generates monthly statistics.
+Records blood pressure readings with automatic classification (ACC/AHA 2017), tracks trends, detects morning surge and diurnal patterns, computes pulse pressure and heart rate analysis, and generates monthly statistics.
 
 ## Capabilities
 
