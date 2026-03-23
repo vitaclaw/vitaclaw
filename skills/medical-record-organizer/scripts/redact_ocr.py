@@ -7,6 +7,7 @@ Only PII fields are redacted; everything else is left untouched.
 
 Usage:
     python3 redact_ocr.py INPUT [--output OUTPUT] [--debug] [--confidence 0.5] [--no-ner]
+    python3 redact_ocr.py --check-runtime
 
 Output JSON to stdout:
     {"success": true, "output": "...", "pii_detected": N, "regions": [...]}
@@ -77,6 +78,56 @@ def _classify_by_patterns(text: str) -> tuple[str | None, float | None]:
 
 _ner_engine = None
 _ner_available = None  # None = not checked, True/False = result
+
+
+def runtime_check() -> dict:
+    issues = []
+    checks = {
+        "paddleocr_import": False,
+        "paddleocr_engine": False,
+        "paddlenlp_import": False,
+        "paddlenlp_engine": False,
+    }
+
+    try:
+        from paddleocr import PaddleOCR
+
+        checks["paddleocr_import"] = True
+        try:
+            PaddleOCR(
+                use_doc_orientation_classify=False,
+                use_doc_unwarping=False,
+                use_textline_orientation=False,
+                lang="ch",
+                show_log=False,
+            )
+            checks["paddleocr_engine"] = True
+        except Exception as exc:  # pragma: no cover - depends on local runtime
+            issues.append(f"PaddleOCR runtime not ready: {exc}")
+    except Exception as exc:  # pragma: no cover - depends on local runtime
+        issues.append(f"Missing PaddleOCR dependency: {exc}")
+
+    try:
+        from paddlenlp import Taskflow
+
+        checks["paddlenlp_import"] = True
+        try:
+            Taskflow(
+                "information_extraction",
+                schema=["人名"],
+                model="uie-micro",
+            )
+            checks["paddlenlp_engine"] = True
+        except Exception as exc:  # pragma: no cover - depends on local runtime
+            issues.append(f"PaddleNLP runtime not ready: {exc}")
+    except Exception as exc:  # pragma: no cover - depends on local runtime
+        issues.append(f"Missing PaddleNLP dependency: {exc}")
+
+    return {
+        "success": all(checks.values()),
+        "checks": checks,
+        "issues": issues,
+    }
 
 
 def _init_ner_engine():
@@ -596,7 +647,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="OCR-based PII redaction for Chinese medical documents."
     )
-    parser.add_argument("input", help="Path to input image file")
+    parser.add_argument("input", nargs="?", help="Path to input image file")
     parser.add_argument("--output", help="Output file path (default: [name]_redacted.[ext])")
     parser.add_argument("--debug", action="store_true",
                         help="Save annotated debug image showing PII regions (red boxes)")
@@ -604,7 +655,21 @@ def main():
                         help="OCR confidence threshold (default: 0.5)")
     parser.add_argument("--no-ner", action="store_true",
                         help="Skip NER classification; all lines kept (debug/fallback)")
+    parser.add_argument(
+        "--check-runtime",
+        action="store_true",
+        help="Check whether PaddleOCR and PaddleNLP are ready for mandatory redaction.",
+    )
     args = parser.parse_args()
+
+    if args.check_runtime:
+        result = runtime_check()
+        print(json.dumps(result, ensure_ascii=False))
+        sys.exit(0 if result.get("success") else 2)
+
+    if not args.input:
+        print(json.dumps({"success": False, "error": "input is required unless --check-runtime is used"}))
+        sys.exit(1)
 
     input_path = Path(args.input).expanduser().resolve()
     if not input_path.exists():
