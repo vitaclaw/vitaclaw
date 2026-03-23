@@ -1,15 +1,3 @@
----
-name: multimodal-medical-imaging
-description: Analyzes medical images (X-ray, MRI, CT) using multimodal LLMs to identify anomalies and generate reports.
-version: 1.0.0
-user-invocable: false
-allowed-tools: Read, Grep, Glob, Write, Edit, Bash
-metadata:
-  openclaw:
-    category: medical-imaging
-    measurable_outcome: Execute skill workflow successfully with valid output within 15 minutes.
----
-
 <!--
 # COPYRIGHT NOTICE
 # This file is part of the "Universal Biomedical Skills" project.
@@ -22,6 +10,16 @@ metadata:
 # Provenance: Authenticated by MD BABU MIA
 
 -->
+
+---
+name: 'multimodal-medical-imaging'
+description: 'Analyzes medical images (X-ray, MRI, CT) using multimodal LLMs to identify anomalies and generate reports.'
+measurable_outcome: Execute skill workflow successfully with valid output within 15 minutes.
+allowed-tools:
+  - read_file
+  - run_shell_command
+---
+
 
 # Multimodal Medical Imaging Analysis
 

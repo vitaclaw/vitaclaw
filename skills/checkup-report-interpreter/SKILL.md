@@ -1,6 +1,6 @@
 ---
 name: checkup-report-interpreter
-description: "Interprets physical examination reports by parsing PDF files into structured data, identifying abnormalities with severity grading, generating clinical explanations with health recommendations, and optionally syncing key findings into memory/health for long-term tracking. Supports year-over-year comparison of two reports. Use when the user uploads a checkup report or asks for help understanding lab results."
+description: "Interprets physical examination reports by parsing PDF files into structured data, identifying abnormalities with severity grading, and generating clinical explanations with health recommendations. Supports year-over-year comparison of two reports. Use when the user uploads a checkup report or asks for help understanding lab results."
 version: 1.0.0
 user-invocable: true
 argument-hint: "[report <pdf> | parse <pdf> | extract <pdf> | compare <pdf1> <pdf2>]"
@@ -20,7 +20,6 @@ Automatically parses physical examination report PDFs into structured data, then
 - **Clinical Interpretation**: Groups abnormal indicators by organ system and explains their clinical significance in plain language
 - **Health Recommendations**: Generates personalized health recommendations and suggested follow-up items
 - **Annual Comparison**: Supports item-by-item comparison of two reports, highlighting new abnormalities, worsening trends, and improvements
-- **Memory Sync**: When `--memory-dir` or `--workspace-root` is supplied, writes checkup summary + key indicators back into `memory/health/`
 
 ## Usage
 
@@ -36,11 +35,6 @@ python checkup_report_interpreter.py extract checkup_report.pdf
 
 # Compare two years of reports
 python checkup_report_interpreter.py compare 2026_checkup.pdf 2025_checkup.pdf
-
-# Persist key findings into memory/health
-python checkup_report_interpreter.py extract checkup_report.pdf \
-  --report-date 2026-03-10 \
-  --memory-dir /path/to/workspace/memory/health
 ```
 
 ## Environment Variables

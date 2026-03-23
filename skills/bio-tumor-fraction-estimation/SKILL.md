@@ -1,14 +1,8 @@
 ---
 name: bio-tumor-fraction-estimation
 description: Estimates circulating tumor DNA fraction from shallow whole-genome sequencing using ichorCNA. Detects copy number alterations via HMM segmentation and calculates ctDNA percentage. Requires 0.1-1x sWGS coverage. Use when quantifying tumor burden from liquid biopsy or monitoring treatment response.
-version: 1.0.0
-user-invocable: false
-allowed-tools: Read, Grep, Glob, Write, Edit, Bash
-metadata:
-  openclaw:
-    category: medical-research
-    tool_type: r
-    primary_tool: ichorCNA
+tool_type: r
+primary_tool: ichorCNA
 ---
 
 ## Version Compatibility

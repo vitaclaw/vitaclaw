@@ -1,15 +1,15 @@
 ---
 name: weekly-health-digest
-description: "Aggregates recent health data from health-memory into narrative weekly or monthly reports with per-domain summaries, cross-domain correlations, and actionable next-period suggestions. Use at the end of each week or month, or when the user asks for a health summary."
+description: "Aggregates the past 7 days of health data from health-memory into a narrative weekly report with a composite health score (0-100), per-domain summaries, cross-domain correlations, and actionable next-week suggestions. Use at the end of each week or when the user asks for a health summary."
 version: 1.0.0
 user-invocable: false
 allowed-tools: Read, Grep, Glob, Write, Edit
 metadata: {"openclaw":{"emoji":"📊","category":"health"}}
 ---
 
-# Weekly / Monthly Health Digest
+# Weekly Health Digest
 
-Aggregate recent daily logs and longitudinal indicator files from health-memory. Produce narrative weekly or monthly reports with per-domain summaries, cross-domain correlations, highlights, and actionable next-period suggestions.
+Aggregate the past 7 days of daily logs and longitudinal indicator files from health-memory. Produce a narrative weekly report with a composite health score, per-domain summaries, cross-domain correlations, highlights, and actionable next-week suggestions.
 
 ## Capabilities
 

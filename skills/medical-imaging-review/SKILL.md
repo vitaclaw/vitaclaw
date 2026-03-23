@@ -7,8 +7,9 @@ description: >
   ultrasound, or pathology imaging. Triggers on requests for "review paper",
   "survey", "literature review", "综述", "systematic review", or mentions of
   writing academic reviews on deep learning for medical imaging.
-version: 2.0.0
-user-invocable: true
+metadata:
+  author: user
+  version: "2.0.0"
 allowed-tools:
   - Read
   - Write
@@ -25,10 +26,6 @@ allowed-tools:
   - mcp__pubmed-mcp-server__pubmed_search_articles
   - mcp__zotero__zotero_search_items
   - mcp__zotero__zotero_get_item_fulltext
-metadata:
-  author: user
-  openclaw:
-    category: medical-research
 ---
 
 # Medical Imaging AI Literature Review Skill
