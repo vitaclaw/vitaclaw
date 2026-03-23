@@ -36,6 +36,11 @@ def _default_redact_cmd() -> list[str]:
     return [sys.executable, str(script_path)]
 
 
+def _default_ensure_cmd() -> list[str]:
+    script_path = Path(__file__).with_name("ensure_redaction_runtime.py")
+    return [sys.executable, str(script_path)]
+
+
 def _ensure_parent(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -81,6 +86,40 @@ def _run_redaction(
     }
 
 
+def _ensure_runtime(
+    auto_install_runtime: bool,
+    ensure_cmd: list[str] | None = None,
+) -> dict:
+    command = list(ensure_cmd or _default_ensure_cmd())
+    command.append("--require-ready")
+    if auto_install_runtime:
+        command.append("--auto-install")
+
+    completed = subprocess.run(
+        command,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    stdout = completed.stdout.strip()
+    payload = None
+    if stdout:
+        try:
+            payload = json.loads(stdout.splitlines()[-1])
+        except json.JSONDecodeError:
+            payload = None
+
+    success = completed.returncode == 0 and bool(payload and payload.get("ready"))
+    return {
+        "success": success,
+        "returncode": completed.returncode,
+        "stdout": stdout,
+        "stderr": completed.stderr.strip(),
+        "payload": payload or {},
+        "command": command,
+    }
+
+
 def copy_patient_document(
     *,
     source_path: str,
@@ -90,6 +129,8 @@ def copy_patient_document(
     privacy_mode: bool = True,
     redacted_source: str | None = None,
     redact_cmd: list[str] | None = None,
+    ensure_cmd: list[str] | None = None,
+    auto_install_runtime: bool = False,
 ) -> dict:
     source = Path(source_path).expanduser().resolve()
     archive_root = Path(patient_dir).expanduser().resolve()
@@ -110,6 +151,23 @@ def copy_patient_document(
     source_used = source
 
     if requires_redaction:
+        runtime_info = _ensure_runtime(
+            auto_install_runtime=auto_install_runtime,
+            ensure_cmd=ensure_cmd,
+        )
+        if not runtime_info["success"]:
+            return {
+                "success": False,
+                "blocked": True,
+                "stage": "runtime-gate",
+                "error": (
+                    "Privacy mode is ON and the image-redaction runtime is not ready. "
+                    "The original file was backed up, but classified archive copy was blocked."
+                ),
+                "backup_path": str(backup_path),
+                "target_path": str(target),
+                "runtime": runtime_info,
+            }
         if redacted_source:
             source_used = Path(redacted_source).expanduser().resolve()
             if source_used == source:
@@ -161,6 +219,7 @@ def copy_patient_document(
         "backup_path": str(backup_path),
         "target_path": str(target),
         "source_used": str(source_used),
+        "runtime": runtime_info if requires_redaction else None,
         "redaction": redaction_info,
     }
 
@@ -195,6 +254,16 @@ def main() -> None:
         nargs="+",
         help="Override redact command for testing or custom runtimes.",
     )
+    parser.add_argument(
+        "--ensure-cmd",
+        nargs="+",
+        help="Override runtime-ensure command for testing or custom runtimes.",
+    )
+    parser.add_argument(
+        "--auto-install-runtime",
+        action="store_true",
+        help="Attempt to install PaddleOCR/PaddleNLP runtime before image redaction.",
+    )
     args = parser.parse_args()
 
     result = copy_patient_document(
@@ -205,6 +274,8 @@ def main() -> None:
         privacy_mode=_normalize_bool(args.privacy_mode, default=True),
         redacted_source=args.redacted_source,
         redact_cmd=args.redact_cmd,
+        ensure_cmd=args.ensure_cmd,
+        auto_install_runtime=args.auto_install_runtime,
     )
     print(json.dumps(result, ensure_ascii=False))
     sys.exit(0 if result.get("success") else 2)
