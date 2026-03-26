@@ -22,14 +22,32 @@ Automatically parses physical examination report PDFs into structured data, then
 - **Annual Comparison**: Supports item-by-item comparison of two reports, highlighting new abnormalities, worsening trends, and improvements
 - **Memory Sync**: When `--memory-dir` or `--workspace-root` is supplied, writes checkup summary + key indicators back into `memory/health/`
 
-## Usage
+## 推荐工作流（Agent 优先）
+
+Agent 自身具备 LLM 推理能力，**推荐仅使用 Python 做 PDF 文本提取**，解读工作由 Agent 完成：
+
+1. **提取 PDF 文本**（Python 负责二进制解析）：
+   ```bash
+   python checkup_report_interpreter.py parse checkup_report.pdf
+   ```
+
+2. **Agent 阅读提取的文本**，按以下六层输出格式进行解读：
+   - 记录：列出所有检查项目及数值
+   - 解读：识别异常项，按器官系统分组解释临床意义
+   - 趋势：如有历史数据，对比变化趋势
+   - 风险：评估异常项的严重程度（紧急/重要/中度/轻度）
+   - 建议：个性化健康建议和复查项目
+   - 必须就医：如有紧急异常，优先输出就医建议
+
+3. **同步到 memory/health/**：Agent 将关键指标写入 `items/*.md` 和 `daily/YYYY-MM-DD.md`
+
+## 备选：完全 Python 流程
+
+如设置了 `OPENROUTER_API_KEY`，可使用 Python 完成全流程（PDF 解析 + LLM 解读）：
 
 ```bash
 # Full report interpretation
 python checkup_report_interpreter.py report checkup_report.pdf
-
-# Parse PDF text only
-python checkup_report_interpreter.py parse checkup_report.pdf
 
 # Extract structured examination items
 python checkup_report_interpreter.py extract checkup_report.pdf
@@ -47,6 +65,6 @@ python checkup_report_interpreter.py extract checkup_report.pdf \
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `OPENROUTER_API_KEY` | Yes | OpenRouter API key |
+| `OPENROUTER_API_KEY` | 仅 Python 全流程需要 | OpenRouter API key |
 | `OPENROUTER_BASE_URL` | No | API endpoint (default: `https://openrouter.ai/api/v1/chat/completions`) |
 | `LLM_MODEL` | No | Model name (default: `google/gemini-2.5-flash`) |

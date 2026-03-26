@@ -4,27 +4,20 @@
 from __future__ import annotations
 
 import json
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-
-ROOT = Path(__file__).resolve().parents[1]
-SHARED_DIR = ROOT / "skills" / "_shared"
-sys.path.insert(0, str(SHARED_DIR))
-
-from doctor_match_workflow import DoctorMatchWorkflow  # noqa: E402
-from doctor_matching import (  # noqa: E402
+from skills._shared.doctor_match_workflow import DoctorMatchWorkflow
+from skills._shared.doctor_matching import (
     DepartmentFitRouter,
     DoctorEvidenceProfiler,
     DoctorFitFinder,
     PubMedClient,
 )
-from doctor_profile_harvester import DoctorProfileHarvester  # noqa: E402
-from health_team_runtime import HealthTeamOrchestrator  # noqa: E402
-from web_access_runtime import PageSnapshot, WebAccessHealthPolicy, WebAccessRuntime  # noqa: E402
-
+from skills._shared.doctor_profile_harvester import DoctorProfileHarvester
+from skills._shared.health_team_runtime import HealthTeamOrchestrator
+from skills._shared.web_access_runtime import PageSnapshot, WebAccessHealthPolicy, WebAccessRuntime
 
 PROFILE_HTML = """
 <html>
@@ -32,7 +25,8 @@ PROFILE_HTML = """
   <body>
     <div class="doctor-profile">
       <h1>李明 / Ming Li</h1>
-      <p>Cardiology specialist focusing on hypertension, lipid management, and long-term cardiovascular risk follow-up.</p>
+      <p>Cardiology specialist focusing on hypertension, lipid management,
+and long-term cardiovascular risk follow-up.</p>
       <p>Chief physician. Runs weekly hypertension clinic and chronic disease continuity clinic.</p>
     </div>
   </body>
@@ -68,11 +62,7 @@ DOCTOR_WANG_BROWSER = PageSnapshot(
 )
 
 
-ESEARCH_JSON = {
-    "esearchresult": {
-        "idlist": ["1001", "1002"]
-    }
-}
+ESEARCH_JSON = {"esearchresult": {"idlist": ["1001", "1002"]}}
 
 
 EFETCH_XML = """
@@ -83,7 +73,8 @@ EFETCH_XML = """
       <Article>
         <ArticleTitle>Hypertension risk management in outpatient cardiology clinics</ArticleTitle>
         <Abstract>
-          <AbstractText>This study discusses hypertension follow-up and lipid control in chronic disease clinics.</AbstractText>
+          <AbstractText>This study discusses hypertension follow-up and
+lipid control in chronic disease clinics.</AbstractText>
         </Abstract>
         <Journal><Title>Journal of Cardiology Practice</Title></Journal>
         <AuthorList>
@@ -195,7 +186,7 @@ DOCTOR_CANDIDATES = [
         "official_profile_url": "https://hospital.example/doctor-li",
         "schedule": "Tue pm / Fri am",
         "accepts_long_term_followup": True,
-        "pubmed_query": "\"Ming Li\"[Author] AND (hypertension OR lipid)",
+        "pubmed_query": '"Ming Li"[Author] AND (hypertension OR lipid)',
     },
     {
         "name": "王琪",

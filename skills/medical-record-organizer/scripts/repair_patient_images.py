@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -89,10 +90,23 @@ def repair_patient_images(patient_dir: str, redact_cmd: list[str] | None = None)
             )
             continue
 
+        # Backup original to 10_原始文件/原始未遮挡/ before replacing
+        backup_dir = root / "10_原始文件" / "原始未遮挡"
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        backup_path = backup_dir / path.name
+        if backup_path.exists():
+            # Avoid overwriting existing backup — append suffix
+            counter = 2
+            while backup_path.exists():
+                backup_path = backup_dir / f"{path.stem}_{counter}{path.suffix}"
+                counter += 1
+        shutil.copy2(path, backup_path)
+
         os.replace(temp_output, path)
         repaired.append(
             {
                 "path": str(path),
+                "backup": str(backup_path),
                 "pii_detected": result["payload"].get("pii_detected"),
             }
         )

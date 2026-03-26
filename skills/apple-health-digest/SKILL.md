@@ -55,7 +55,7 @@ Ask the user for the path to their `export.xml` if not already provided.
 Run the parsing script:
 
 ```bash
-$PYTHON ~/.openclaw/skills/apple-health-digest/scripts/parse_apple_health.py "[export.xml path]" "[patient_name]" "[output_dir]"
+$PYTHON scripts/parse_apple_health.py "[export.xml path]" "[patient_name]" "[output_dir]"
 ```
 
 Where:

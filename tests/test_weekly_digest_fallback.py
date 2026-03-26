@@ -10,20 +10,19 @@ import unittest
 from datetime import datetime
 from pathlib import Path
 
+from skills._shared.health_data_store import HealthDataStore
 
 ROOT = Path(__file__).resolve().parents[1]
 WEEKLY_DIR = ROOT / "skills" / "weekly-health-digest"
-SHARED_DIR = ROOT / "skills" / "_shared"
 sys.path.insert(0, str(WEEKLY_DIR))
-sys.path.insert(0, str(SHARED_DIR))
 
-from health_data_store import HealthDataStore  # noqa: E402
 from weekly_health_digest import WeeklyHealthDigest  # noqa: E402
 
 
 class WeeklyDigestFallbackTest(unittest.TestCase):
     def test_generate_uses_local_fallback_and_writes_memory(self):
-        fixed_now = lambda: datetime(2026, 3, 15, 21, 0, 0)
+        def fixed_now():
+            return datetime(2026, 3, 15, 21, 0, 0)
 
         with tempfile.TemporaryDirectory() as data_dir, tempfile.TemporaryDirectory() as memory_dir:
             HealthDataStore("caffeine-tracker", data_dir=data_dir).append(
@@ -33,7 +32,8 @@ class WeeklyDigestFallbackTest(unittest.TestCase):
                 "intake", {"drink": "Green tea", "mg": 30}, timestamp="2026-03-12T11:00:00"
             )
             HealthDataStore("sleep-analyzer", data_dir=data_dir).append(
-                "sleep_session", {"date": "2026-03-10", "score": 82, "total_min": 430, "efficiency_pct": 90},
+                "sleep_session",
+                {"date": "2026-03-10", "score": 82, "total_min": 430, "efficiency_pct": 90},
                 timestamp="2026-03-10T07:00:00",
             )
             supplement_store = HealthDataStore("supplement-manager", data_dir=data_dir)

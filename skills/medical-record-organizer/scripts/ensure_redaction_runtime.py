@@ -25,7 +25,7 @@ def _runtime_check() -> dict:
 
 def _candidate_install_commands() -> list[list[str]]:
     commands: list[list[str]] = []
-    packages = ["pillow", "paddlepaddle", "paddleocr", "paddlenlp"]
+    packages = ["pillow", "paddlepaddle", "paddleocr", "paddlenlp", "opencv-python", "PyMuPDF"]
     if shutil.which("uv"):
         commands.append(["uv", "pip", "install", *packages])
     commands.append([sys.executable, "-m", "pip", "install", *packages])
@@ -33,15 +33,16 @@ def _candidate_install_commands() -> list[list[str]]:
 
 
 def _select_install_command(preferred: str | None = None) -> list[str]:
+    packages = ["pillow", "paddlepaddle", "paddleocr", "paddlenlp", "opencv-python", "PyMuPDF"]
     if preferred == "uv" and shutil.which("uv"):
-        return ["uv", "pip", "install", "pillow", "paddlepaddle", "paddleocr", "paddlenlp"]
+        return ["uv", "pip", "install", *packages]
     if preferred == "pip":
-        return [sys.executable, "-m", "pip", "install", "pillow", "paddlepaddle", "paddleocr", "paddlenlp"]
+        return [sys.executable, "-m", "pip", "install", *packages]
     for command in _candidate_install_commands():
         if command[0] == "uv" and not shutil.which("uv"):
             continue
         return command
-    return [sys.executable, "-m", "pip", "install", "pillow", "paddlepaddle", "paddleocr", "paddlenlp"]
+    return [sys.executable, "-m", "pip", "install", *packages]
 
 
 def ensure_runtime(auto_install: bool = False, installer: str | None = None) -> dict:

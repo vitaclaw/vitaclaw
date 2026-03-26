@@ -32,6 +32,63 @@
     },
     "data": {
       "type": "object"
+    },
+    "person_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "maxLength": 32,
+      "description": "Person slug. Absent or 'self' means the primary user."
+    },
+    "_meta": {
+      "type": "object",
+      "description": "Domain-agnostic provenance and semantics envelope for Digital Twin.",
+      "properties": {
+        "domain": {
+          "type": "string",
+          "enum": ["health", "cognitive", "behavioral", "social"],
+          "default": "health",
+          "description": "Data domain. v1 implements health only; others are passthrough."
+        },
+        "concept": {
+          "type": "string",
+          "description": "Concept registry ID (e.g. 'blood-pressure')."
+        },
+        "loinc": {
+          "type": ["string", "null"],
+          "description": "LOINC code for the concept panel."
+        },
+        "source": {
+          "type": "string",
+          "enum": ["manual", "device", "import", "agent_inferred"],
+          "description": "How this record was created."
+        },
+        "device": {
+          "type": ["string", "null"],
+          "description": "Device identifier if source is 'device'."
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 1.0,
+          "description": "Confidence score for this record."
+        },
+        "recorded_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the measurement was taken."
+        },
+        "ingested_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the record was ingested into VitaClaw."
+        },
+        "twin_id": {
+          "type": ["string", "null"],
+          "description": "Digital Twin instance ID."
+        }
+      },
+      "additionalProperties": true
     }
   },
   "additionalProperties": true

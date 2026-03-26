@@ -81,7 +81,7 @@ The **Hemoglobinopathy Analysis Agent** provides comprehensive AI-driven analysi
 
 **Agent Action**:
 ```bash
-python3 Skills/Hematology/Hemoglobinopathy_Analysis_Agent/hb_analyzer.py \
+python3 skills/hemoglobinopathy-analysis-agent/hb_analyzer.py \
     --hplc_data chromatogram.csv \
     --retention_times peak_times.json \
     --cbc cbc_results.json \

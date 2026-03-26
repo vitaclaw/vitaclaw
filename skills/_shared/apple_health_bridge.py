@@ -4,12 +4,11 @@
 from __future__ import annotations
 
 import importlib.util
-import json
 import re
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from patient_archive_bridge import PatientArchiveBridge
+from .patient_archive_bridge import PatientArchiveBridge
 
 
 def _load_module(module_name: str, path: Path):
@@ -346,3 +345,44 @@ class AppleHealthImporter:
             synced = self.archive_bridge.sync_to_workspace(write=True)
         summary["workspace_sync"] = synced
         return summary
+
+    def export_to_fhir_bundle(self, records: list[dict] | None = None) -> dict:
+        """Export VitaClaw health records as a FHIR R4 Bundle.
+
+        If no records are provided, exports the most recent Apple Health data
+        available via the archive bridge.
+
+        Args:
+            records: Optional list of VitaClaw record dicts. If None, gathers
+                     records from the archive bridge's Apple Health reports.
+
+        Returns:
+            FHIR Bundle dict.
+        """
+        from .fhir_mapper import FHIRMapper
+
+        mapper = FHIRMapper()
+
+        if records is not None:
+            return mapper.to_fhir_bundle(records)
+
+        # Gather records from Apple Health reports in the archive
+        gathered: list[dict] = []
+        if self.archive_bridge.is_available():
+            apple_dir = self.archive_bridge.patient_dir / "09_Apple_Health"
+            if apple_dir.exists():
+                for path in sorted(apple_dir.glob("*.md")):
+                    _, rows = _parse_markdown_table(path)
+                    for row in rows:
+                        if not row or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", row[0]):
+                            continue
+                        record = {
+                            "type": "observation",
+                            "timestamp": f"{row[0]}T00:00:00",
+                            "skill": "apple-health-import",
+                            "data": {"raw_row": row},
+                            "_meta": {"domain": "health", "source": "device"},
+                        }
+                        gathered.append(record)
+
+        return mapper.to_fhir_bundle(gathered)

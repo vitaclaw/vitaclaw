@@ -89,7 +89,7 @@ The **Digital Twin Clinical Agent** creates AI-powered virtual replicas of indiv
 
 **Agent Action**:
 ```bash
-python3 Skills/Clinical/Digital_Twin_Clinical_Agent/create_twin.py \
+python3 skills/digital-twin-clinical-agent/create_twin.py \
     --patient_data patient_ehr.json \
     --genomics patient_wgs.vcf \
     --imaging mri_series/ \

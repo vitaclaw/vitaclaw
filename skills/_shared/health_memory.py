@@ -13,9 +13,7 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
-def _resolve_memory_root(
-    workspace_root: str | None = None, memory_root: str | None = None
-) -> Path:
+def _resolve_memory_root(workspace_root: str | None = None, memory_root: str | None = None) -> Path:
     if memory_root:
         return Path(memory_root).expanduser().resolve()
 
@@ -83,11 +81,12 @@ class HealthMemoryWriter:
         workspace_root: str | None = None,
         memory_root: str | None = None,
         now_fn=None,
+        person_id: str | None = None,
     ):
         self._now_fn = now_fn or datetime.now
-        self.base_dir = _resolve_memory_root(
-            workspace_root=workspace_root, memory_root=memory_root
-        )
+        # Normalize person_id: None and "self" both mean the primary user
+        self._person_id = person_id if person_id and person_id != "self" else None
+        self.base_dir = _resolve_memory_root(workspace_root=workspace_root, memory_root=memory_root)
         if workspace_root:
             self.workspace_dir = Path(workspace_root).expanduser().resolve()
         elif self.base_dir.parent.name == "memory":
@@ -110,6 +109,7 @@ class HealthMemoryWriter:
         self.heartbeat_task_state_path = self.heartbeat_dir / "task-state.json"
         self.team_board_path = self.team_dir / "team-board.md"
         self.dispatch_log_path = self.team_audit_dir / "dispatch-log.jsonl"
+        # Placeholder -- resolved after _ensure_structure via _resolve_items_path
         self.behavior_plans_path = self.items_dir / "behavior-plans.md"
         self.execution_barriers_path = self.items_dir / "execution-barriers.md"
         self.write_audit_path = self.files_dir / "write-audit.md"
@@ -118,6 +118,10 @@ class HealthMemoryWriter:
         self.monthly_digest_path = self.base_dir / "monthly-digest.md"
         self.memory_doc_path = self.workspace_dir / "MEMORY.md" if self.workspace_dir else None
         self._ensure_structure()
+
+        # Re-resolve item paths through _resolve_items_path for person_id awareness
+        self.behavior_plans_path = self._resolve_items_path("behavior-plans")
+        self.execution_barriers_path = self._resolve_items_path("execution-barriers")
 
     def _now(self) -> datetime:
         return self._now_fn()
@@ -259,6 +263,21 @@ class HealthMemoryWriter:
         if not self.dispatch_log_path.exists():
             self.dispatch_log_path.write_text("", encoding="utf-8")
 
+    def _resolve_items_path(self, item_name: str) -> Path:
+        """Resolve item file path, scoped by person_id.
+
+        For self (person_id is None or "self"):
+            items/blood-pressure.md  (flat, backward compat per D-05/D-07)
+        For other persons (e.g. person_id="mom"):
+            items/mom/blood-pressure.md
+        """
+        if self._person_id:
+            path = self.items_dir / self._person_id / f"{item_name}.md"
+        else:
+            path = self.items_dir / f"{item_name}.md"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        return path
+
     def _write_text(self, path: Path, content: str) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content.rstrip() + "\n", encoding="utf-8")
@@ -374,13 +393,14 @@ class HealthMemoryWriter:
         else:
             content = path.read_text(encoding="utf-8")
             if "## Health Files" not in content:
-                content = content.rstrip() + "\n\n## Health Files\n| File | Type | Summary | Path |\n|------|------|---------|------|\n"
+                content = (
+                    content.rstrip()
+                    + "\n\n## Health Files\n| File | Type | Summary | Path |\n|------|------|---------|------|\n"
+                )
             self._write_text(path, self._update_frontmatter(content, date_str))
         return path
 
-    def _build_section(
-        self, title: str, skill_name: str, lines: list[str], time_label: str | None = None
-    ) -> str:
+    def _build_section(self, title: str, skill_name: str, lines: list[str], time_label: str | None = None) -> str:
         now_label = time_label or self._now().strftime("%H:%M")
         formatted = [line if line.startswith(("- ", "| ")) else f"- {line}" for line in lines if line]
         return f"## {title} [{skill_name} · {now_label}]\n" + "\n".join(formatted) + "\n"
@@ -475,7 +495,7 @@ class HealthMemoryWriter:
         identity_columns: int = 1,
         retention_days: int = 90,
     ) -> Path:
-        path = self.items_dir / f"{item_slug}.md"
+        path = self._resolve_items_path(item_slug)
         cutoff = self._now() - timedelta(days=retention_days)
         identity_value = row_identity or row_date
 
@@ -685,12 +705,7 @@ class HealthMemoryWriter:
             return []
         result = []
         for row in rows[:limit]:
-            result.append(
-                {
-                    header: row[index] if index < len(row) else ""
-                    for index, header in enumerate(headers)
-                }
-            )
+            result.append({header: row[index] if index < len(row) else "" for index, header in enumerate(headers)})
         return result
 
     def append_write_audit(
@@ -766,10 +781,13 @@ class HealthMemoryWriter:
         now = self._now()
         date_str = now.date().isoformat()
         total_mg = sum(float(item.get("mg", 0) or 0) for item in intake_list)
-        intake_summary = ", ".join(
-            f"{item.get('drink', '?')} {int(item.get('mg', 0) or 0)}mg ({item.get('time', '?')})"
-            for item in intake_list
-        ) or "No intake recorded"
+        intake_summary = (
+            ", ".join(
+                f"{item.get('drink', '?')} {int(item.get('mg', 0) or 0)}mg ({item.get('time', '?')})"
+                for item in intake_list
+            )
+            or "No intake recorded"
+        )
 
         self._upsert_daily_section(
             date_str,
@@ -800,9 +818,7 @@ class HealthMemoryWriter:
         )
         return str(self.daily_dir / f"{date_str}.md")
 
-    def update_sleep(
-        self, last_night: dict | None, seven_day: dict | None, correlations: dict | None
-    ) -> str | None:
+    def update_sleep(self, last_night: dict | None, seven_day: dict | None, correlations: dict | None) -> str | None:
         if not last_night:
             return None
 
@@ -818,7 +834,12 @@ class HealthMemoryWriter:
         total_min = last_night.get("total_min") or 0
         if total_min:
             stage_parts = []
-            for key, label in (("light_min", "Light"), ("deep_min", "Deep"), ("rem_min", "REM"), ("awake_min", "Awake")):
+            for key, label in (
+                ("light_min", "Light"),
+                ("deep_min", "Deep"),
+                ("rem_min", "REM"),
+                ("awake_min", "Awake"),
+            ):
                 value = last_night.get(key)
                 if value is None:
                     continue
@@ -845,12 +866,8 @@ class HealthMemoryWriter:
             f"Latest: Score {score}, {duration}, Efficiency {efficiency}% ({date_str})",
         ]
         if seven_day:
-            recent_lines.append(
-                f"7-day average score: {seven_day.get('avg_score', '?')}"
-            )
-            recent_lines.append(
-                f"7-day average duration: {_format_duration(seven_day.get('avg_total_min'))}"
-            )
+            recent_lines.append(f"7-day average score: {seven_day.get('avg_score', '?')}")
+            recent_lines.append(f"7-day average duration: {_format_duration(seven_day.get('avg_total_min'))}")
             trend_map = {
                 "rising": "Improving",
                 "falling": "Declining",
@@ -892,10 +909,13 @@ class HealthMemoryWriter:
     ) -> str:
         date_str = self._now().date().isoformat()
         warnings = warnings or []
-        regimen_summary = "; ".join(
-            f"{item.get('name', '?')} {item.get('dose', '?')} ({item.get('timing', '?')})"
-            for item in active_regimen
-        ) or "No active supplements"
+        regimen_summary = (
+            "; ".join(
+                f"{item.get('name', '?')} {item.get('dose', '?')} ({item.get('timing', '?')})"
+                for item in active_regimen
+            )
+            or "No active supplements"
+        )
 
         daily_lines = [
             f"Active regimen: {len(active_regimen)} items",
@@ -909,9 +929,7 @@ class HealthMemoryWriter:
         for warning in warnings:
             daily_lines.append(f"Warning: {warning}")
 
-        self._upsert_daily_section(
-            date_str, "Supplements", "supplement-manager", daily_lines
-        )
+        self._upsert_daily_section(date_str, "Supplements", "supplement-manager", daily_lines)
 
         self._upsert_item_file(
             item_slug="supplements",
@@ -1039,9 +1057,7 @@ class HealthMemoryWriter:
         latest_value = latest_appointment or f"{visit_date} {purpose}".strip()
         next_value = next_follow_up or "pending"
         next_details_value = next_follow_up_details or "pending"
-        preparation_value = preparation_status or (
-            "待确认下次复查安排" if next_follow_up else "本次随访已记录"
-        )
+        preparation_value = preparation_status or ("待确认下次复查安排" if next_follow_up else "本次随访已记录")
 
         self._upsert_item_file(
             item_slug="appointments",
@@ -1060,7 +1076,7 @@ class HealthMemoryWriter:
             identity_columns=3,
             retention_days=365,
         )
-        return str(self.items_dir / "appointments.md")
+        return str(self._resolve_items_path("appointments"))
 
     def update_care_team(
         self,
@@ -1072,10 +1088,15 @@ class HealthMemoryWriter:
         summary: str | None = None,
         booking_strategy: str | None = None,
     ) -> str:
-        shortlist_text = "; ".join(
-            f"{item['doctor'].get('name', 'Unknown')}@{item['doctor'].get('hospital', 'Unknown')} ({item.get('score', 0)})"
-            for item in shortlist[:3]
-        ) or "pending"
+        shortlist_text = (
+            "; ".join(
+                f"{item['doctor'].get('name', 'Unknown')}"
+                f"@{item['doctor'].get('hospital', 'Unknown')}"
+                f" ({item.get('score', 0)})"
+                for item in shortlist[:3]
+            )
+            or "pending"
+        )
         self._upsert_item_file(
             item_slug="care-team",
             title="Care Team Records",
@@ -1121,7 +1142,7 @@ class HealthMemoryWriter:
             identity_columns=3,
             retention_days=365,
         )
-        return str(self.items_dir / "care-team.md")
+        return str(self._resolve_items_path("care-team"))
 
     def update_annual_checkup(
         self,
@@ -1158,7 +1179,7 @@ class HealthMemoryWriter:
             identity_columns=2,
             retention_days=730,
         )
-        return str(self.items_dir / "annual-checkup.md")
+        return str(self._resolve_items_path("annual-checkup"))
 
     def update_medications(
         self,
@@ -1169,10 +1190,13 @@ class HealthMemoryWriter:
         stock_coverage_days: int | None = None,
         risks: str | None = None,
     ) -> str:
-        regimen_summary = "; ".join(
-            f"{item.get('name', '?')} {item.get('dose', '?')} {item.get('frequency', '').strip()}".strip()
-            for item in medications
-        ) or "pending"
+        regimen_summary = (
+            "; ".join(
+                f"{item.get('name', '?')} {item.get('dose', '?')} {item.get('frequency', '').strip()}".strip()
+                for item in medications
+            )
+            or "pending"
+        )
         recent_lines = [
             f"Latest: {regimen_summary}",
             f"Adherence: {adherence or 'pending'}",
@@ -1193,7 +1217,8 @@ class HealthMemoryWriter:
                     item.get("notes", ""),
                 ]
             )
-        existing_rows = self._read_history_rows(self.items_dir / "medications.md")
+        med_path = self._resolve_items_path("medications")
+        existing_rows = self._read_history_rows(med_path)
         for existing in existing_rows:
             if existing and existing[0] != date_str:
                 rows.append(existing)
@@ -1213,8 +1238,8 @@ class HealthMemoryWriter:
                 "Monthly digest highlights refill debt and regimen changes.",
             ],
         )
-        self._write_text(self.items_dir / "medications.md", content)
-        return str(self.items_dir / "medications.md")
+        self._write_text(med_path, content)
+        return str(med_path)
 
     def last_memory_distilled_at(self) -> datetime | None:
         if not self.memory_doc_path or not self.memory_doc_path.exists():
@@ -1463,8 +1488,10 @@ class HealthMemoryWriter:
         if day_records:
             sys_values = [float(record.get("data", {}).get("sys", 0) or 0) for record in day_records]
             dia_values = [float(record.get("data", {}).get("dia", 0) or 0) for record in day_records]
+            avg_sys = round(sum(sys_values) / len(sys_values), 1)
+            avg_dia = round(sum(dia_values) / len(dia_values), 1)
             daily_lines.append(
-                f"Daily average: {round(sum(sys_values) / len(sys_values), 1)}/{round(sum(dia_values) / len(dia_values), 1)} mmHg"
+                f"Daily average: {avg_sys}/{avg_dia} mmHg"
             )
 
         self._upsert_daily_section(
@@ -1489,9 +1516,7 @@ class HealthMemoryWriter:
             ),
         ]
         if avg_sys is not None and avg_dia is not None:
-            recent_lines.append(
-                f"7-day average: {avg_sys}/{avg_dia} mmHg across {len(window_records)} readings"
-            )
+            recent_lines.append(f"7-day average: {avg_sys}/{avg_dia} mmHg across {len(window_records)} readings")
         recent_lines.append(f"Trend: {self._bp_trend_label(window_records)}")
         if latest_record.get("note"):
             recent_lines.append(f"Latest category: {latest_record.get('note')}")
@@ -1554,7 +1579,9 @@ class HealthMemoryWriter:
         if not day_records and not window_records:
             return None
 
-        date_str = measurement_date or (day_records[-1].get("timestamp", "")[:10] if day_records else self._now().date().isoformat())
+        date_str = measurement_date or (
+            day_records[-1].get("timestamp", "")[:10] if day_records else self._now().date().isoformat()
+        )
         latest_slot_records: dict[str, dict] = {}
         for record in day_records:
             slot = self._glucose_slot(record)
@@ -1574,11 +1601,17 @@ class HealthMemoryWriter:
         daily_values = [value for value in (fasting_value, lunch_value, dinner_value) if value is not None]
         daily_lines = []
         if fasting_value is not None:
-            daily_lines.append(f"Fasting: {fasting_value} mmol/L ({self._value_status(fasting_value, low=3.9, high=7.0)})")
+            daily_lines.append(
+                f"Fasting: {fasting_value} mmol/L ({self._value_status(fasting_value, low=3.9, high=7.0)})"
+            )
         if lunch_value is not None:
-            daily_lines.append(f"2h post-lunch: {lunch_value} mmol/L ({self._value_status(lunch_value, low=3.9, high=10.0)})")
+            daily_lines.append(
+                f"2h post-lunch: {lunch_value} mmol/L ({self._value_status(lunch_value, low=3.9, high=10.0)})"
+            )
         if dinner_value is not None:
-            daily_lines.append(f"2h post-dinner: {dinner_value} mmol/L ({self._value_status(dinner_value, low=3.9, high=10.0)})")
+            daily_lines.append(
+                f"2h post-dinner: {dinner_value} mmol/L ({self._value_status(dinner_value, low=3.9, high=10.0)})"
+            )
         if daily_values:
             daily_mean = self._mean(daily_values)
             daily_lines.append(f"Daily mean: {daily_mean} mmol/L")
@@ -1618,12 +1651,14 @@ class HealthMemoryWriter:
 
         recent_lines = []
         if latest_fasting:
+            fasting_ts = latest_fasting.get("timestamp", "")[:10]
             recent_lines.append(
-                f"Latest fasting: {record_value(latest_fasting)} mmol/L ({latest_fasting.get('timestamp', '')[:10]})"
+                f"Latest fasting: {record_value(latest_fasting)} mmol/L ({fasting_ts})"
             )
         if latest_postprandial:
+            pp_ts = latest_postprandial.get("timestamp", "")[:10]
             recent_lines.append(
-                f"Latest postprandial: {record_value(latest_postprandial)} mmol/L ({latest_postprandial.get('timestamp', '')[:10]})"
+                f"Latest postprandial: {record_value(latest_postprandial)} mmol/L ({pp_ts})"
             )
         fasting_avg = self._mean(fasting_values)
         postprandial_avg = self._mean(postprandial_values)
@@ -1806,7 +1841,7 @@ class HealthMemoryWriter:
             "behavior-plans",
             "execution-barriers",
         ):
-            item_path = self.items_dir / f"{item_name}.md"
+            item_path = self._resolve_items_path(item_name)
             recent_status = self._extract_recent_status(item_path)
             if recent_status:
                 parts.append(f"## {item_name.title()} Snapshot\n{recent_status}")

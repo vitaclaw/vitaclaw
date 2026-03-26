@@ -6,9 +6,9 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 
-from health_heartbeat import HealthHeartbeat
-from health_memory import HealthMemoryWriter
-from patient_archive_bridge import PatientArchiveBridge
+from .health_heartbeat import HealthHeartbeat
+from .health_memory import HealthMemoryWriter
+from .patient_archive_bridge import PatientArchiveBridge
 
 
 class HealthMemoryDistiller:
@@ -118,15 +118,15 @@ class HealthMemoryDistiller:
 
         archive_summary = self.archive_bridge.build_summary()
         if archive_summary.get("available"):
+            pid = archive_summary["patient_id"]
+            uc = archive_summary["unclassified_count"]
             summary_lines.append(
-                f"- 患者档案 {archive_summary['patient_id']} 已连接，未分类文件 {archive_summary['unclassified_count']} 份。"
+                f"- 患者档案 {pid} 已连接，未分类文件 {uc} 份。"
             )
             latest_timeline = archive_summary.get("timeline_entries") or []
             if latest_timeline:
                 latest = latest_timeline[0]
-                summary_lines.append(
-                    f"- 最近病历事件：{latest['date']} | {latest['type']} | {latest['summary']}。"
-                )
+                summary_lines.append(f"- 最近病历事件：{latest['date']} | {latest['type']} | {latest['summary']}。")
 
         for slug, label in self.ITEM_LABELS.items():
             status_lines = self._extract_recent_status(slug)
@@ -144,9 +144,7 @@ class HealthMemoryDistiller:
 
         barrier_rows = self.writer.latest_execution_barriers(limit=3)
         for row in barrier_rows:
-            summary_lines.append(
-                f"- 执行障碍：{row.get('Barrier', 'pending')} | {row.get('Impact', 'pending')}"
-            )
+            summary_lines.append(f"- 执行障碍：{row.get('Barrier', 'pending')} | {row.get('Impact', 'pending')}")
 
         active_issues = [issue for issue in issues if issue.get("priority") in {"high", "medium"}]
         task_lines = []
@@ -156,25 +154,23 @@ class HealthMemoryDistiller:
         if active_plans:
             first = active_plans[0]
             task_lines.append(
-                f"- 行为计划：{first.get('Title', 'pending')} | 到期 {first.get('Due At', 'pending')} | {first.get('Next Step', 'pending')}"
+                f"- 行为计划：{first.get('Title', 'pending')}"
+                f" | 到期 {first.get('Due At', 'pending')}"
+                f" | {first.get('Next Step', 'pending')}"
             )
         if not task_lines:
             task_lines = ["- 继续保持连续记录，并在周末前检查是否有缺失项。"]
 
         risk_lines = []
         for issue in issues[:5]:
-            risk_lines.append(
-                f"- [{issue['priority']}] {issue['title']}：{issue['reason']}"
-            )
+            risk_lines.append(f"- [{issue['priority']}] {issue['title']}：{issue['reason']}")
         if not risk_lines:
             risk_lines = ["- 当前没有检测到明显高风险事项。"]
 
         source_lines = []
         if daily_dates:
             source_lines.append(f"- daily: {', '.join(daily_dates[:3])}")
-        item_sources = [
-            slug for slug in self.ITEM_LABELS if self._has_non_pending_status(slug)
-        ]
+        item_sources = [slug for slug in self.ITEM_LABELS if self._has_non_pending_status(slug)]
         if item_sources:
             source_lines.append(f"- items: {', '.join(item_sources)}")
         if weekly_title:
@@ -186,12 +182,30 @@ class HealthMemoryDistiller:
         if issues:
             source_lines.append(f"- heartbeat: {today} ({len(issues)} items)")
 
+        # Build source reference comment for bidirectional tracing
+        source_refs: list[str] = []
+        for slug in self.ITEM_LABELS:
+            item_path = self.writer.items_dir / f"{slug}.md"
+            if item_path.exists() and self._has_non_pending_status(slug):
+                source_refs.append(f"items/{slug}.md")
+        for d in daily_dates[:3]:
+            source_refs.append(f"daily/{d}.md")
+        if weekly_title:
+            source_refs.append("weekly-digest.md")
+        if monthly_title:
+            source_refs.append("monthly-digest.md")
+        if archive_summary.get("available"):
+            source_refs.append(f"patient_archive:{archive_summary['patient_id']}")
+        if issues:
+            source_refs.append(f"heartbeat:{today}")
+
         return {
             "date": today,
             "summary_lines": summary_lines[:8],
             "task_lines": task_lines[:5],
             "risk_lines": risk_lines[:5],
             "source_lines": source_lines[:6],
+            "source_refs": source_refs,
         }
 
     def run(self, write: bool = True) -> dict:

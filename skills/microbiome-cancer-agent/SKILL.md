@@ -82,7 +82,7 @@ The **Microbiome-Cancer Interaction Agent** analyzes relationships between the m
 
 **Agent Action**:
 ```bash
-python3 Skills/Microbiome/Microbiome_Cancer_Agent/microbiome_cancer.py \
+python3 skills/microbiome-cancer-agent/microbiome_cancer.py \
     --metagenomics fecal_shotgun.fastq.gz \
     --tumor_data melanoma_rnaseq.tsv \
     --clinical treatment_outcomes.csv \

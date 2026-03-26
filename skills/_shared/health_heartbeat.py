@@ -7,12 +7,11 @@ import re
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from cross_skill_reader import CrossSkillReader
-from health_data_store import HealthDataStore
-from health_memory import HealthMemoryWriter
-from health_reminder_center import HealthReminderCenter
-from patient_archive_bridge import PatientArchiveBridge
-
+from .cross_skill_reader import CrossSkillReader
+from .health_data_store import HealthDataStore
+from .health_memory import HealthMemoryWriter
+from .health_reminder_center import HealthReminderCenter
+from .patient_archive_bridge import PatientArchiveBridge
 
 PRIORITY_ORDER = {"high": 0, "medium": 1, "low": 2}
 PRIORITY_LABEL = {"high": "高优先级", "medium": "中优先级", "low": "低优先级"}
@@ -26,7 +25,7 @@ def _resolve_reader_data_dir(
     if data_dir:
         return str(Path(data_dir).expanduser().resolve())
     if workspace_root:
-        return str((Path(workspace_root).expanduser().resolve() / "data"))
+        return str(Path(workspace_root).expanduser().resolve() / "data")
     if memory_dir:
         memory_path = Path(memory_dir).expanduser().resolve()
         if memory_path.name == "health" and memory_path.parent.name == "memory":
@@ -62,6 +61,10 @@ class HealthHeartbeat:
         "medication": {
             "label": "用药",
             "titles": {"Medication", "用药"},
+        },
+        "heart_rate": {
+            "label": "心率/HRV",
+            "titles": {"Heart Rate", "心率", "HRV"},
         },
     }
 
@@ -222,11 +225,7 @@ class HealthHeartbeat:
         return item_has_data
 
     def _tracked_metrics(self) -> dict[str, dict]:
-        return {
-            key: meta
-            for key, meta in self.METRICS.items()
-            if self._metric_is_tracked(key)
-        }
+        return {key: meta for key, meta in self.METRICS.items() if self._metric_is_tracked(key)}
 
     def _metric_missing_on(self, metric_key: str, date_str: str) -> bool:
         sections = self._daily_sections(date_str)
@@ -339,9 +338,14 @@ class HealthHeartbeat:
             return issues
 
         fasting_records = [
-            record for record in records if "fast" in str(record.get("data", {}).get("context", "")).lower() or "空腹" in str(record.get("data", {}).get("context", ""))
+            record
+            for record in records
+            if "fast" in str(record.get("data", {}).get("context", "")).lower()
+            or "空腹" in str(record.get("data", {}).get("context", ""))
         ]
-        if len(fasting_records) >= 3 and all(float(record.get("data", {}).get("value") or 0) > 7.0 for record in fasting_records[-3:]):
+        if len(fasting_records) >= 3 and all(
+            float(record.get("data", {}).get("value") or 0) > 7.0 for record in fasting_records[-3:]
+        ):
             issues.append(
                 {
                     "priority": "medium",
@@ -363,6 +367,171 @@ class HealthHeartbeat:
                         "follow_up": "下次类似餐食时继续记录，观察是否重复出现。",
                     }
                 )
+        return issues
+
+    def _heart_rate_records(self, days: int = 14) -> list[dict]:
+        start = f"{self._date_str(days - 1)}T00:00:00"
+        records = self.reader.read_heart_rate(start=start)
+        records.sort(key=lambda item: item.get("timestamp", ""))
+        return records
+
+    def _issues_heart_rate_risk(self) -> list[dict]:
+        issues = []
+        records = self._heart_rate_records(days=7)
+        if not records:
+            return issues
+
+        latest = records[-1]
+        rhr = float(latest.get("data", {}).get("resting_bpm") or latest.get("data", {}).get("heart_rate") or 0)
+        timestamp = latest.get("timestamp", "")[:16].replace("T", " ")
+
+        # Critical: resting HR > 120 bpm
+        if rhr > 120:
+            issues.append(
+                {
+                    "priority": "high",
+                    "title": "静息心率异常偏高",
+                    "reason": f"最近一次静息心率为 {int(rhr)} bpm ({timestamp})，显著高于正常范围。",
+                    "next_step": "排查是否发热、脱水、情绪激动或漏服心率控制药物。如伴随胸闷、眩晕，请立即就医。",
+                    "follow_up": "今天内复测并记录伴随症状。",
+                    "topic": "heart-rate",
+                    "category": "daily-monitoring",
+                    "source_refs": [str(self.memory_writer.items_dir / "heart-rate-hrv.md")],
+                    "threshold": "resting HR > 120 bpm",
+                    "execution_mode": "heartbeat",
+                }
+            )
+            return issues
+
+        # Consecutive rise: 3+ records with strictly increasing resting HR
+        if len(records) >= 3:
+            recent_values = []
+            for r in records:
+                val = float(r.get("data", {}).get("resting_bpm") or r.get("data", {}).get("heart_rate") or 0)
+                if val > 0:
+                    recent_values.append(val)
+
+            if len(recent_values) >= 3:
+                last3 = recent_values[-3:]
+                if all(curr > prev for prev, curr in zip(last3, last3[1:])):
+                    rise = last3[-1] - last3[0]
+                    issues.append(
+                        {
+                            "priority": "medium" if rise >= 10 else "low",
+                            "title": "静息心率连续上升",
+                            "reason": (
+                                f"最近 3 次静息心率持续走高："
+                                f"{int(last3[0])} → {int(last3[1])} → {int(last3[2])} bpm，"
+                                f"累计上升 {int(rise)} bpm。"
+                            ),
+                            "next_step": (
+                                "关注是否存在短期压力、睡眠不足、脱水或感染等诱因。"
+                                "如无明显原因且持续上升，建议就医评估。"
+                            ),
+                            "follow_up": "连续 2 天关注心率变化趋势并记录可能的诱因。",
+                            "topic": "heart-rate",
+                            "category": "daily-monitoring",
+                            "source_refs": [str(self.memory_writer.items_dir / "heart-rate-hrv.md")],
+                            "threshold": "3 consecutive resting HR increases",
+                            "execution_mode": "heartbeat",
+                        }
+                    )
+        return issues
+
+    def _extrapolate_risk(
+        self,
+        values: list[float],
+        threshold: float,
+        label: str,
+        unit: str,
+        topic: str,
+        days_ahead: int = 7,
+    ) -> dict | None:
+        """Predict if a metric will exceed a threshold in N days.
+
+        Uses simple linear regression on the last values to extrapolate.
+        Returns an issue dict if the predicted value exceeds the threshold,
+        or None if no risk is detected.
+        """
+        n = len(values)
+        if n < 3:
+            return None
+
+        mean_x = (n - 1) / 2.0
+        mean_y = sum(values) / n
+        denom = sum((i - mean_x) ** 2 for i in range(n))
+        if denom == 0:
+            return None
+        slope = sum((i - mean_x) * (y - mean_y) for i, y in enumerate(values)) / denom
+
+        if slope <= 0:
+            return None  # Not rising
+
+        predicted = values[-1] + slope * days_ahead
+        if predicted <= threshold:
+            return None
+
+        days_to_threshold = (threshold - values[-1]) / slope if slope > 0 else 999
+        if days_to_threshold < 0 or days_to_threshold > days_ahead:
+            return None
+
+        return {
+            "priority": "medium",
+            "title": f"{label}趋势预警",
+            "reason": (
+                f"按照最近趋势（斜率 {slope:+.2f} {unit}/天），"
+                f"预计约 {int(days_to_threshold) + 1} 天后{label}可能超过 {threshold} {unit}（"
+                f"当前 {values[-1]:.1f}，预测 {predicted:.1f}）。"
+            ),
+            "next_step": f"关注{label}变化趋势，复盘近期相关生活方式因素，必要时提前就医。",
+            "follow_up": "持续监测，若趋势逆转则自动解除预警。",
+            "topic": topic,
+            "category": "daily-monitoring",
+            "threshold": f"Predicted to exceed {threshold} {unit} within {days_ahead} days",
+            "execution_mode": "heartbeat",
+        }
+
+    def _issues_predictive(self) -> list[dict]:
+        """Generate predictive issues by extrapolating recent trends."""
+        issues = []
+
+        # BP trend extrapolation
+        bp_records = self._bp_records(days=14)
+        if len(bp_records) >= 5:
+            sys_values = []
+            for r in bp_records:
+                d = r.get("data", {})
+                val = float(d.get("sys") or d.get("systolic") or 0)
+                if val > 0:
+                    sys_values.append(val)
+            issue = self._extrapolate_risk(sys_values, 140.0, "收缩压", "mmHg", "blood-pressure")
+            if issue:
+                issues.append(issue)
+
+        # Glucose trend extrapolation
+        glucose_records = self._glucose_records(days=21)
+        if len(glucose_records) >= 5:
+            glc_values = [
+                float(r.get("data", {}).get("value") or 0)
+                for r in glucose_records
+                if float(r.get("data", {}).get("value") or 0) > 0
+            ]
+            issue = self._extrapolate_risk(glc_values, 7.0, "血糖", "mmol/L", "blood-sugar")
+            if issue:
+                issues.append(issue)
+
+        # Heart rate trend extrapolation
+        hr_records = self._heart_rate_records(days=14)
+        if len(hr_records) >= 5:
+            hr_values = []
+            for r in hr_records:
+                val = float(r.get("data", {}).get("resting_bpm") or r.get("data", {}).get("heart_rate") or 0)
+                if val > 0:
+                    hr_values.append(val)
+            issue = self._extrapolate_risk(hr_values, 100.0, "静息心率", "bpm", "heart-rate")
+            if issue:
+                issues.append(issue)
+
         return issues
 
     def _issues_adherence(self) -> list[dict]:
@@ -407,7 +576,9 @@ class HealthHeartbeat:
         previous_week_start = (self._now().date() - timedelta(days=self._now().weekday() + 7)).isoformat()
         digest_records = self.weekly_store.query("digest")
         current_exists = any(record.get("data", {}).get("week_start") == week_start for record in digest_records)
-        previous_exists = any(record.get("data", {}).get("week_start") == previous_week_start for record in digest_records)
+        previous_exists = any(
+            record.get("data", {}).get("week_start") == previous_week_start for record in digest_records
+        )
 
         if self._now().weekday() >= 6 and not current_exists:
             issues.append(
@@ -494,7 +665,10 @@ class HealthHeartbeat:
                 {
                     "priority": "medium" if delta_days >= 7 else "low",
                     "title": "长期画像需要更新",
-                    "reason": f"`MEMORY.md` 最近一次蒸馏停留在 {last_distilled.date().isoformat()}，而 daily 已更新到 {latest_daily.date().isoformat()}。",
+                    "reason": (
+                        f"`MEMORY.md` 最近一次蒸馏停留在 {last_distilled.date().isoformat()}，"
+                        f"而 daily 已更新到 {latest_daily.date().isoformat()}。"
+                    ),
                     "next_step": "运行 distill-health-memory，把最近趋势和待办沉淀回长期画像。",
                     "follow_up": "本轮周报或月报后同步完成，避免长期画像滞后。",
                 }
@@ -540,7 +714,11 @@ class HealthHeartbeat:
                 continue
             delta_minutes = int((due_at - now).total_seconds() // 60)
             if delta_minutes < 0:
-                priority = "high" if risk_policy in {"focus-closely", "high-risk-only"} or abs(delta_minutes) >= 24 * 60 else "medium"
+                priority = (
+                    "high"
+                    if risk_policy in {"focus-closely", "high-risk-only"} or abs(delta_minutes) >= 24 * 60
+                    else "medium"
+                )
                 issues.append(
                     {
                         "priority": priority,
@@ -601,7 +779,10 @@ class HealthHeartbeat:
                 {
                     "priority": "medium",
                     "title": f"执行障碍待处理：{row.get('Barrier', '未命名障碍')}",
-                    "reason": f"{row.get('Scenario', 'health')} 最近记录到执行障碍：{row.get('Impact', '影响待补充')}。",
+                    "reason": (
+                        f"{row.get('Scenario', 'health')} 最近记录到执行障碍："
+                        f"{row.get('Impact', '影响待补充')}。"
+                    ),
                     "next_step": row.get("Next Step") or "先把障碍拆小，再确认下一次最小可执行动作。",
                     "follow_up": "若持续反复出现，建议升级到长期画像中的执行障碍画像。",
                     "topic": "execution-barrier",
@@ -628,14 +809,18 @@ class HealthHeartbeat:
             midpoint = len(values) // 2
             first_avg_sys = sum(sys for sys, _ in values[:midpoint]) / midpoint
             second_avg_sys = sum(sys for sys, _ in values[midpoint:]) / max(1, len(values) - midpoint)
-            first_avg_dia = sum(dia for _, dia in values[:midpoint]) / midpoint
+            sum(dia for _, dia in values[:midpoint]) / midpoint
             second_avg_dia = sum(dia for _, dia in values[midpoint:]) / max(1, len(values) - midpoint)
             if second_avg_sys >= 135 and second_avg_dia >= 85 and second_avg_sys >= first_avg_sys - 2:
                 issues.append(
                     {
                         "priority": "medium",
                         "title": "血压改善停滞",
-                        "reason": f"最近 14 天后半段平均血压约为 {round(second_avg_sys,1)}/{round(second_avg_dia,1)} mmHg，较前半段没有明显下降。",
+                        "reason": (
+                            f"最近 14 天后半段平均血压约为"
+                            f" {round(second_avg_sys, 1)}/{round(second_avg_dia, 1)} mmHg，"
+                            "较前半段没有明显下降。"
+                        ),
                         "next_step": "复盘近期饮食、运动、睡眠和用药执行，并确认下一次复诊/复查安排。",
                         "follow_up": "如果再持续 1 周没有改善，建议把连续记录整理给医生确认。",
                         "topic": "blood-pressure",
@@ -657,7 +842,7 @@ class HealthHeartbeat:
                     {
                         "priority": "medium",
                         "title": "血糖改善停滞",
-                        "reason": f"最近 21 天后半段平均血糖约为 {round(second_avg,1)} mmol/L，较前半段没有明显改善。",
+                        "reason": f"最近 21 天后半段平均血糖约为 {round(second_avg, 1)} mmol/L，较前半段没有明显改善。",
                         "next_step": "复盘餐后峰值、饮食结构、运动和监测频率，并准备下一次复查摘要。",
                         "follow_up": "若继续停滞，建议结合医生意见重新评估方案。",
                         "topic": "blood-sugar",
@@ -696,7 +881,10 @@ class HealthHeartbeat:
                     "priority": "low" if not pending else "medium",
                     "title": "病历归档有新更新待同步",
                     "reason": f"medical-record-organizer 侧有新内容，但健康工作区摘要尚未刷新。{latest_hint}",
-                    "next_step": "运行 sync-patient-archive，把 INDEX / timeline / Apple Health 摘要同步到 memory/health/files。",
+                    "next_step": (
+                        "运行 sync-patient-archive，"
+                        "把 INDEX / timeline / Apple Health 摘要同步到 memory/health/files。"
+                    ),
                     "follow_up": "下次周报或月报前同步一次，保持病历和健康工作区同频。",
                 }
             )
@@ -725,7 +913,10 @@ class HealthHeartbeat:
                         "priority": "high",
                         "title": "复查/复诊已逾期",
                         "reason": f"原定 {follow_up_date} 的复查/复诊节点还未完成，已经逾期 {abs(days_until)} 天。",
-                        "next_step": f"尽快确认是否已完成或重新预约，并更新 appointments.md。当前备注：{follow_up_details}。",
+                        "next_step": (
+                            f"尽快确认是否已完成或重新预约，并更新 appointments.md。"
+                            f"当前备注：{follow_up_details}。"
+                        ),
                         "follow_up": "今天内更新安排；若继续延后，升级为更强提醒。",
                     }
                 )
@@ -761,7 +952,10 @@ class HealthHeartbeat:
                         "priority": "medium",
                         "title": "门诊后 follow-up 待记录",
                         "reason": f"{latest_appointment_date} 的最近一次门诊已经发生，但 follow-up 文档尚未落地。",
-                        "next_step": "运行 record_visit_followup.py，把医生建议、下次复查和执行待办写回 appointments 与 daily。",
+                        "next_step": (
+                            "运行 record_visit_followup.py，"
+                            "把医生建议、下次复查和执行待办写回 appointments 与 daily。"
+                        ),
                         "follow_up": "今天内记录最好；若仍未处理，明天继续提醒。",
                     }
                 )
@@ -920,7 +1114,9 @@ class HealthHeartbeat:
             "execution-barrier": [str(self.memory_writer.execution_barriers_path)],
             "weekly-digest": [str(self.memory_writer.weekly_digest_path)],
             "monthly-digest": [str(self.memory_writer.monthly_digest_path)],
-            "memory-distillation": [str(self.memory_writer.memory_doc_path)] if self.memory_writer.memory_doc_path else [],
+            "memory-distillation": [str(self.memory_writer.memory_doc_path)]
+            if self.memory_writer.memory_doc_path
+            else [],
             "patient-archive": [str(self.memory_writer.files_dir / "patient-archive-summary.md")],
         }
         return mapping.get(topic, [])
@@ -1025,6 +1221,7 @@ class HealthHeartbeat:
         issues = []
         issues.extend(self._issues_missing_records())
         issues.extend(self._issues_bp_risk())
+        issues.extend(self._issues_heart_rate_risk())
         issues.extend(self._issues_glucose_risk())
         issues.extend(self._issues_adherence())
         issues.extend(self._issues_weekly_digest())
@@ -1036,6 +1233,7 @@ class HealthHeartbeat:
         issues.extend(self._issues_behavior_plans())
         issues.extend(self._issues_execution_barriers())
         issues.extend(self._issues_stalled_improvement())
+        issues.extend(self._issues_predictive())
         issues = [self._enrich_issue(issue) for issue in issues]
         issues.sort(key=lambda item: PRIORITY_ORDER[item["priority"]])
 

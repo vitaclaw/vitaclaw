@@ -85,7 +85,12 @@ Standard deviation of bedtime and waketime over the last 7 days:
 | 60-90 | 50 |
 | > 90 | 20 |
 
-**Time-to-minutes conversion**: use midnight (00:00) as zero; times before midnight are negative (e.g. 23:00 = -60). Average the bedtime SD and waketime SD. If fewer than 7 days available, compute on existing data and note the limitation.
+**Time-to-minutes conversion**: use midnight (00:00) as zero; times before midnight are negative (e.g. 23:00 = -60). Average the bedtime SD and waketime SD.
+
+**Minimum data requirement**:
+- **< 3 days of data**: Skip consistency sub-score entirely. Set consistency points = 50 (neutral) and append note: "一致性评分需要至少 3 天数据，当前使用默认中间值。"
+- **3-6 days**: Compute normally but append note: "基于 N 天数据，稳定性可能随更多数据变化。"
+- **>= 7 days**: Compute normally, no caveat.
 
 #### 3.4 Latency Sub-score (weight 10%)
 

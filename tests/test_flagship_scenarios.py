@@ -3,17 +3,11 @@
 
 from __future__ import annotations
 
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-
-ROOT = Path(__file__).resolve().parents[1]
-SHARED_DIR = ROOT / "skills" / "_shared"
-sys.path.insert(0, str(SHARED_DIR))
-
-from health_flagship_scenarios import (  # noqa: E402
+from skills._shared.health_flagship_scenarios import (
     AnnualCheckupAdvisorWorkflow,
     DiabetesControlHub,
     HypertensionDailyCopilot,
@@ -97,9 +91,30 @@ class FlagshipScenarioTest(unittest.TestCase):
 
     def test_annual_checkup_import_creates_followup_tasks(self):
         items = [
-            {"category": "血糖", "item": "空腹血糖", "value": "6.4", "unit": "mmol/L", "reference_range": "3.9-6.1", "status": "偏高"},
-            {"category": "肝功能", "item": "ALT", "value": "88", "unit": "U/L", "reference_range": "0-40", "status": "偏高"},
-            {"category": "血脂", "item": "甘油三酯", "value": "2.6", "unit": "mmol/L", "reference_range": "0-1.7", "status": "偏高"},
+            {
+                "category": "血糖",
+                "item": "空腹血糖",
+                "value": "6.4",
+                "unit": "mmol/L",
+                "reference_range": "3.9-6.1",
+                "status": "偏高",
+            },
+            {
+                "category": "肝功能",
+                "item": "ALT",
+                "value": "88",
+                "unit": "U/L",
+                "reference_range": "0-40",
+                "status": "偏高",
+            },
+            {
+                "category": "血脂",
+                "item": "甘油三酯",
+                "value": "2.6",
+                "unit": "mmol/L",
+                "reference_range": "0-1.7",
+                "status": "偏高",
+            },
         ]
 
         with tempfile.TemporaryDirectory() as memory_dir:

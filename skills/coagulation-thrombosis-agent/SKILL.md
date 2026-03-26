@@ -67,7 +67,7 @@ The **Coagulation and Thrombosis Agent** provides AI-driven analysis of hemostat
 
 **Agent Action**:
 ```bash
-python3 Skills/Hematology/Coagulation_Thrombosis_Agent/thrombosis_analyzer.py \
+python3 skills/coagulation-thrombosis-agent/thrombosis_analyzer.py \
     --patient_data patient_demographics.json \
     --labs coagulation_panel.csv \
     --risk_model improved_padua \

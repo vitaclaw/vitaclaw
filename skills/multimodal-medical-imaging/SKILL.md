@@ -45,17 +45,16 @@ The **Multimodal Medical Imaging Analysis Skill** leverages state-of-the-art Vis
 2.  **Analyze**: The agent sends the image and prompt to the VLM.
 3.  **Output**: Returns a JSON object with findings, confidence scores, and reasoning.
 
+## Workflow
+
+Agent 自身具备多模态视觉能力，可直接读取医学影像并分析。**无需外部 Python 脚本。**
+
+1. 使用 `Read` 工具加载用户提供的影像文件（JPG/PNG）
+2. Agent 视觉分析图像，结合临床问题进行解读
+3. 输出结构化 JSON 结果（findings / severity / confidence / recommendation）
+
 ## Example Usage
 
-**User**: "Analyze this chest X-ray for pneumonia."
+**User**: "帮我看看这张胸片有没有肺炎。"
 
-**Agent Action**:
-```bash
-python3 Skills/Clinical/Medical_Imaging/Multimodal_Analysis/multimodal_agent.py \
-    --image "/path/to/cxr.jpg" \
-    --prompt "Check for signs of pneumonia and consolidation."
-```
-
-
-
-<!-- AUTHOR_SIGNATURE: 9a7f3c2e-MD-BABU-MIA-2026-MSSM-SECURE -->
+**Agent Action**: 直接用 Read 工具读取图片，用自身视觉能力分析，输出结构化报告。

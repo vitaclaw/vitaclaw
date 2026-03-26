@@ -1,5 +1,5 @@
 ---
-updated_at: 2026-03-15T00:00:00
+updated_at: pending
 ---
 
 # Health Profile
@@ -36,6 +36,12 @@ updated_at: 2026-03-15T00:00:00
 
 ## Care Plan
 
-- Build baseline
-- Maintain continuous records
-- Enable weekly digest and proactive reminders
+- To be determined during onboarding
+
+## Health Goals
+
+- To be determined during onboarding
+
+## Care Team
+
+- None documented yet

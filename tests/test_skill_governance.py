@@ -7,7 +7,6 @@ import sys
 import unittest
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS_DIR = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
@@ -55,9 +54,7 @@ class SkillGovernanceTest(unittest.TestCase):
         self.assertEqual(missing, [])
 
         not_health_core = sorted(
-            slug
-            for slug in self.upstream_new_skills
-            if index[slug]["governance_scope"] != "health-core"
+            slug for slug in self.upstream_new_skills if index[slug]["governance_scope"] != "health-core"
         )
         self.assertEqual(not_health_core, [])
 

@@ -7,10 +7,8 @@ import hashlib
 import json
 import re
 from datetime import datetime, timedelta
-from pathlib import Path
 
-from health_memory import HealthMemoryWriter
-
+from .health_memory import HealthMemoryWriter
 
 PRIORITY_ORDER = {"high": 0, "medium": 1, "low": 2}
 
@@ -73,11 +71,7 @@ class HealthReminderCenter:
     def _parse_list(self, value: str | None) -> list[str]:
         if not value:
             return []
-        return [
-            self._normalize_topic(item)
-            for item in re.split(r"[，,;/]+", value)
-            if item.strip()
-        ]
+        return [self._normalize_topic(item) for item in re.split(r"[，,;/]+", value) if item.strip()]
 
     def load_preferences(self) -> dict:
         preferences = json.loads(json.dumps(self.DEFAULT_PREFERENCES))
@@ -110,7 +104,9 @@ class HealthReminderCenter:
             elif normalized_key == "low priority follow-up hours":
                 preferences["follow_up_hours"]["low"] = self._parse_int(value, preferences["follow_up_hours"]["low"])
             elif normalized_key == "medium priority follow-up hours":
-                preferences["follow_up_hours"]["medium"] = self._parse_int(value, preferences["follow_up_hours"]["medium"])
+                preferences["follow_up_hours"]["medium"] = self._parse_int(
+                    value, preferences["follow_up_hours"]["medium"]
+                )
             elif normalized_key == "high priority follow-up hours":
                 preferences["follow_up_hours"]["high"] = self._parse_int(value, preferences["follow_up_hours"]["high"])
             elif normalized_key == "focus closely":
@@ -287,9 +283,7 @@ class HealthReminderCenter:
                 lines.append("")
                 continue
             for task in buckets[status][:20]:
-                lines.append(
-                    f"- [ ] {task['id']} | {task.get('priority', 'low')} | {task.get('title', 'Untitled')}"
-                )
+                lines.append(f"- [ ] {task['id']} | {task.get('priority', 'low')} | {task.get('title', 'Untitled')}")
                 lines.append(f"  状态：{task.get('status')}")
                 lines.append(f"  原因：{task.get('reason', 'pending')}")
                 if task.get("next_step"):
@@ -400,9 +394,7 @@ class HealthReminderCenter:
         board_path = None
         if write:
             state_path = self.save_state(state)
-            board_path = self.writer.update_heartbeat_task_board(
-                self._render_board(state["tasks"])
-            )
+            board_path = self.writer.update_heartbeat_task_board(self._render_board(state["tasks"]))
 
         return {
             "issues": synced_issues,
@@ -418,9 +410,7 @@ class HealthReminderCenter:
         tasks = self.load_state().get("tasks", [])
         if not status:
             return self._sort_tasks(tasks)
-        return [
-            task for task in self._sort_tasks(tasks) if task.get("status") == status
-        ]
+        return [task for task in self._sort_tasks(tasks) if task.get("status") == status]
 
     def _update_task(self, task_id: str, **updates) -> dict | None:
         state = self.load_state()

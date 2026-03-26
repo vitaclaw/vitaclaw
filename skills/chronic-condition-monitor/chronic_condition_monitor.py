@@ -11,10 +11,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
-import sys as _sys
-_sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '_shared'))
-from health_data_store import HealthDataStore
-from health_memory import HealthMemoryWriter
+from skills._shared.health_data_store import HealthDataStore
+from skills._shared.health_memory import HealthMemoryWriter
 
 
 # ---------------------------------------------------------------------------

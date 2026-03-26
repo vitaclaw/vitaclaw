@@ -89,7 +89,7 @@ The **ctDNA Dynamics MRD Agent** provides comprehensive analysis of circulating 
 
 **Agent Action**:
 ```bash
-python3 Skills/Oncology/ctDNA_Dynamics_MRD_Agent/ctdna_mrd_analysis.py \
+python3 skills/ctdna-dynamics-mrd-agent/ctdna_mrd_analysis.py \
     --ctdna_data serial_ctdna.tsv \
     --tracked_mutations tumor_mutations.vcf \
     --sample_times 0,14,42,90,180 \

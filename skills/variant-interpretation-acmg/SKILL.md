@@ -49,7 +49,7 @@ The **Variant Interpretation Skill** automates the classification of genetic var
 
 **Agent Action**:
 ```bash
-python3 Skills/Genomics/Variant_Interpretation/acmg_classifier.py \
+python3 acmg_classifier.py \
     --evidence "PVS1,PM2"
 ```
 

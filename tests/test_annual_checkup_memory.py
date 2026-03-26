@@ -9,7 +9,6 @@ import unittest
 from datetime import datetime
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SKILL_DIR = ROOT / "skills" / "checkup-report-interpreter"
 sys.path.insert(0, str(SKILL_DIR))
@@ -19,17 +18,74 @@ from checkup_report_interpreter import CheckupReportInterpreter  # noqa: E402
 
 class AnnualCheckupMemoryTest(unittest.TestCase):
     def test_structured_items_persist_into_memory(self):
-        fixed_now = lambda: datetime(2026, 3, 15, 22, 0, 0)
+        def fixed_now():
+            return datetime(2026, 3, 15, 22, 0, 0)
 
         items = [
-            {"category": "体格检查", "item": "身高", "value": "178", "unit": "cm", "reference_range": "", "status": "正常"},
-            {"category": "体格检查", "item": "体重", "value": "85.0", "unit": "kg", "reference_range": "", "status": "异常"},
-            {"category": "体格检查", "item": "血压", "value": "135/88", "unit": "mmHg", "reference_range": "", "status": "偏高"},
-            {"category": "体格检查", "item": "静息心率", "value": "82", "unit": "bpm", "reference_range": "", "status": "偏高"},
-            {"category": "血糖", "item": "空腹血糖", "value": "6.0", "unit": "mmol/L", "reference_range": "3.9-6.1", "status": "偏高"},
-            {"category": "血糖", "item": "糖化血红蛋白", "value": "5.8", "unit": "%", "reference_range": "4.0-6.0", "status": "偏高"},
-            {"category": "肝功能", "item": "ALT", "value": "65", "unit": "U/L", "reference_range": "9-50", "status": "偏高"},
-            {"category": "血脂", "item": "甘油三酯", "value": "2.4", "unit": "mmol/L", "reference_range": "<1.7", "status": "偏高"},
+            {
+                "category": "体格检查",
+                "item": "身高",
+                "value": "178",
+                "unit": "cm",
+                "reference_range": "",
+                "status": "正常",
+            },
+            {
+                "category": "体格检查",
+                "item": "体重",
+                "value": "85.0",
+                "unit": "kg",
+                "reference_range": "",
+                "status": "异常",
+            },
+            {
+                "category": "体格检查",
+                "item": "血压",
+                "value": "135/88",
+                "unit": "mmHg",
+                "reference_range": "",
+                "status": "偏高",
+            },
+            {
+                "category": "体格检查",
+                "item": "静息心率",
+                "value": "82",
+                "unit": "bpm",
+                "reference_range": "",
+                "status": "偏高",
+            },
+            {
+                "category": "血糖",
+                "item": "空腹血糖",
+                "value": "6.0",
+                "unit": "mmol/L",
+                "reference_range": "3.9-6.1",
+                "status": "偏高",
+            },
+            {
+                "category": "血糖",
+                "item": "糖化血红蛋白",
+                "value": "5.8",
+                "unit": "%",
+                "reference_range": "4.0-6.0",
+                "status": "偏高",
+            },
+            {
+                "category": "肝功能",
+                "item": "ALT",
+                "value": "65",
+                "unit": "U/L",
+                "reference_range": "9-50",
+                "status": "偏高",
+            },
+            {
+                "category": "血脂",
+                "item": "甘油三酯",
+                "value": "2.4",
+                "unit": "mmol/L",
+                "reference_range": "<1.7",
+                "status": "偏高",
+            },
         ]
 
         with tempfile.TemporaryDirectory() as memory_dir:

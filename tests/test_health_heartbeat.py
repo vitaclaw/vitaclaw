@@ -3,20 +3,14 @@
 
 from __future__ import annotations
 
-import sys
 import tempfile
 import unittest
 from datetime import datetime
 from pathlib import Path
 
-
-ROOT = Path(__file__).resolve().parents[1]
-SHARED_DIR = ROOT / "skills" / "_shared"
-sys.path.insert(0, str(SHARED_DIR))
-
-from health_data_store import HealthDataStore  # noqa: E402
-from health_heartbeat import HealthHeartbeat  # noqa: E402
-from health_memory import HealthMemoryWriter  # noqa: E402
+from skills._shared.health_data_store import HealthDataStore
+from skills._shared.health_heartbeat import HealthHeartbeat
+from skills._shared.health_memory import HealthMemoryWriter
 
 
 class HealthHeartbeatTest(unittest.TestCase):
@@ -26,7 +20,8 @@ class HealthHeartbeatTest(unittest.TestCase):
         path.write_text(body.strip() + "\n", encoding="utf-8")
 
     def test_detects_missing_records_risk_and_digest_due(self):
-        fixed_now = lambda: datetime(2026, 3, 15, 21, 0, 0)  # Sunday
+        def fixed_now():
+            return datetime(2026, 3, 15, 21, 0, 0)  # Sunday
 
         with tempfile.TemporaryDirectory() as data_dir, tempfile.TemporaryDirectory() as memory_dir:
             writer = HealthMemoryWriter(memory_root=memory_dir, now_fn=fixed_now)
@@ -89,10 +84,11 @@ class HealthHeartbeatTest(unittest.TestCase):
             self.assertIn("高优先级", report_text)
 
     def test_blank_item_templates_do_not_trigger_false_positive_missing_reminders(self):
-        fixed_now = lambda: datetime(2026, 3, 19, 10, 0, 0)  # Thursday
+        def fixed_now():
+            return datetime(2026, 3, 19, 10, 0, 0)  # Thursday
 
         with tempfile.TemporaryDirectory() as data_dir, tempfile.TemporaryDirectory() as memory_dir:
-            writer = HealthMemoryWriter(memory_root=memory_dir, now_fn=fixed_now)
+            HealthMemoryWriter(memory_root=memory_dir, now_fn=fixed_now)
             self._write_item_file(
                 memory_dir,
                 "medications",
@@ -169,15 +165,15 @@ class HealthHeartbeatTest(unittest.TestCase):
             self.assertNotIn("睡眠记录缺失", result["markdown"])
 
     def test_detects_follow_up_and_refill_due(self):
-        fixed_now = lambda: datetime(2026, 3, 15, 9, 0, 0)  # Sunday
+        def fixed_now():
+            return datetime(2026, 3, 15, 9, 0, 0)  # Sunday
 
         with tempfile.TemporaryDirectory() as data_dir, tempfile.TemporaryDirectory() as memory_dir:
             writer = HealthMemoryWriter(memory_root=memory_dir, now_fn=fixed_now)
             writer.update_daily_snapshot()
             today_path = Path(memory_dir) / "daily" / "2026-03-15.md"
             today_path.write_text(
-                today_path.read_text(encoding="utf-8")
-                + "\n## Medication [manual · 09:00]\n- Adherence logged today\n",
+                today_path.read_text(encoding="utf-8") + "\n## Medication [manual · 09:00]\n- Adherence logged today\n",
                 encoding="utf-8",
             )
 
@@ -240,7 +236,8 @@ class HealthHeartbeatTest(unittest.TestCase):
             self.assertIn("药物库存偏低", result["markdown"])
 
     def test_detects_monthly_digest_and_memory_distillation_due(self):
-        fixed_now = lambda: datetime(2026, 4, 2, 9, 0, 0)
+        def fixed_now():
+            return datetime(2026, 4, 2, 9, 0, 0)
 
         with tempfile.TemporaryDirectory() as data_dir, tempfile.TemporaryDirectory() as workspace_dir:
             workspace_root = Path(workspace_dir)
@@ -261,7 +258,8 @@ class HealthHeartbeatTest(unittest.TestCase):
             self.assertIn("上月月报缺失", result["markdown"])
 
     def test_detects_missing_visit_followup_document(self):
-        fixed_now = lambda: datetime(2026, 4, 3, 9, 0, 0)
+        def fixed_now():
+            return datetime(2026, 4, 3, 9, 0, 0)
 
         with tempfile.TemporaryDirectory() as memory_dir:
             self._write_item_file(
@@ -291,7 +289,8 @@ class HealthHeartbeatTest(unittest.TestCase):
             self.assertIn("门诊后 follow-up 待记录", result["markdown"])
 
     def test_detects_annual_checkup_due(self):
-        fixed_now = lambda: datetime(2027, 2, 20, 9, 0, 0)
+        def fixed_now():
+            return datetime(2027, 2, 20, 9, 0, 0)
 
         with tempfile.TemporaryDirectory() as memory_dir:
             self._write_item_file(
@@ -322,9 +321,14 @@ class HealthHeartbeatTest(unittest.TestCase):
             self.assertIn("年度体检即将到期", result["markdown"])
 
     def test_detects_pending_patient_archive_and_unsynced_updates(self):
-        fixed_now = lambda: datetime(2026, 4, 3, 10, 0, 0)
+        def fixed_now():
+            return datetime(2026, 4, 3, 10, 0, 0)
 
-        with tempfile.TemporaryDirectory() as data_dir, tempfile.TemporaryDirectory() as workspace_dir, tempfile.TemporaryDirectory() as patients_dir:
+        with (
+            tempfile.TemporaryDirectory() as data_dir,
+            tempfile.TemporaryDirectory() as workspace_dir,
+            tempfile.TemporaryDirectory() as patients_dir,
+        ):
             workspace_root = Path(workspace_dir)
             (workspace_root / "MEMORY.md").write_text(
                 "# VitaClaw Long-Term Memory\n\n## 当前重点任务\n- 建立完整健康基线\n",

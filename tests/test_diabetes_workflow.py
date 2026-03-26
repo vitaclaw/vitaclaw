@@ -11,7 +11,6 @@ from contextlib import redirect_stdout
 from datetime import datetime
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SKILL_DIR = ROOT / "skills" / "chronic-condition-monitor"
 sys.path.insert(0, str(SKILL_DIR))
@@ -21,7 +20,8 @@ from chronic_condition_monitor import ChronicConditionMonitor  # noqa: E402
 
 class DiabetesWorkflowTest(unittest.TestCase):
     def test_glucose_and_weight_sync_into_health_memory(self):
-        fixed_now = lambda: datetime(2026, 3, 15, 14, 30, 0)
+        def fixed_now():
+            return datetime(2026, 3, 15, 14, 30, 0)
 
         with tempfile.TemporaryDirectory() as data_dir, tempfile.TemporaryDirectory() as memory_dir:
             monitor = ChronicConditionMonitor(

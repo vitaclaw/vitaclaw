@@ -3,24 +3,19 @@
 
 from __future__ import annotations
 
-import sys
 import tempfile
 import unittest
 from datetime import datetime
 from pathlib import Path
 
-
-ROOT = Path(__file__).resolve().parents[1]
-SHARED_DIR = ROOT / "skills" / "_shared"
-sys.path.insert(0, str(SHARED_DIR))
-
-from health_memory import HealthMemoryWriter  # noqa: E402
-from health_timeline_builder import HealthTimelineBuilder  # noqa: E402
+from skills._shared.health_memory import HealthMemoryWriter
+from skills._shared.health_timeline_builder import HealthTimelineBuilder
 
 
 class HealthTimelineBuilderTest(unittest.TestCase):
     def test_build_merges_archive_apple_health_and_workspace_items(self):
-        fixed_now = lambda: datetime(2026, 4, 3, 15, 0, 0)
+        def fixed_now():
+            return datetime(2026, 4, 3, 15, 0, 0)
 
         with tempfile.TemporaryDirectory() as workspace_dir, tempfile.TemporaryDirectory() as patients_dir:
             workspace_root = Path(workspace_dir)

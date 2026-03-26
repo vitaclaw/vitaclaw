@@ -10,20 +10,19 @@ import unittest
 from datetime import datetime
 from pathlib import Path
 
+from skills._shared.health_data_store import HealthDataStore
 
 ROOT = Path(__file__).resolve().parents[1]
 WEEKLY_DIR = ROOT / "skills" / "weekly-health-digest"
-SHARED_DIR = ROOT / "skills" / "_shared"
 sys.path.insert(0, str(WEEKLY_DIR))
-sys.path.insert(0, str(SHARED_DIR))
 
-from health_data_store import HealthDataStore  # noqa: E402
 from weekly_health_digest import WeeklyHealthDigest  # noqa: E402
 
 
 class MonthlyDigestFallbackTest(unittest.TestCase):
     def test_generate_monthly_uses_local_fallback_and_writes_memory(self):
-        fixed_now = lambda: datetime(2026, 3, 31, 20, 0, 0)
+        def fixed_now():
+            return datetime(2026, 3, 31, 20, 0, 0)
 
         with tempfile.TemporaryDirectory() as data_dir, tempfile.TemporaryDirectory() as memory_dir:
             HealthDataStore("caffeine-tracker", data_dir=data_dir).append(

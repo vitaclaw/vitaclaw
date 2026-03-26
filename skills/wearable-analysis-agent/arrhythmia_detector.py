@@ -22,7 +22,11 @@ platform_dir = os.path.join(project_root, "platform")
 if platform_dir not in sys.path:
     sys.path.append(platform_dir)
 
-from adapters.runtime_adapter import llm
+try:
+    from adapters.runtime_adapter import llm
+except ImportError:
+    print("Warning: RuntimeLLMAdapter not found. LLM features will be unavailable.")
+    llm = None
 
 class ArrhythmiaDetector:
     """

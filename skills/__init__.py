@@ -1,0 +1,1 @@
+# VitaClaw skills package

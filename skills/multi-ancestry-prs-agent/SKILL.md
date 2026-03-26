@@ -90,7 +90,7 @@ The **Multi-Ancestry PRS Agent** provides AI-optimized polygenic risk score calc
 
 **Agent Action**:
 ```bash
-python3 Skills/Precision_Medicine/Multi_Ancestry_PRS_Agent/calc_prs.py \
+python3 skills/multi-ancestry-prs-agent/calc_prs.py \
     --genotypes patient_genotypes.vcf.gz \
     --ancestry admixed_AFR_EUR \
     --local_ancestry lai_segments.bed \

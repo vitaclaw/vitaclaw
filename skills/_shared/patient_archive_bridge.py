@@ -9,7 +9,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 
-from health_memory import HealthMemoryWriter
+from .health_memory import HealthMemoryWriter
 
 
 def _resolve_patients_root(patients_root: str | None = None) -> Path:
@@ -245,10 +245,7 @@ class PatientArchiveBridge:
 
     def render_markdown(self, summary: dict) -> str:
         if not summary.get("available"):
-            return (
-                "# Patient Archive Summary\n\n"
-                "- 当前未解析到可用患者档案。\n"
-            )
+            return "# Patient Archive Summary\n\n- 当前未解析到可用患者档案。\n"
 
         lines = [
             f"# Patient Archive Summary -- {summary['patient_id']}",
@@ -269,9 +266,7 @@ class PatientArchiveBridge:
         if entries:
             lines.extend(["", "## Latest Timeline"])
             for entry in entries:
-                lines.append(
-                    f"- {entry['date']} | {entry['type']} | {entry['summary']} | {entry['filepath']}"
-                )
+                lines.append(f"- {entry['date']} | {entry['type']} | {entry['summary']} | {entry['filepath']}")
 
         if summary.get("apple_health_reports"):
             lines.extend(["", "## Apple Health Reports"])

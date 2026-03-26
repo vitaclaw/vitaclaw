@@ -11,7 +11,6 @@ from dataclasses import dataclass, field
 from html.parser import HTMLParser
 from pathlib import Path
 
-
 BLOCKED_HOST_SUFFIXES = (
     "xiaohongshu.com",
     "weibo.com",

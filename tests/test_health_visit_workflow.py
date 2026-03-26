@@ -3,24 +3,19 @@
 
 from __future__ import annotations
 
-import sys
 import tempfile
 import unittest
 from datetime import datetime
 from pathlib import Path
 
-
-ROOT = Path(__file__).resolve().parents[1]
-SHARED_DIR = ROOT / "skills" / "_shared"
-sys.path.insert(0, str(SHARED_DIR))
-
-from health_memory import HealthMemoryWriter  # noqa: E402
-from health_visit_workflow import HealthVisitWorkflow  # noqa: E402
+from skills._shared.health_memory import HealthMemoryWriter
+from skills._shared.health_visit_workflow import HealthVisitWorkflow
 
 
 class HealthVisitWorkflowTest(unittest.TestCase):
     def test_generate_briefing_and_record_followup(self):
-        fixed_now = lambda: datetime(2026, 4, 3, 9, 0, 0)
+        def fixed_now():
+            return datetime(2026, 4, 3, 9, 0, 0)
 
         with tempfile.TemporaryDirectory() as workspace_dir:
             workspace_root = Path(workspace_dir)

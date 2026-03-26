@@ -63,7 +63,7 @@ The **Wearable Analysis Agent** processes data from consumer health devices (App
 
 **Agent Action**:
 ```bash
-python3 Skills/Consumer_Health/Wearable_Analysis/arrhythmia_detector.py --input apple_health_export.xml --window "last_month"
+python3 arrhythmia_detector.py --input apple_health_export.xml --window "last_month"
 ```
 
 

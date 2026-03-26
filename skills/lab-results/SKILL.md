@@ -28,7 +28,7 @@ This skill implements the Lab Results workflow using Anthropic's Claude.
 ## Usage
 
 ```bash
-python3 Skills/Anthropic_Health_Stack/Lab_Results/coworker.py
+python3 coworker.py
 ```
 
 

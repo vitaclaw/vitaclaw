@@ -2,10 +2,11 @@
 """用药提醒与依从性追踪工具 - 多药管理、服药记录、依从率统计。"""
 
 import argparse
+import fcntl
 import json
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '_shared'))
 from health_data_store import HealthDataStore
@@ -35,6 +36,24 @@ FREQUENCY_LABELS = {
 }
 
 
+INTERACTION_RULES = [
+    ({"warfarin", "华法林"}, {"ibuprofen", "布洛芬", "aspirin", "阿司匹林", "naproxen", "萘普生", "diclofenac", "双氯芬酸"},
+     "华法林 + NSAIDs：出血风险增加，需监测 INR"),
+    ({"lisinopril", "赖诺普利", "enalapril", "依那普利", "captopril", "卡托普利", "ramipril", "雷米普利"},
+     {"spironolactone", "螺内酯", "amiloride", "阿米洛利"},
+     "ACEI + 保钾利尿剂：高钾血症风险"),
+    ({"atorvastatin", "阿托伐他汀", "simvastatin", "辛伐他汀", "rosuvastatin", "瑞舒伐他汀"},
+     {"erythromycin", "红霉素", "clarithromycin", "克拉霉素", "azithromycin", "阿奇霉素"},
+     "他汀 + 大环内酯：横纹肌溶解风险"),
+    ({"metformin", "二甲双胍"},
+     {"contrast", "造影剂", "碘造影"},
+     "二甲双胍 + 碘造影剂：乳酸酸中毒风险"),
+    ({"digoxin", "地高辛"},
+     {"amiodarone", "胺碘酮"},
+     "地高辛 + 胺碘酮：地高辛中毒风险"),
+]
+
+
 class MedicationReminder:
     """用药提醒与依从性管理器。"""
 
@@ -52,6 +71,7 @@ class MedicationReminder:
         frequency: str,
         timing: list,
         note: str = "",
+        remaining_tablets: int = None,
     ) -> dict:
         """添加用药计划。"""
         freq = frequency.lower()
@@ -67,11 +87,19 @@ class MedicationReminder:
             "timing": timing,
             "status": "active",
         }
+        if remaining_tablets is not None:
+            data["remaining_tablets"] = remaining_tablets
         record = self.store.append("medication", data, note=note)
         freq_label = FREQUENCY_LABELS.get(freq, freq)
         print(f"[+] 已添加用药计划: {drug_name} {dose}")
         print(f"    频率: {freq_label} | 服药时间: {', '.join(timing)}")
         print(f"    ID: {record['id']}")
+
+        # Check drug interactions against existing active medications
+        warnings = self._check_interactions(drug_name)
+        for w in warnings:
+            print(f"[!] 药物相互作用警告: {w}")
+
         return record
 
     def list_medications(self) -> str:
@@ -120,7 +148,7 @@ class MedicationReminder:
             "drug_name": drug_name,
             "taken": taken,
             "status": status,
-            "log_time": datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "log_time": datetime.now().astimezone().strftime("%Y-%m-%d %H:%M"),
         }
         record = self.store.append("dose", data, note=note)
         action = "已服用" if taken else "已跳过"
@@ -132,7 +160,7 @@ class MedicationReminder:
     def due_now(self) -> str:
         """检查当前时间窗口（前后30分钟）应服用的药物。"""
         meds = self._get_active_medications()
-        now = datetime.now()
+        now = datetime.now().astimezone()
         current_minutes = now.hour * 60 + now.minute
         window = 30  # minutes
 
@@ -166,7 +194,7 @@ class MedicationReminder:
     def adherence(self, drug_name: str = None, days: int = 30) -> str:
         """计算指定时间段的用药依从率。"""
         meds = self._get_active_medications()
-        cutoff = (datetime.now() - timedelta(days=days)).isoformat()
+        cutoff = (datetime.now().astimezone() - timedelta(days=days)).isoformat()
         doses = [r for r in self.store.query(record_type="dose") if r["timestamp"] >= cutoff]
 
         if drug_name:
@@ -215,7 +243,7 @@ class MedicationReminder:
     def flag_missed(self, days: int = 1) -> str:
         """列出过去N天内漏服的药物。"""
         meds = self._get_active_medications()
-        cutoff = (datetime.now() - timedelta(days=days)).isoformat()
+        cutoff = (datetime.now().astimezone() - timedelta(days=days)).isoformat()
         doses = [r for r in self.store.query(record_type="dose") if r["timestamp"] >= cutoff]
 
         missed = []
@@ -257,11 +285,11 @@ class MedicationReminder:
     def generate_medication_report(self, days: int = 30) -> str:
         """生成综合用药报告。"""
         meds = self._get_active_medications()
-        cutoff = (datetime.now() - timedelta(days=days)).isoformat()
+        cutoff = (datetime.now().astimezone() - timedelta(days=days)).isoformat()
         doses = [r for r in self.store.query(record_type="dose") if r["timestamp"] >= cutoff]
 
         lines = [f"## 综合用药报告 (过去{days}天)\n"]
-        lines.append(f"生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
+        lines.append(f"生成时间: {datetime.now().astimezone().strftime('%Y-%m-%d %H:%M')}\n")
 
         # Active medications
         lines.append(f"### 活跃用药 ({len(meds)}种)\n")
@@ -308,7 +336,7 @@ class MedicationReminder:
         lines.append("")
 
         # Missed doses in last 24h
-        yesterday_cutoff = (datetime.now() - timedelta(days=1)).isoformat()
+        yesterday_cutoff = (datetime.now().astimezone() - timedelta(days=1)).isoformat()
         recent_doses = [r for r in doses if r["timestamp"] >= yesterday_cutoff]
         lines.append("### 最近24小时服药情况\n")
         if recent_doses:
@@ -335,6 +363,62 @@ class MedicationReminder:
         meds = self.store.query(record_type="medication")
         return [m for m in meds if m["data"].get("status") == "active"]
 
+    def _check_interactions(self, new_drug: str) -> list:
+        """检查新药物与已有药物的相互作用。"""
+        warnings = []
+        active_meds = self._get_active_medications()
+        active_names = {m["data"]["drug_name"].lower() for m in active_meds}
+        new_lower = new_drug.lower()
+
+        for group_a, group_b, message in INTERACTION_RULES:
+            in_a = any(k in new_lower for k in group_a)
+            in_b = any(k in new_lower for k in group_b)
+            existing_in_a = any(any(k in name for k in group_a) for name in active_names)
+            existing_in_b = any(any(k in name for k in group_b) for name in active_names)
+
+            if (in_a and existing_in_b) or (in_b and existing_in_a):
+                warnings.append(message)
+
+        return warnings
+
+    def refill_status(self, drug_name: str = None) -> str:
+        """检查续药状态。需要药物记录中包含 remaining_tablets 字段。"""
+        meds = self._get_active_medications()
+        if drug_name:
+            meds = [m for m in meds if m["data"]["drug_name"] == drug_name]
+
+        if not meds:
+            msg = "未找到活跃的用药计划。"
+            print(msg)
+            return msg
+
+        lines = ["## 续药状态\n"]
+        for m in meds:
+            d = m["data"]
+            name = d["drug_name"]
+            remaining = d.get("remaining_tablets")
+            freq = d["frequency"]
+            daily_doses = FREQUENCY_MAP.get(freq, 0)
+
+            if remaining is None or daily_doses == 0:
+                lines.append(f"- **{name}** {d['dose']}: 未记录剩余数量")
+                continue
+
+            remaining_days = int(remaining / daily_doses) if daily_doses > 0 else 0
+            if remaining_days <= 0:
+                lines.append(f"- **{name}** {d['dose']}: ⚠️ 已用完，请立即续药")
+            elif remaining_days <= 3:
+                lines.append(f"- **{name}** {d['dose']}: 🔴 剩余约 {remaining_days} 天 ({remaining}片)，紧急续药")
+            elif remaining_days <= 7:
+                lines.append(f"- **{name}** {d['dose']}: 🟡 剩余约 {remaining_days} 天 ({remaining}片)，请准备续药")
+            else:
+                lines.append(f"- **{name}** {d['dose']}: ✓ 剩余约 {remaining_days} 天 ({remaining}片)")
+        lines.append("")
+
+        output = "\n".join(lines)
+        print(output)
+        return output
+
     def _update_medication_field(self, med_id: str, field: str, value) -> None:
         """通过重写文件更新指定药物记录的字段。"""
         if not os.path.exists(self.store.data_file):
@@ -350,8 +434,12 @@ class MedicationReminder:
                     rec["data"][field] = value
                 lines.append(json.dumps(rec, ensure_ascii=False))
         with open(self.store.data_file, "w", encoding="utf-8") as f:
-            for line in lines:
-                f.write(line + "\n")
+            fcntl.flock(f, fcntl.LOCK_EX)
+            try:
+                for line in lines:
+                    f.write(line + "\n")
+            finally:
+                fcntl.flock(f, fcntl.LOCK_UN)
 
 
 # ---------------------------------------------------------------------------
@@ -369,6 +457,7 @@ def main():
     p_add.add_argument("--freq", required=True, help="频率 (qd/bid/tid/qid/prn/qw/q2w)")
     p_add.add_argument("--timing", nargs="+", required=True, help="服药时间 (如 08:00 20:00)")
     p_add.add_argument("--note", default="", help="备注")
+    p_add.add_argument("--remaining", type=int, default=None, help="剩余片数")
 
     # list
     subparsers.add_parser("list", help="列出所有活跃用药")
@@ -396,6 +485,10 @@ def main():
     p_missed = subparsers.add_parser("missed", help="查看漏服药物")
     p_missed.add_argument("--days", type=int, default=1, help="查看天数(默认1)")
 
+    # refill
+    p_refill = subparsers.add_parser("refill", help="查看续药状态")
+    p_refill.add_argument("--drug", default=None, help="药物名称(可选)")
+
     # report
     p_report = subparsers.add_parser("report", help="生成综合用药报告")
     p_report.add_argument("--days", type=int, default=30, help="报告天数(默认30)")
@@ -414,6 +507,7 @@ def main():
             frequency=args.freq,
             timing=args.timing,
             note=args.note,
+            remaining_tablets=args.remaining,
         )
     elif args.command == "list":
         reminder.list_medications()
@@ -428,6 +522,8 @@ def main():
         reminder.adherence(drug_name=args.drug, days=args.days)
     elif args.command == "missed":
         reminder.flag_missed(days=args.days)
+    elif args.command == "refill":
+        reminder.refill_status(drug_name=args.drug)
     elif args.command == "report":
         reminder.generate_medication_report(days=args.days)
 

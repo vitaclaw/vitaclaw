@@ -3,10 +3,13 @@
 redact_ocr.py — OCR-based PII redaction for Chinese medical documents.
 
 Uses PaddleOCR for text detection + PaddleNLP UIE NER for PII classification.
-Only PII fields are redacted; everything else is left untouched.
+Optionally uses LLM as a complementary PII identifier for higher recall.
+Supports barcode/QR code detection and redaction.
+
+Supports: JPG/PNG/BMP/WEBP/HEIC/HEIF images and scanned PDFs.
 
 Usage:
-    python3 redact_ocr.py INPUT [--output OUTPUT] [--debug] [--confidence 0.5] [--no-ner]
+    python3 redact_ocr.py INPUT [--output OUTPUT] [--debug] [--confidence 0.5] [--no-ner] [--no-llm]
     python3 redact_ocr.py --check-runtime
 
 Output JSON to stdout:
@@ -18,8 +21,10 @@ Debug mode (--debug):
 
 import argparse
 import json
+import os
 import re
 import sys
+import tempfile
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -45,6 +50,222 @@ _PII_LABEL_PATTERNS = [
 _ID_CARD_RE = re.compile(r"\b[1-9]\d{5}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx]\b")
 _PHONE_RE = re.compile(r"\b1[3-9]\d{9}\b")
 _LANDLINE_RE = re.compile(r"\b0\d{2,3}[-\s]?\d{7,8}\b")
+
+
+# ---------------------------------------------------------------------------
+# Barcode / QR code detection
+# ---------------------------------------------------------------------------
+
+def detect_barcodes(image_path: str) -> list:
+    """Detect barcodes and QR codes, return list of [x1, y1, x2, y2] rects."""
+    try:
+        import cv2
+    except ImportError:
+        return []
+
+    img = cv2.imread(image_path)
+    if img is None:
+        return []
+
+    bboxes = []
+
+    # Method 1: pyzbar (1D + 2D barcodes)
+    try:
+        from pyzbar.pyzbar import decode
+        for bc in decode(img):
+            x, y, w, h = bc.rect
+            bboxes.append([x, y, x + w, y + h])
+    except ImportError:
+        pass
+
+    # Method 2: OpenCV QR detector (fallback, QR only)
+    if not bboxes:
+        detector = cv2.QRCodeDetector()
+        retval, points = detector.detect(img)
+        if retval and points is not None:
+            for pts in points:
+                x1 = int(min(p[0] for p in pts))
+                y1 = int(min(p[1] for p in pts))
+                x2 = int(max(p[0] for p in pts))
+                y2 = int(max(p[1] for p in pts))
+                bboxes.append([x1, y1, x2, y2])
+
+    # Method 3: OpenCV barcode detector (1D barcodes)
+    if not bboxes:
+        try:
+            bd = cv2.barcode.BarcodeDetector()
+            result = bd.detectAndDecode(img)
+            if len(result) == 4:
+                ok, _decoded, _det_type, points = result
+            elif len(result) == 3:
+                ok, _decoded, points = result
+            else:
+                ok, points = False, None
+            if ok and points is not None:
+                for pts in points:
+                    x1 = int(min(p[0] for p in pts))
+                    y1 = int(min(p[1] for p in pts))
+                    x2 = int(max(p[0] for p in pts))
+                    y2 = int(max(p[1] for p in pts))
+                    bboxes.append([x1, y1, x2, y2])
+        except (AttributeError, Exception):
+            pass
+
+    return bboxes
+
+
+# ---------------------------------------------------------------------------
+# LLM-based PII complement (higher recall for items regex/NER miss)
+# ---------------------------------------------------------------------------
+
+_LLM_SYSTEM_PROMPT = """你是一个医疗报告隐私信息识别专家。你的任务是从OCR识别出的文本列表中，找出所有包含隐私信息的文本。
+
+## 隐私信息类型
+1. **患者姓名** - 包含中文姓名、以及"姓名：XXX"格式
+2. **各类编号** - 病历号、住院号、门诊号、报告单号、标本编号、超声号、检查号、条码号、检验号等
+3. **证件号码** - 身份证号、护照号等
+4. **联系方式** - 手机号、电话号码
+5. **地址信息** - 家庭住址、工作单位地址、籍贯、出生地等（但不包含医院名称/地址）
+6. **日期时间** - 报告时间、检查时间、采样时间、入院/出院日期等与患者就诊相关的时间（但不包含参考值中的时间）
+7. **年龄/出生日期** - 具体年龄（如"43岁"）、出生日期
+8. **性别年龄组合** - 如"男 65岁"、"女43岁"
+9. **医护人员姓名** - 检查医师、报告医师、审核医师、录入员、主治医师、申请医生、检验者、审核者等的姓名
+10. **科室/床号/病区** - 具体科室名称、床号、病区信息
+11. **处方号/医嘱号** - 处方编号等
+12. **体检编号** - 体检报告中的编号
+13. **手术相关人员** - 术者、助手、麻醉师的姓名
+14. **病理号** - 病理报告编号
+
+## 不应标记为隐私的内容
+- 医院名称（如"西北妇女儿童医院"）
+- 医学诊断内容、检查所见、检查结论
+- 化验项目名称和结果数值（如"白细胞 5.3"、"血红蛋白 120"）
+- 参考值、单位
+- 报告标题（如"检验报告单"、"超声检查报告单"）
+- 药品名称、剂量
+- 检查仪器、设备名称
+- 表单选项文本（如"1.男2.女"、"1.未婚2.已婚"）
+- 医学术语和描述性文字
+
+## 输出格式
+你必须只输出一个 JSON 数组，包含所有隐私文本的序号（idx字段值）。
+不要输出分析过程、表格、解释或任何其他文字，只输出 JSON 数组。
+示例: [0, 3, 5, 12]
+如果没有隐私信息，返回: []"""
+
+
+def _llm_detect_pii(ocr_items: list) -> set:
+    """
+    Call local LLM to identify PII indices from OCR text list.
+    Returns set of indices flagged as PII, or empty set if LLM unavailable.
+    """
+    if not ocr_items:
+        return set()
+
+    api_base = os.environ.get("LLM_API_BASE", "http://localhost:8000/v1")
+    api_key = os.environ.get("LLM_API_KEY", "")
+    model = os.environ.get("LLM_MODEL", "")
+
+    if not model:
+        return set()
+
+    try:
+        import requests
+    except ImportError:
+        return set()
+
+    text_list = [f'[{i}] "{item["text"]}"' for i, item in enumerate(ocr_items)]
+    user_prompt = f"以下是从一份医疗报告中OCR识别出的文本列表，请识别其中的隐私信息：\n\n" + "\n".join(text_list)
+
+    try:
+        session = requests.Session()
+        session.trust_env = False  # skip system proxies for local models
+        resp = session.post(
+            f"{api_base}/chat/completions",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {api_key}",
+            },
+            json={
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": _LLM_SYSTEM_PROMPT},
+                    {"role": "user", "content": user_prompt},
+                ],
+                "temperature": 0.1,
+                "max_tokens": 2048,
+            },
+            timeout=120,
+        )
+        resp.raise_for_status()
+        content = resp.json()["choices"][0]["message"]["content"].strip()
+
+        # Strip <think> tags
+        clean = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL).strip()
+
+        # Extract JSON array
+        all_arrays = re.findall(r"\[[\d\s,]+\]", clean)
+        if all_arrays:
+            best = max(all_arrays, key=lambda x: x.count(","))
+            indices = json.loads(best)
+        elif re.search(r"\[\s*\]", clean):
+            indices = []
+        else:
+            nums = re.findall(r"\b(\d+)\b", clean)
+            max_idx = len(ocr_items) - 1
+            indices = [int(n) for n in nums if int(n) <= max_idx]
+
+        return set(idx for idx in indices if 0 <= idx < len(ocr_items))
+
+    except Exception:
+        return set()
+
+
+# ---------------------------------------------------------------------------
+# HEIC / HEIF format conversion
+# ---------------------------------------------------------------------------
+
+def _ensure_processable(image_path: str) -> tuple:
+    """Convert HEIC/HEIF to temporary JPG. Returns (processable_path, is_temp)."""
+    ext = os.path.splitext(image_path)[1].lower()
+    if ext not in (".heic", ".heif"):
+        return (image_path, False)
+
+    tmp = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False)
+    tmp_path = tmp.name
+    tmp.close()
+
+    # Try macOS sips first
+    try:
+        import subprocess
+        r = subprocess.run(
+            ["sips", "-s", "format", "jpeg", image_path, "--out", tmp_path],
+            capture_output=True, timeout=30,
+        )
+        if r.returncode == 0:
+            return (tmp_path, True)
+    except Exception:
+        pass
+
+    # Fallback: pillow-heif
+    try:
+        import pillow_heif
+        pillow_heif.register_heif_opener()
+        from PIL import Image
+        with Image.open(image_path) as img:
+            img.convert("RGB").save(tmp_path, "JPEG", quality=95)
+        return (tmp_path, True)
+    except Exception:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+        return (image_path, False)
+
+
+# ---------------------------------------------------------------------------
+# PII detection — regex-first, NER only for names
+# ---------------------------------------------------------------------------
 
 
 def _classify_by_patterns(text: str) -> tuple[str | None, float | None]:
@@ -516,37 +737,49 @@ def redact_image_ocr(
     debug: bool = False,
     debug_path: str | None = None,
     no_ner: bool = False,
+    no_llm: bool = False,
 ) -> dict:
     """
-    Main pipeline: OCR → classify → redact PII only.
+    Main pipeline: OCR → classify (regex+NER+LLM) → barcode detect → redact PII.
 
     Returns result dict for JSON output.
     """
     from PIL import Image, ImageDraw
 
+    # 0) Handle HEIC/HEIF conversion
+    proc_path, is_tmp = _ensure_processable(input_path)
+
     # 1) Run OCR
-    ocr_lines = run_ocr(input_path, confidence_threshold)
-    if not ocr_lines:
-        # No text detected — just copy the file as-is
-        img = Image.open(input_path)
+    ocr_lines = run_ocr(proc_path, confidence_threshold)
+
+    # 1b) Detect barcodes/QR codes
+    barcode_bboxes = detect_barcodes(proc_path)
+
+    if not ocr_lines and not barcode_bboxes:
+        # No text or barcodes detected — just copy the file as-is
+        img = Image.open(proc_path)
         img.save(output_path)
+        if is_tmp:
+            try: os.unlink(proc_path)
+            except OSError: pass
         return {
             "success": True,
             "output": output_path,
             "pii_detected": 0,
             "total_lines": 0,
+            "barcodes_detected": 0,
             "regions": [],
-            "note": "No text detected by OCR",
+            "note": "No text or barcodes detected",
         }
 
     # Use original image (doc preprocessor is disabled so OCR coords match)
-    img = Image.open(input_path).convert("RGB")
+    img = Image.open(proc_path).convert("RGB")
     width, height = img.size
 
     # 2) Merge split labels (e.g. "姓" + "名：王某某" → "姓名：王某某")
     ocr_lines = _merge_split_labels(ocr_lines)
 
-    # 3) Classify — NER batch
+    # 3) Classify — regex + NER batch
     lines_classified = []
     for line in ocr_lines:
         lines_classified.append({
@@ -564,10 +797,28 @@ def redact_image_ocr(
     # 3.5) Label-only → value propagation (横向)
     _propagate_label_to_value(lines_classified)
 
+    # 3.6) LLM complement — catch PII that regex/NER missed
+    llm_flagged = set()
+    if not no_llm and lines_classified:
+        keep_items = [
+            {"idx": i, "text": item["text"]}
+            for i, item in enumerate(lines_classified)
+            if item["classification"] == "keep" and item["text"].strip()
+        ]
+        if keep_items:
+            llm_flagged = _llm_detect_pii(keep_items)
+            # Map back: llm_detect_pii returns indices into keep_items
+            keep_to_orig = {ki: keep_items[ki]["idx"] for ki in range(len(keep_items))}
+            for ki in llm_flagged:
+                orig_idx = keep_to_orig.get(ki)
+                if orig_idx is not None and lines_classified[orig_idx]["classification"] == "keep":
+                    lines_classified[orig_idx]["classification"] = "pii"
+                    lines_classified[orig_idx]["pii_type"] = "llm_detected"
+
     # 4) Multi-line PII propagation
     lines_classified = propagate_pii_to_neighbors(lines_classified)
 
-    # 5) Build redaction regions (only PII lines)
+    # 5) Build redaction regions (PII text lines)
     pii_regions = []
     for item in lines_classified:
         if item["classification"] != "pii":
@@ -587,13 +838,34 @@ def redact_image_ocr(
             "quad_px": [[int(v) for v in p] for p in padded],
         })
 
+    # 5b) Add barcode regions
+    barcode_regions = []
+    pad = 8
+    for bb in barcode_bboxes:
+        x1 = max(0, bb[0] - pad)
+        y1 = max(0, bb[1] - pad)
+        x2 = min(width, bb[2] + pad)
+        y2 = min(height, bb[3] + pad)
+        quad = [[x1, y1], [x2, y1], [x2, y2], [x1, y2]]
+        barcode_regions.append({
+            "pii_type": "barcode",
+            "text_preview": "[barcode/QR]",
+            "quad_px": quad,
+        })
+
+    all_regions = pii_regions + barcode_regions
+
     # 6) Apply redaction
     draw = ImageDraw.Draw(img)
-    for region in pii_regions:
+    for region in all_regions:
         q = region["quad_px"]
         draw.polygon([tuple(p) for p in q], fill="black")
 
     img.save(output_path)
+
+    if is_tmp:
+        try: os.unlink(proc_path)
+        except OSError: pass
 
     # 7) Debug image (optional)
     if debug:
@@ -618,6 +890,12 @@ def redact_image_ocr(
             except Exception:
                 pass
 
+        # Draw barcode regions in blue
+        for br in barcode_regions:
+            q = br["quad_px"]
+            for i in range(4):
+                debug_draw.line([tuple(q[i]), tuple(q[(i + 1) % 4])], fill="blue", width=2)
+
         if not debug_path:
             p = Path(output_path)
             debug_path = str(p.parent / f"{p.stem}_debug{p.suffix}")
@@ -628,14 +906,115 @@ def redact_image_ocr(
         "success": True,
         "output": output_path,
         "pii_detected": len(pii_regions),
+        "barcodes_detected": len(barcode_regions),
         "total_lines": len(lines_classified),
         "kept_lines": sum(1 for x in lines_classified if x["classification"] == "keep"),
-        "regions": pii_regions,
+        "llm_complement_hits": len(llm_flagged),
+        "regions": all_regions,
     }
     if debug and debug_path:
         result["debug_image"] = debug_path
 
     return result
+
+
+# ---------------------------------------------------------------------------
+# PDF processing — render pages → redact each → reassemble
+# ---------------------------------------------------------------------------
+
+def redact_pdf(
+    input_path: str,
+    output_path: str,
+    dpi: int = 200,
+    confidence_threshold: float = 0.5,
+    debug: bool = False,
+    no_ner: bool = False,
+    no_llm: bool = False,
+) -> dict:
+    """
+    Process a scanned PDF: render each page to image, redact PII, reassemble PDF.
+    """
+    try:
+        import fitz  # PyMuPDF
+    except ImportError:
+        return {"success": False, "error": "PyMuPDF (fitz) required for PDF processing. Run: pip install PyMuPDF"}
+
+    from PIL import Image
+
+    doc = fitz.open(input_path)
+    if len(doc) == 0:
+        doc.close()
+        return {"success": False, "error": "PDF has no pages"}
+
+    tmp_files = []
+    page_results = []
+    total_pii = 0
+    total_barcodes = 0
+
+    for page_num in range(len(doc)):
+        page = doc[page_num]
+        zoom = dpi / 72.0
+        mat = fitz.Matrix(zoom, zoom)
+        pix = page.get_pixmap(matrix=mat)
+
+        # Render page to temp image
+        tmp = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False, prefix=f"pdf_p{page_num+1}_")
+        tmp_path = tmp.name
+        tmp.close()
+        tmp_files.append(tmp_path)
+
+        img = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
+        img.save(tmp_path, "JPEG", quality=95)
+
+        # Redact the page image
+        redacted_path = tmp_path.replace(".jpg", "_redacted.jpg")
+        tmp_files.append(redacted_path)
+
+        page_result = redact_image_ocr(
+            input_path=tmp_path,
+            output_path=redacted_path,
+            confidence_threshold=confidence_threshold,
+            debug=debug,
+            no_ner=no_ner,
+            no_llm=no_llm,
+        )
+        page_results.append(page_result)
+        total_pii += page_result.get("pii_detected", 0)
+        total_barcodes += page_result.get("barcodes_detected", 0)
+
+    doc.close()
+
+    # Reassemble into PDF
+    out_doc = fitz.open()
+    for tmp_path in tmp_files:
+        if not tmp_path.endswith("_redacted.jpg"):
+            continue
+        if not os.path.exists(tmp_path):
+            continue
+        img_doc = fitz.open(tmp_path)
+        pdfbytes = img_doc.convert_to_pdf()
+        img_doc.close()
+        imgpdf = fitz.open("pdf", pdfbytes)
+        out_doc.insert_pdf(imgpdf)
+        imgpdf.close()
+    out_doc.save(output_path)
+    out_doc.close()
+
+    # Cleanup temp files
+    for tmp_path in tmp_files:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+
+    return {
+        "success": True,
+        "output": output_path,
+        "pages": len(page_results),
+        "pii_detected": total_pii,
+        "barcodes_detected": total_barcodes,
+        "page_results": page_results,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -647,14 +1026,18 @@ def main():
     parser = argparse.ArgumentParser(
         description="OCR-based PII redaction for Chinese medical documents."
     )
-    parser.add_argument("input", nargs="?", help="Path to input image file")
+    parser.add_argument("input", nargs="?", help="Path to input image or scanned PDF")
     parser.add_argument("--output", help="Output file path (default: [name]_redacted.[ext])")
     parser.add_argument("--debug", action="store_true",
                         help="Save annotated debug image showing PII regions (red boxes)")
     parser.add_argument("--confidence", type=float, default=0.5,
                         help="OCR confidence threshold (default: 0.5)")
     parser.add_argument("--no-ner", action="store_true",
-                        help="Skip NER classification; all lines kept (debug/fallback)")
+                        help="Skip NER classification (debug/fallback)")
+    parser.add_argument("--no-llm", action="store_true",
+                        help="Skip LLM complement PII detection")
+    parser.add_argument("--dpi", type=int, default=200,
+                        help="DPI for PDF page rendering (default: 200)")
     parser.add_argument(
         "--check-runtime",
         action="store_true",
@@ -677,7 +1060,10 @@ def main():
         sys.exit(1)
 
     suffix = input_path.suffix.lower()
-    supported = {".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".webp"}
+    image_types = {".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".webp", ".heic", ".heif"}
+    pdf_types = {".pdf"}
+    supported = image_types | pdf_types
+
     if suffix not in supported:
         print(json.dumps({
             "success": False,
@@ -688,16 +1074,33 @@ def main():
     if args.output:
         output_path = str(Path(args.output).expanduser().resolve())
     else:
-        output_path = str(input_path.parent / f"{input_path.stem}_redacted{input_path.suffix}")
+        if suffix in pdf_types:
+            output_path = str(input_path.parent / f"{input_path.stem}_redacted.pdf")
+        elif suffix in (".heic", ".heif"):
+            output_path = str(input_path.parent / f"{input_path.stem}_redacted.jpg")
+        else:
+            output_path = str(input_path.parent / f"{input_path.stem}_redacted{input_path.suffix}")
 
     try:
-        result = redact_image_ocr(
-            input_path=str(input_path),
-            output_path=output_path,
-            confidence_threshold=args.confidence,
-            debug=args.debug,
-            no_ner=args.no_ner,
-        )
+        if suffix in pdf_types:
+            result = redact_pdf(
+                input_path=str(input_path),
+                output_path=output_path,
+                dpi=args.dpi,
+                confidence_threshold=args.confidence,
+                debug=args.debug,
+                no_ner=args.no_ner,
+                no_llm=args.no_llm,
+            )
+        else:
+            result = redact_image_ocr(
+                input_path=str(input_path),
+                output_path=output_path,
+                confidence_threshold=args.confidence,
+                debug=args.debug,
+                no_ner=args.no_ner,
+                no_llm=args.no_llm,
+            )
         print(json.dumps(result, ensure_ascii=False))
     except ImportError as e:
         missing = str(e)

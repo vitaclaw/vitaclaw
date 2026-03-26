@@ -3,14 +3,12 @@
 
 from __future__ import annotations
 
-import json
 import re
 import urllib.parse
 from pathlib import Path
 
-from doctor_matching import load_json_file
-from web_access_runtime import PageSnapshot, WebAccessHealthPolicy, WebAccessRuntime
-
+from .doctor_matching import load_json_file
+from .web_access_runtime import PageSnapshot, WebAccessHealthPolicy, WebAccessRuntime
 
 DEFAULT_LINK_PATTERNS = (
     "doctor",

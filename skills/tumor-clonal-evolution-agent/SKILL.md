@@ -69,7 +69,7 @@ The **Tumor Clonal Evolution Agent** analyzes intratumoral heterogeneity (ITH), 
 
 **Agent Action**:
 ```bash
-python3 Skills/Oncology/Tumor_Clonal_Evolution_Agent/clonal_evolution.py \
+python3 skills/tumor-clonal-evolution-agent/clonal_evolution.py \
     --input longitudinal_ctdna_variants.maf \
     --timepoints 0,4,8,12,16,20 \
     --tumor_burden cea_values.csv \

@@ -94,7 +94,7 @@ The **CHIP Clonal Hematopoiesis Agent** provides comprehensive detection and ris
 
 **Agent Action**:
 ```bash
-python3 Skills/Hematology/CHIP_Clonal_Hematopoiesis_Agent/chip_analysis.py \
+python3 skills/chip-clonal-hematopoiesis-agent/chip_analysis.py \
     --variants blood_variants.vcf \
     --cbc_data patient_cbc.csv \
     --clinical_data patient_demographics.json \

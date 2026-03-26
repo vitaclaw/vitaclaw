@@ -80,7 +80,7 @@ The **Bone Marrow AI Agent** provides comprehensive AI-driven analysis of bone m
 
 **Agent Action**:
 ```bash
-python3 Skills/Hematology/Bone_Marrow_AI_Agent/bm_analyzer.py \
+python3 skills/bone-marrow-ai-agent/bm_analyzer.py \
     --image aspirate_smear.tiff \
     --stain wright_giemsa \
     --target_cells 500 \

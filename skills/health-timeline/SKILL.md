@@ -229,7 +229,7 @@ When the user wants to add a new entry:
 
 2. Run the update script:
    ```bash
-   $PYTHON ~/.openclaw/skills/health-timeline/scripts/update_timeline.py "[patient_name]" "[date]" "[doc_type]" "[summary]" "[filepath]"
+   $PYTHON scripts/update_timeline.py "[patient_name]" "[date]" "[doc_type]" "[summary]" "[filepath]"
    ```
 
 3. Confirm the result to the user.

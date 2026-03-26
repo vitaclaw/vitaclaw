@@ -3,25 +3,19 @@
 
 from __future__ import annotations
 
-import sys
 import tempfile
 import unittest
 from datetime import datetime
-from pathlib import Path
 
-
-ROOT = Path(__file__).resolve().parents[1]
-SHARED_DIR = ROOT / "skills" / "_shared"
-sys.path.insert(0, str(SHARED_DIR))
-
-from health_data_store import HealthDataStore  # noqa: E402
-from health_heartbeat import HealthHeartbeat  # noqa: E402
-from health_memory import HealthMemoryWriter  # noqa: E402
+from skills._shared.health_data_store import HealthDataStore
+from skills._shared.health_heartbeat import HealthHeartbeat
+from skills._shared.health_memory import HealthMemoryWriter
 
 
 class Iteration2ActiveServiceTest(unittest.TestCase):
     def test_behavior_plan_due_and_execution_barrier_are_visible(self):
-        fixed_now = lambda: datetime(2026, 3, 15, 9, 30, 0)
+        def fixed_now():
+            return datetime(2026, 3, 15, 9, 30, 0)
 
         with tempfile.TemporaryDirectory() as memory_dir:
             writer = HealthMemoryWriter(memory_root=memory_dir, now_fn=fixed_now)
@@ -50,7 +44,8 @@ class Iteration2ActiveServiceTest(unittest.TestCase):
             self.assertIn("执行障碍待处理", result["markdown"])
 
     def test_stalled_improvement_detection_for_blood_pressure(self):
-        fixed_now = lambda: datetime(2026, 3, 15, 9, 0, 0)
+        def fixed_now():
+            return datetime(2026, 3, 15, 9, 0, 0)
 
         with tempfile.TemporaryDirectory() as data_dir, tempfile.TemporaryDirectory() as memory_dir:
             writer = HealthMemoryWriter(memory_root=memory_dir, now_fn=fixed_now)

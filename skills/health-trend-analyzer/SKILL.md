@@ -75,37 +75,40 @@ Extract the time range from user input, or use the default (3 months).
 
 #### Step 2: Read Health Data
 
-Read the following data sources:
+**优先**从 `memory/health/` 读取数据（VitaClaw 的主数据源）。如果 `memory/health/` 中数据不足，再尝试从 `data/*.json` 补充。
 
-```javascript
-// 1. Personal profile (BMI, weight)
-const profile = readFile('data/profile.json');
+**主数据源：memory/health/**
 
-// 2. Symptom records
-const symptomFiles = glob('data/symptoms/**/*.json');
-const symptoms = readAllJson(symptomFiles);
+```
+# 1. 健康画像
+Read memory/health/_health-profile.md
 
-// 3. Mood records
-const moodFiles = glob('data/mood/**/*.json');
-const moods = readAllJson(moodFiles);
+# 2. 每日记录（包含血压、血糖、体重、用药、症状、睡眠等）
+Glob memory/health/daily/*.md → 按日期过滤
 
-// 4. Diet records
-const dietFiles = glob('data/diet/**/*.json');
-const diets = readAllJson(dietFiles);
+# 3. 各维度汇总（关键指标的历史和现状）
+Read memory/health/items/blood-pressure.md
+Read memory/health/items/blood-glucose.md
+Read memory/health/items/weight.md
+Read memory/health/items/medications.md
+Read memory/health/items/sleep.md
+Read memory/health/items/supplements.md
+Read memory/health/items/appointments.md
+Read memory/health/items/lab-results.md
 
-// 5. Medication logs
-const medicationLogs = glob('data/medication-logs/**/*.json');
+# 4. 周报/月报
+Glob memory/health/digests/weekly-*.md
+Glob memory/health/digests/monthly-*.md
+```
 
-// 6. Women's health data (if applicable)
-const cycleData = readFile('data/cycle-tracker.json');
-const pregnancyData = readFile('data/pregnancy-tracker.json');
-const menopauseData = readFile('data/menopause-tracker.json');
+**补充数据源：data/*.json**（如存在）
 
-// 7. Allergy history
-const allergies = readFile('data/allergies.json');
-
-// 8. Radiation records
-const radiation = readFile('data/radiation-records.json');
+```
+Glob data/symptoms/**/*.json
+Glob data/mood/**/*.json
+Glob data/diet/**/*.json
+Glob data/medication-logs/**/*.json
+Glob data/medical_records/**/*.json
 ```
 
 #### Step 3: Data Filtering
@@ -323,26 +326,29 @@ Generates a standalone HTML file with ECharts interactive charts, including:
 
 ## Data Sources
 
-### Primary Data Sources
+### Primary Data Sources（memory/health/）
 
 | Data Source | File Path | Data Content |
 |------------|-----------|-------------|
-| Personal profile | `data/profile.json` | Weight, height, BMI history |
+| 健康画像 | `memory/health/_health-profile.md` | 基本信息、诊断、用药 |
+| 每日记录 | `memory/health/daily/*.md` | 血压、血糖、体重、用药、症状、睡眠 |
+| 血压汇总 | `memory/health/items/blood-pressure.md` | 血压历史、趋势 |
+| 血糖汇总 | `memory/health/items/blood-glucose.md` | 血糖历史、趋势 |
+| 体重汇总 | `memory/health/items/weight.md` | 体重/BMI 历史 |
+| 用药汇总 | `memory/health/items/medications.md` | 当前用药、依从率 |
+| 睡眠汇总 | `memory/health/items/sleep.md` | 睡眠质量、时长 |
+| 检验结果 | `memory/health/items/lab-results.md` | 生化指标、参考范围 |
+| 周报/月报 | `memory/health/digests/weekly-*.md` | 周期性健康总结 |
+
+### Supplementary Data Sources（data/*.json，如存在）
+
+| Data Source | File Path | Data Content |
+|------------|-----------|-------------|
 | Symptom records | `data/symptoms/**/*.json` | Symptom name, severity, duration |
 | Mood records | `data/mood/**/*.json` | Mood score, sleep quality, stress level |
 | Diet records | `data/diet/**/*.json` | Meals, foods, calories, nutrients |
 | Medication logs | `data/medication-logs/**/*.json` | Medication time, adherence records |
 | Lab results | `data/medical_records/**/*.json` | Biochemical markers, reference ranges |
-
-### Supplementary Data Sources
-
-| Data Source | File Path | Data Content |
-|------------|-----------|-------------|
-| Menstrual cycle | `data/cycle-tracker.json` | Cycle length, symptom records |
-| Pregnancy tracking | `data/pregnancy-tracker.json` | Gestational week, weight, exam records |
-| Menopause | `data/menopause-tracker.json` | Symptoms, HRT use |
-| Allergy history | `data/allergies.json` | Allergens, severity |
-| Radiation records | `data/radiation-records.json` | Cumulative radiation dose |
 
 For detailed data structure descriptions, see: [data-sources.md](data-sources.md)
 

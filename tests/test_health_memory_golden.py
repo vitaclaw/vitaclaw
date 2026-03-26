@@ -3,24 +3,22 @@
 
 from __future__ import annotations
 
-import sys
 import tempfile
 import unittest
 from datetime import datetime
 from pathlib import Path
 
+from skills._shared.health_memory import HealthMemoryWriter
 
 ROOT = Path(__file__).resolve().parents[1]
-SHARED_DIR = ROOT / "skills" / "_shared"
 FIXTURE_DIR = ROOT / "tests" / "fixtures" / "health_memory_golden"
-sys.path.insert(0, str(SHARED_DIR))
-
-from health_memory import HealthMemoryWriter  # noqa: E402
 
 
 class HealthMemoryGoldenTest(unittest.TestCase):
     def _build_sample_tree(self, memory_root: Path) -> None:
-        fixed_now = lambda: datetime(2026, 3, 15, 8, 30, 0)
+        def fixed_now():
+            return datetime(2026, 3, 15, 8, 30, 0)
+
         writer = HealthMemoryWriter(memory_root=str(memory_root), now_fn=fixed_now)
 
         writer.update_caffeine(

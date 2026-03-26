@@ -70,23 +70,35 @@ class ACMGClassifier:
 
         # Simplified Scoring Logic
         verdict = "Uncertain Significance (VUS)"
-        
+
+        p_verdict = None
+        b_verdict = None
+
         # Pathogenic logic (Approximation)
         if "PVS1" in evidence_codes:
-            if p_score >= 10: verdict = "Pathogenic"
-            elif p_score >= 9: verdict = "Likely Pathogenic"
+            if p_score >= 10: p_verdict = "Pathogenic"
+            elif p_score >= 9: p_verdict = "Likely Pathogenic"
         elif p_score >= 12: # e.g. 3 Strong
-            verdict = "Pathogenic"
+            p_verdict = "Pathogenic"
         elif p_score >= 6:
-            verdict = "Likely Pathogenic"
-            
+            p_verdict = "Likely Pathogenic"
+
         # Benign logic
         if "BA1" in evidence_codes:
-            verdict = "Benign"
+            b_verdict = "Benign"
         elif b_score >= 8: # 2 Strong
-            verdict = "Benign"
+            b_verdict = "Benign"
         elif b_score >= 4:
-            verdict = "Likely Benign"
+            b_verdict = "Likely Benign"
+
+        # Conflict resolution: if both pathogenic and benign evidence exist,
+        # classify as VUS per ACMG guidelines
+        if p_verdict and b_verdict:
+            verdict = "Uncertain Significance (VUS)"
+        elif p_verdict:
+            verdict = p_verdict
+        elif b_verdict:
+            verdict = b_verdict
             
         return {
             "verdict": verdict,

@@ -80,7 +80,7 @@ The **Immune Checkpoint Combination Agent** analyzes tumor molecular profiles to
 
 **Agent Action**:
 ```bash
-python3 Skills/Immunology_Vaccines/Immune_Checkpoint_Combination_Agent/ici_combination.py \
+python3 skills/immune-checkpoint-combination-agent/ici_combination.py \
     --rnaseq tumor_expression.tsv \
     --ihc pd-l1_tps_60.json \
     --mutations tumor_mutations.maf \

@@ -132,7 +132,7 @@ Literature reviews follow a structured, multi-phase workflow:
    - Combine all results into a single file
    - Use `scripts/search_databases.py` for post-processing:
      ```bash
-     python search_databases.py combined_results.json \
+     python scripts/search_databases.py combined_results.json \
        --deduplicate \
        --format markdown \
        --output aggregated_results.md
@@ -142,7 +142,7 @@ Literature reviews follow a structured, multi-phase workflow:
 
 1. **Deduplication**:
    ```bash
-   python search_databases.py results.json --deduplicate --output unique_results.json
+   python scripts/search_databases.py results.json --deduplicate --output unique_results.json
    ```
    - Removes duplicates by DOI (primary) or title (fallback)
    - Document number of duplicates removed

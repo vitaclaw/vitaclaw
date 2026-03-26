@@ -17,7 +17,7 @@ import sys
 from pathlib import Path
 
 
-IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".webp"}
+IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".webp", ".heic", ".heif"}
 
 
 def _normalize_bool(value: str | None, default: bool = True) -> bool:

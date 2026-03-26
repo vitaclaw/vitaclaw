@@ -29,8 +29,7 @@ This skill should be used when working with clinical trial data in scenarios suc
 Search for clinical trials using the helper script:
 
 ```bash
-cd scientific-databases/clinicaltrials-database/scripts
-python3 query_clinicaltrials.py
+python3 scripts/query_clinicaltrials.py
 ```
 
 Or use Python directly with the `requests` library:

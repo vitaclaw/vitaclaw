@@ -1,0 +1,694 @@
+# VitaClaw Health Concepts Registry
+# ===================================
+# Single source of truth for all health concepts across skills.
+# Each concept defines: canonical type, LOINC coding, field schema,
+# aliases, units, plausible ranges, and producer/consumer skills.
+#
+# Design: domain-agnostic envelope supports future cognitive/social domains.
+# v1 focuses on health domain only.
+
+version: "1.0.0"
+
+# Concept definitions keyed by canonical concept ID
+concepts:
+
+  # ── Vital Signs ──────────────────────────────────────────────
+
+  blood-pressure:
+    canonical_type: bp
+    domain: health
+    category: vital_signs
+    display_name: "Blood Pressure"
+    display_name_zh: "血压"
+    loinc: "85354-9"  # Blood pressure panel
+    description: "Systolic and diastolic blood pressure measurement"
+    fields:
+      systolic:
+        aliases: [sys, sbp]
+        unit: mmHg
+        loinc: "8480-6"
+        range: [40, 300]
+        type: integer
+      diastolic:
+        aliases: [dia, dbp]
+        unit: mmHg
+        loinc: "8462-4"
+        range: [20, 200]
+        type: integer
+      heart_rate:
+        aliases: [hr, pulse]
+        unit: bpm
+        loinc: "8867-4"
+        range: [20, 300]
+        type: integer
+      grade:
+        aliases: []
+        unit: null
+        type: string
+        enum: [normal, elevated, grade1, grade2, grade3, crisis]
+      context:
+        aliases: [setting]
+        unit: null
+        type: string
+        enum: [home, clinic, ambulatory, ""]
+      arm:
+        aliases: []
+        unit: null
+        type: string
+        enum: [left, right, ""]
+      position:
+        aliases: [posture]
+        unit: null
+        type: string
+        enum: [sitting, standing, supine, ""]
+    producers:
+      - skill: blood-pressure-tracker
+        record_type: bp
+      - skill: chronic-condition-monitor
+        record_type: bp
+      - skill: apple-health-digest
+        record_type: bp
+    consumers:
+      - blood-pressure-tracker
+      - chronic-condition-monitor
+      - hypertension-daily-copilot
+      - health-heartbeat
+
+  heart-rate:
+    canonical_type: heart_rate
+    domain: health
+    category: vital_signs
+    display_name: "Heart Rate"
+    display_name_zh: "心率"
+    loinc: "8867-4"
+    description: "Resting or measured heart rate"
+    fields:
+      value:
+        aliases: [bpm, hr, rate]
+        unit: bpm
+        loinc: "8867-4"
+        range: [20, 300]
+        type: integer
+      context:
+        aliases: [setting]
+        unit: null
+        type: string
+        enum: [resting, active, sleeping, ""]
+      source:
+        aliases: []
+        unit: null
+        type: string
+    producers:
+      - skill: wearable-analysis-agent
+        record_type: heart_rate
+      - skill: apple-health-digest
+        record_type: heart_rate
+    consumers:
+      - health-heartbeat
+
+  heart-rate-variability:
+    canonical_type: hrv
+    domain: health
+    category: vital_signs
+    display_name: "Heart Rate Variability"
+    display_name_zh: "心率变异性"
+    loinc: "80404-7"
+    description: "HRV measurement (SDNN or RMSSD)"
+    fields:
+      sdnn:
+        aliases: []
+        unit: ms
+        range: [0, 500]
+        type: number
+      rmssd:
+        aliases: []
+        unit: ms
+        range: [0, 500]
+        type: number
+      context:
+        aliases: []
+        unit: null
+        type: string
+    producers:
+      - skill: wearable-analysis-agent
+        record_type: hrv
+    consumers:
+      - health-heartbeat
+
+  temperature:
+    canonical_type: temperature
+    domain: health
+    category: vital_signs
+    display_name: "Body Temperature"
+    display_name_zh: "体温"
+    loinc: "8310-5"
+    description: "Body temperature measurement"
+    fields:
+      value:
+        aliases: [temp, celsius]
+        unit: "°C"
+        loinc: "8310-5"
+        range: [30.0, 45.0]
+        type: number
+      method:
+        aliases: []
+        unit: null
+        type: string
+        enum: [oral, axillary, tympanic, rectal, forehead, ""]
+    producers: []
+    consumers: []
+
+  spo2:
+    canonical_type: spo2
+    domain: health
+    category: vital_signs
+    display_name: "Blood Oxygen Saturation"
+    display_name_zh: "血氧饱和度"
+    loinc: "2708-6"
+    description: "Peripheral oxygen saturation (SpO2)"
+    fields:
+      value:
+        aliases: [spo2, oxygen]
+        unit: "%"
+        loinc: "2708-6"
+        range: [50, 100]
+        type: number
+    producers:
+      - skill: apple-health-digest
+        record_type: spo2
+    consumers: []
+
+  # ── Metabolic ──────────────────────────────────────────────
+
+  blood-sugar:
+    canonical_type: glucose
+    domain: health
+    category: metabolic
+    display_name: "Blood Glucose"
+    display_name_zh: "血糖"
+    loinc: "15074-8"  # Glucose [Moles/volume] in Blood
+    description: "Blood glucose measurement"
+    fields:
+      value:
+        aliases: [glucose, blood_sugar, level]
+        unit: mmol/L
+        loinc: "15074-8"
+        range: [0.5, 50.0]
+        type: number
+      context:
+        aliases: [timing, meal_relation]
+        unit: null
+        type: string
+        enum: [fasting, pre_meal, post_meal, random, bedtime, ""]
+    producers:
+      - skill: chronic-condition-monitor
+        record_type: glucose
+    consumers:
+      - chronic-condition-monitor
+      - diabetes-control-hub
+      - health-heartbeat
+
+  weight:
+    canonical_type: weight
+    domain: health
+    category: metabolic
+    display_name: "Body Weight"
+    display_name_zh: "体重"
+    loinc: "29463-7"
+    description: "Body weight measurement"
+    fields:
+      kg:
+        aliases: [weight, value]
+        unit: kg
+        loinc: "29463-7"
+        range: [1, 500]
+        type: number
+      height_cm:
+        aliases: [height]
+        unit: cm
+        range: [30, 300]
+        type: number
+      bmi:
+        aliases: []
+        unit: kg/m²
+        loinc: "39156-5"
+        range: [5, 100]
+        type: number
+      context:
+        aliases: []
+        unit: null
+        type: string
+    producers:
+      - skill: chronic-condition-monitor
+        record_type: weight
+      - skill: apple-health-digest
+        record_type: weight
+    consumers:
+      - chronic-condition-monitor
+      - health-heartbeat
+
+  # ── Sleep ──────────────────────────────────────────────────
+
+  sleep:
+    canonical_type: sleep_session
+    domain: health
+    category: sleep
+    display_name: "Sleep Session"
+    display_name_zh: "睡眠"
+    loinc: "93832-4"  # Sleep duration
+    description: "Sleep session data including stages and quality"
+    fields:
+      score:
+        aliases: [sleep_score, quality_score]
+        unit: null
+        range: [0, 100]
+        type: integer
+      total_min:
+        aliases: [duration_min, total_minutes, sleep_duration]
+        unit: min
+        range: [0, 1440]
+        type: integer
+      efficiency_pct:
+        aliases: [efficiency, sleep_efficiency]
+        unit: "%"
+        range: [0, 100]
+        type: number
+      deep_min:
+        aliases: [deep_sleep_min, deep]
+        unit: min
+        range: [0, 600]
+        type: integer
+      light_min:
+        aliases: [light_sleep_min, light]
+        unit: min
+        range: [0, 900]
+        type: integer
+      rem_min:
+        aliases: [rem_sleep_min, rem]
+        unit: min
+        range: [0, 600]
+        type: integer
+      awake_min:
+        aliases: [awake, awakenings_min]
+        unit: min
+        range: [0, 600]
+        type: integer
+      bedtime:
+        aliases: [sleep_onset, time_asleep]
+        unit: null
+        type: string
+      wake_time:
+        aliases: [time_awake, wakeup]
+        unit: null
+        type: string
+      date:
+        aliases: [night_of]
+        unit: null
+        type: string
+    producers:
+      - skill: sleep-analyzer
+        record_type: sleep_session
+      - skill: apple-health-digest
+        record_type: sleep_session
+    consumers:
+      - sleep-analyzer
+      - caffeine-sleep-advisor
+      - health-heartbeat
+
+  # ── Nutrition & Supplements ────────────────────────────────
+
+  caffeine:
+    canonical_type: intake
+    domain: health
+    category: nutrition
+    display_name: "Caffeine Intake"
+    display_name_zh: "咖啡因摄入"
+    loinc: null
+    description: "Caffeine intake record"
+    fields:
+      drink:
+        aliases: [beverage, source]
+        unit: null
+        type: string
+      mg:
+        aliases: [caffeine_mg, amount, milligrams]
+        unit: mg
+        range: [0, 2000]
+        type: number
+      time:
+        aliases: [intake_time]
+        unit: null
+        type: string
+    producers:
+      - skill: caffeine-tracker
+        record_type: intake
+    consumers:
+      - caffeine-tracker
+      - caffeine-sleep-advisor
+
+  supplement-dose:
+    canonical_type: dose_log
+    domain: health
+    category: nutrition
+    display_name: "Supplement Dose"
+    display_name_zh: "补剂服用"
+    loinc: null
+    description: "Supplement dose taken record"
+    fields:
+      supplement:
+        aliases: [name, supplement_name]
+        unit: null
+        type: string
+      taken:
+        aliases: [completed]
+        unit: null
+        type: boolean
+      time:
+        aliases: [taken_at]
+        unit: null
+        type: string
+    producers:
+      - skill: supplement-manager
+        record_type: dose_log
+    consumers:
+      - supplement-manager
+
+  supplement:
+    canonical_type: supplement
+    domain: health
+    category: nutrition
+    display_name: "Supplement Regimen"
+    display_name_zh: "补剂方案"
+    loinc: null
+    description: "Active supplement in regimen"
+    fields:
+      name:
+        aliases: [supplement_name]
+        unit: null
+        type: string
+      dose:
+        aliases: [dosage, amount]
+        unit: null
+        type: string
+      timing:
+        aliases: [schedule, time]
+        unit: null
+        type: string
+      status:
+        aliases: []
+        unit: null
+        type: string
+        enum: [active, paused, discontinued]
+    producers:
+      - skill: supplement-manager
+        record_type: supplement
+    consumers:
+      - supplement-manager
+
+  # ── Medication ─────────────────────────────────────────────
+
+  medication-dose:
+    canonical_type: dose
+    domain: health
+    category: medication
+    display_name: "Medication Dose"
+    display_name_zh: "药物服用"
+    loinc: null
+    description: "Medication dose administration record"
+    fields:
+      name:
+        aliases: [medication, drug_name, med_name]
+        unit: null
+        type: string
+      taken:
+        aliases: [administered, completed]
+        unit: null
+        type: boolean
+      time:
+        aliases: [taken_at, administered_at]
+        unit: null
+        type: string
+      dose:
+        aliases: [dosage, amount]
+        unit: null
+        type: string
+    producers:
+      - skill: medication-reminder
+        record_type: dose
+    consumers:
+      - medication-reminder
+
+  # ── Lab Results ────────────────────────────────────────────
+
+  kidney-function:
+    canonical_type: kidney_function
+    domain: health
+    category: lab_results
+    display_name: "Kidney Function"
+    display_name_zh: "肾功能"
+    loinc: "24362-6"  # Renal function panel
+    description: "Kidney function lab results"
+    fields:
+      creatinine:
+        aliases: [cr, scr]
+        unit: µmol/L
+        loinc: "2160-0"
+        range: [10, 2000]
+        type: number
+      egfr:
+        aliases: [gfr]
+        unit: mL/min/1.73m²
+        loinc: "48642-3"
+        range: [0, 200]
+        type: number
+      bun:
+        aliases: [urea, urea_nitrogen]
+        unit: mmol/L
+        loinc: "3094-0"
+        range: [0, 100]
+        type: number
+      uric_acid:
+        aliases: [ua]
+        unit: µmol/L
+        loinc: "3084-1"
+        range: [0, 1500]
+        type: number
+    producers: []
+    consumers:
+      - chronic-condition-monitor
+
+  liver-function:
+    canonical_type: liver_function
+    domain: health
+    category: lab_results
+    display_name: "Liver Function"
+    display_name_zh: "肝功能"
+    loinc: "24325-3"  # Hepatic function panel
+    description: "Liver function lab results"
+    fields:
+      alt:
+        aliases: [sgpt, alanine_aminotransferase]
+        unit: U/L
+        loinc: "1742-6"
+        range: [0, 5000]
+        type: number
+      ast:
+        aliases: [sgot, aspartate_aminotransferase]
+        unit: U/L
+        loinc: "1920-8"
+        range: [0, 5000]
+        type: number
+      total_bilirubin:
+        aliases: [tbil, bilirubin]
+        unit: µmol/L
+        loinc: "1975-2"
+        range: [0, 1000]
+        type: number
+      albumin:
+        aliases: [alb]
+        unit: g/L
+        loinc: "1751-7"
+        range: [0, 100]
+        type: number
+    producers: []
+    consumers:
+      - chronic-condition-monitor
+
+  blood-lipids:
+    canonical_type: blood_lipids
+    domain: health
+    category: lab_results
+    display_name: "Blood Lipids"
+    display_name_zh: "血脂"
+    loinc: "57698-3"  # Lipid panel
+    description: "Blood lipid panel results"
+    fields:
+      total_cholesterol:
+        aliases: [tc, cholesterol]
+        unit: mmol/L
+        loinc: "2093-3"
+        range: [0, 30]
+        type: number
+      ldl:
+        aliases: [ldl_c, low_density]
+        unit: mmol/L
+        loinc: "2089-1"
+        range: [0, 20]
+        type: number
+      hdl:
+        aliases: [hdl_c, high_density]
+        unit: mmol/L
+        loinc: "2085-9"
+        range: [0, 10]
+        type: number
+      triglycerides:
+        aliases: [tg]
+        unit: mmol/L
+        loinc: "2571-8"
+        range: [0, 50]
+        type: number
+    producers: []
+    consumers:
+      - chronic-condition-monitor
+
+  tumor-markers:
+    canonical_type: tumor_markers
+    domain: health
+    category: lab_results
+    display_name: "Tumor Markers"
+    display_name_zh: "肿瘤标志物"
+    loinc: null
+    description: "Tumor marker lab results"
+    fields:
+      afp:
+        aliases: [alpha_fetoprotein]
+        unit: ng/mL
+        loinc: "1834-1"
+        range: [0, 10000]
+        type: number
+      cea:
+        aliases: [carcinoembryonic_antigen]
+        unit: ng/mL
+        loinc: "2039-6"
+        range: [0, 5000]
+        type: number
+      ca199:
+        aliases: [ca_19_9]
+        unit: U/mL
+        loinc: "24108-3"
+        range: [0, 10000]
+        type: number
+      psa:
+        aliases: [prostate_specific_antigen]
+        unit: ng/mL
+        loinc: "2857-1"
+        range: [0, 1000]
+        type: number
+    producers: []
+    consumers: []
+
+  # ── Operational (non-clinical) ─────────────────────────────
+
+  weekly-digest:
+    canonical_type: digest
+    domain: health
+    category: operational
+    display_name: "Weekly Health Digest"
+    display_name_zh: "健康周报"
+    loinc: null
+    description: "Weekly aggregated health summary"
+    fields:
+      week_start:
+        aliases: []
+        unit: null
+        type: string
+      week_end:
+        aliases: []
+        unit: null
+        type: string
+      metrics:
+        aliases: []
+        unit: null
+        type: object
+      content:
+        aliases: []
+        unit: null
+        type: string
+    producers:
+      - skill: weekly-health-digest
+        record_type: digest
+    consumers:
+      - health-operations
+
+  monthly-digest:
+    canonical_type: monthly_digest
+    domain: health
+    category: operational
+    display_name: "Monthly Health Digest"
+    display_name_zh: "健康月报"
+    loinc: null
+    description: "Monthly aggregated health summary"
+    fields:
+      month:
+        aliases: []
+        unit: null
+        type: string
+      month_start:
+        aliases: []
+        unit: null
+        type: string
+      month_end:
+        aliases: []
+        unit: null
+        type: string
+      metrics:
+        aliases: []
+        unit: null
+        type: object
+      content:
+        aliases: []
+        unit: null
+        type: string
+    producers:
+      - skill: weekly-health-digest
+        record_type: monthly_digest
+    consumers:
+      - health-operations
+
+  operations-run:
+    canonical_type: operations_run
+    domain: health
+    category: operational
+    display_name: "Health Operations Run"
+    display_name_zh: "健康运维记录"
+    loinc: null
+    description: "Automated health operations execution record"
+    fields:
+      date:
+        aliases: []
+        unit: null
+        type: string
+      generated_weekly:
+        aliases: []
+        unit: null
+        type: array
+      generated_monthly:
+        aliases: []
+        unit: null
+        type: array
+      heartbeat_issue_count:
+        aliases: []
+        unit: null
+        type: integer
+      heartbeat_push_count:
+        aliases: []
+        unit: null
+        type: integer
+      report_path:
+        aliases: []
+        unit: null
+        type: string
+    producers:
+      - skill: health-operations
+        record_type: operations_run
+    consumers: []

@@ -48,7 +48,7 @@ The **EHR/FHIR Integration Skill** enables AI agents to interact with FHIR serve
 
 **Agent Action**:
 ```bash
-python3 Skills/Clinical/EHR_FHIR_Integration/fhir_client.py \
+python3 fhir_client.py \
     --server https://hapi.fhir.org/baseR4 \
     --resource Patient \
     --search "name=Smith&birthdate=gt1980-01-01" \

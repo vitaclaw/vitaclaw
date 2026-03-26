@@ -92,7 +92,7 @@ NK-Optimized Domains:
 
 **Agent Action**:
 ```bash
-python3 Skills/Immunology_Vaccines/NK_Cell_Therapy_Agent/nk_designer.py \
+python3 skills/nk-cell-therapy-agent/nk_designer.py \
     --target CD19 \
     --tumor_type b_cell_lymphoma \
     --nk_source ucb \

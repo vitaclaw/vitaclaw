@@ -13,10 +13,9 @@ import requests
 # ---------------------------------------------------------------------------
 # Shared modules
 # ---------------------------------------------------------------------------
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "_shared"))
-from health_data_store import HealthDataStore  # noqa: E402
-from health_memory import HealthMemoryWriter  # noqa: E402
-from cross_skill_reader import CrossSkillReader  # noqa: E402
+from skills._shared.health_data_store import HealthDataStore
+from skills._shared.health_memory import HealthMemoryWriter
+from skills._shared.cross_skill_reader import CrossSkillReader
 
 
 # ---------------------------------------------------------------------------
@@ -560,6 +559,21 @@ class WeeklyHealthDigest:
             "## 建议",
             *[f"- {line}" for line in suggestions[:4]],
         ]
+        source_skills = []
+        if sleep:
+            source_skills.append("sleep-analyzer")
+        if caffeine:
+            source_skills.append("caffeine-tracker")
+        if supplements:
+            source_skills.append("supplement-manager")
+        if bp:
+            source_skills.append("blood-pressure-tracker")
+        if medication:
+            source_skills.append("medication-reminder")
+        parts.append("")
+        parts.append(
+            f"<!-- sources: {', '.join(source_skills)} | range: {week_start}~{week_end} -->"
+        )
         return "\n".join(parts)
 
     def _fallback_monthly_digest_content(
@@ -678,6 +692,21 @@ class WeeklyHealthDigest:
             "## 下月建议",
             *[f"- {line}" for line in suggestions[:5]],
         ]
+        source_skills = []
+        if sleep:
+            source_skills.append("sleep-analyzer")
+        if caffeine:
+            source_skills.append("caffeine-tracker")
+        if supplements:
+            source_skills.append("supplement-manager")
+        if bp:
+            source_skills.append("blood-pressure-tracker")
+        if medication:
+            source_skills.append("medication-reminder")
+        parts.append("")
+        parts.append(
+            f"<!-- sources: {', '.join(source_skills)} | range: {month_start}~{month_end} -->"
+        )
         return "\n".join(parts)
 
     # ------------------------------------------------------------------
@@ -772,6 +801,14 @@ class WeeklyHealthDigest:
                 prev_metrics=prev_metrics,
             )
 
+        # Append source reference comment
+        source_skills = [k for k in ("sleep", "caffeine", "supplements", "blood_pressure", "medication") if metrics.get(k)]
+        skill_names = {"sleep": "sleep-analyzer", "caffeine": "caffeine-tracker", "supplements": "supplement-manager", "blood_pressure": "blood-pressure-tracker", "medication": "medication-reminder"}
+        source_list = [skill_names.get(k, k) for k in source_skills]
+        source_comment = f"\n<!-- sources: {', '.join(source_list)} | range: {week_start}~{week_end} -->"
+        if "<!-- sources:" not in digest_content:
+            digest_content = digest_content.rstrip() + "\n" + source_comment
+
         # Print the generated digest
         print("\n" + "=" * 60)
         print(digest_content)
@@ -852,6 +889,14 @@ class WeeklyHealthDigest:
                 metrics=metrics,
                 prev_metrics=prev_metrics,
             )
+
+        # Append source reference comment
+        source_skills = [k for k in ("sleep", "caffeine", "supplements", "blood_pressure", "medication") if metrics.get(k)]
+        skill_names = {"sleep": "sleep-analyzer", "caffeine": "caffeine-tracker", "supplements": "supplement-manager", "blood_pressure": "blood-pressure-tracker", "medication": "medication-reminder"}
+        source_list = [skill_names.get(k, k) for k in source_skills]
+        source_comment = f"\n<!-- sources: {', '.join(source_list)} | range: {month_start}~{month_end} -->"
+        if "<!-- sources:" not in digest_content:
+            digest_content = digest_content.rstrip() + "\n" + source_comment
 
         print("\n" + "=" * 60)
         print(digest_content)

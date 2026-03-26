@@ -169,17 +169,16 @@ class SleepAnalyzer:
             return
 
         print(f"正在解析 Apple Health 数据: {filepath}")
-        tree = ET.parse(filepath)
-        root = tree.getroot()
 
-        # Apple Health sleep analysis type identifier
+        # Use iterparse for streaming to avoid OOM on large exports (>1GB)
         sleep_type = "HKCategoryTypeIdentifierSleepAnalysis"
-
-        # Collect all sleep records
         sleep_records = []
-        for record in root.iter("Record"):
-            if record.get("type") == sleep_type:
-                sleep_records.append(record)
+        for event, elem in ET.iterparse(filepath, events=("end",)):
+            if elem.tag == "Record" and elem.get("type") == sleep_type:
+                sleep_records.append(elem)
+            # Free memory for elements we don't need
+            if elem.tag == "Record":
+                elem.clear()
 
         if not sleep_records:
             print("[提示] 未找到睡眠分析数据。")

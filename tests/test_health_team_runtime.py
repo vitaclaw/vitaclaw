@@ -3,17 +3,11 @@
 
 from __future__ import annotations
 
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-
-ROOT = Path(__file__).resolve().parents[1]
-SHARED_DIR = ROOT / "skills" / "_shared"
-sys.path.insert(0, str(SHARED_DIR))
-
-from health_team_runtime import HealthTeamOrchestrator  # noqa: E402
+from skills._shared.health_team_runtime import HealthTeamOrchestrator
 
 
 class HealthTeamRuntimeTest(unittest.TestCase):

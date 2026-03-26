@@ -3,17 +3,10 @@
 
 from __future__ import annotations
 
-import sys
 from datetime import datetime, timedelta
-from pathlib import Path
 
-
-SHARED_DIR = Path(__file__).resolve().parent
-if str(SHARED_DIR) not in sys.path:
-    sys.path.insert(0, str(SHARED_DIR))
-
-from doctor_matching import DoctorFitFinder
-from health_scenario_runtime import HealthScenarioRuntime
+from .doctor_matching import DoctorFitFinder
+from .health_scenario_runtime import HealthScenarioRuntime
 
 
 class DoctorMatchWorkflow:
@@ -67,14 +60,13 @@ class DoctorMatchWorkflow:
         ranked = result["ranked_doctors"]
         shortlist = ranked[: min(3, len(ranked))]
 
-        preferred_departments = [
-            item["department"] for item in route_result.get("recommendations", [])
-        ]
+        preferred_departments = [item["department"] for item in route_result.get("recommendations", [])]
         sources = []
         evidence = []
         for item in route_result.get("recommendations", []):
             evidence.append(
-                f"科室路由：{item['department']}（score {item['score']}），依据 {', '.join(item.get('matched_terms') or ['综合背景'])}"
+                f"科室路由：{item['department']}（score {item['score']}），"
+                f"依据 {', '.join(item.get('matched_terms') or ['综合背景'])}"
             )
 
         for ranked_item in shortlist:
@@ -194,7 +186,10 @@ class DoctorMatchWorkflow:
             follow_up_tasks.append(
                 self.runtime.build_task(
                     title="准备首诊问题单",
-                    reason=f"推荐科室已经明确为 {' / '.join(preferred_departments[:2])}，下一步应该把问题收敛成医生可快速理解的清单。",
+                    reason=(
+                        f"推荐科室已经明确为 {' / '.join(preferred_departments[:2])}，"
+                        "下一步应该把问题收敛成医生可快速理解的清单。"
+                    ),
                     next_step="列出 3-5 个最重要的问题，并带上关键体检或慢病趋势。",
                     follow_up="若 2 天后仍未准备，我会再次提醒。",
                     priority="low",

@@ -5,18 +5,17 @@ from __future__ import annotations
 
 import contextlib
 import io
-import os
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from health_data_store import HealthDataStore
-from health_heartbeat import HealthHeartbeat
-from health_reminder_center import HealthReminderCenter
-from health_memory import HealthMemoryWriter
-from health_memory_distiller import HealthMemoryDistiller
-from health_timeline_builder import HealthTimelineBuilder
-from patient_archive_bridge import PatientArchiveBridge
+from .health_data_store import HealthDataStore
+from .health_heartbeat import HealthHeartbeat
+from .health_memory import HealthMemoryWriter
+from .health_memory_distiller import HealthMemoryDistiller
+from .health_reminder_center import HealthReminderCenter
+from .health_timeline_builder import HealthTimelineBuilder
+from .patient_archive_bridge import PatientArchiveBridge
 
 
 def _repo_root() -> Path:
@@ -299,16 +298,20 @@ class HealthOperationsRunner:
             "heartbeat_issue_count": len(heartbeat_result.get("issues", [])),
             "heartbeat_push_count": len(heartbeat_result.get("push_issues", [])),
             "heartbeat_report_path": heartbeat_result.get("report_path"),
-            "task_board_path": heartbeat_result.get("task_board_path"),
             "memory_path": (distill_snapshot or {}).get("memory_path") if distill_snapshot else None,
             "actions": actions,
             "review_task_count": review_task_count,
             "task_board_path": task_board_path or heartbeat_result.get("task_board_path"),
-            "sources": sorted(set(sources + [
-                str(self.writer.weekly_digest_path),
-                str(self.writer.monthly_digest_path),
-                str(self.writer.memory_doc_path) if self.writer.memory_doc_path else "",
-            ])),
+            "sources": sorted(
+                set(
+                    sources
+                    + [
+                        str(self.writer.weekly_digest_path),
+                        str(self.writer.monthly_digest_path),
+                        str(self.writer.memory_doc_path) if self.writer.memory_doc_path else "",
+                    ]
+                )
+            ),
         }
         summary["sources"] = [item for item in summary["sources"] if item]
 

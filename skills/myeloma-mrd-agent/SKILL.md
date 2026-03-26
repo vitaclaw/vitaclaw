@@ -89,7 +89,7 @@ The **Myeloma MRD Agent** provides comprehensive AI-driven minimal residual dise
 
 **Agent Action**:
 ```bash
-python3 Skills/Hematology/Myeloma_MRD_Agent/myeloma_mrd.py \
+python3 skills/myeloma-mrd-agent/myeloma_mrd.py \
     --flow_fcs bone_marrow_ngf.fcs \
     --ngs_clonotype clonoseq_results.json \
     --ms_mprotein maldi_spectrum.csv \

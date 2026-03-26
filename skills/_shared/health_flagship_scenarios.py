@@ -8,15 +8,9 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
-
-SHARED_DIR = Path(__file__).resolve().parent
-if str(SHARED_DIR) not in sys.path:
-    sys.path.insert(0, str(SHARED_DIR))
-
-from health_heartbeat import HealthHeartbeat
-from health_memory import HealthMemoryWriter
-from health_scenario_runtime import HealthScenarioRuntime
-from health_visit_workflow import HealthVisitWorkflow
+from .health_heartbeat import HealthHeartbeat
+from .health_scenario_runtime import HealthScenarioRuntime
+from .health_visit_workflow import HealthVisitWorkflow
 
 
 def _repo_root() -> Path:
@@ -34,8 +28,8 @@ for path in (
         sys.path.insert(0, str(path))
 
 from blood_pressure_tracker import BloodPressureTracker  # noqa: E402
-from chronic_condition_monitor import ChronicConditionMonitor  # noqa: E402
 from checkup_report_interpreter import CheckupReportInterpreter  # noqa: E402
+from chronic_condition_monitor import ChronicConditionMonitor  # noqa: E402
 from weekly_health_digest import WeeklyHealthDigest  # noqa: E402
 
 
@@ -117,9 +111,7 @@ class _ScenarioBase:
             return ["当前没有需要优先升级的场景风险。"]
         lines = []
         for issue in issues[:5]:
-            lines.append(
-                f"[{issue.get('priority', 'low')}] {issue['title']}：{issue['reason']}"
-            )
+            lines.append(f"[{issue.get('priority', 'low')}] {issue['title']}：{issue['reason']}")
             if issue.get("threshold"):
                 lines.append(f"依据：{issue['threshold']}")
         return lines
@@ -317,7 +309,9 @@ class HypertensionDailyCopilot(_ScenarioBase):
             data = latest_record.get("data", {})
             if float(data.get("sys") or 0) >= 180 or float(data.get("dia") or 0) >= 120:
                 must_seek.append("当前血压已达到危急范围，请立即联系急救或尽快就医。")
-        if symptoms and any(keyword in symptoms for keyword in ("胸痛", "视物", "头痛", "呼吸困难", "blurred", "chest pain")):
+        if symptoms and any(
+            keyword in symptoms for keyword in ("胸痛", "视物", "头痛", "呼吸困难", "blurred", "chest pain")
+        ):
             must_seek.append("伴随危险症状时，不要继续普通自我管理，建议尽快就医。")
 
         bp_status = self._read_recent_status_lines("blood-pressure")
@@ -326,7 +320,10 @@ class HypertensionDailyCopilot(_ScenarioBase):
         follow_up_tasks.append(
             self.runtime.build_task(
                 title="安排下一次家庭血压记录",
-                reason=f"高血压场景已经为下一次家庭血压记录排好了 due time：{next_bp_due.isoformat(timespec='minutes')}。",
+                reason=(
+                    f"高血压场景已经为下一次家庭血压记录排好了 due time："
+                    f"{next_bp_due.isoformat(timespec='minutes')}。"
+                ),
                 next_step="按标准化方式完成下一次血压测量，并补上症状/诱因。",
                 follow_up="到点后若仍未处理，会继续跟进。",
                 priority="low",
@@ -386,7 +383,8 @@ class HypertensionDailyCopilot(_ScenarioBase):
                 if next_follow_up
                 else "若近期计划复诊，记得把家庭血压记录整理为医生可读摘要。",
             ],
-            "## 必须就医": must_seek or ["当前没有触发“必须就医”级别信号，但若出现胸痛、严重头痛、呼吸困难等症状应立即升级。"],
+            "## 必须就医": must_seek
+            or ["当前没有触发“必须就医”级别信号，但若出现胸痛、严重头痛、呼吸困难等症状应立即升级。"],
         }
 
         return self.runtime.persist_result(
@@ -421,7 +419,9 @@ class HypertensionDailyCopilot(_ScenarioBase):
                 "先阅读本周周报，再决定是否需要更新复诊计划或生活方式重点。",
                 "把本周最常见的波动诱因写入 daily 或 behavior-plans。",
             ],
-            "## 必须就医": ["如本周已出现危急血压或危险症状，请直接依据 task board 和 heartbeat 升级。"] if issues else ["本周未见新的必须就医级别结论。"],
+            "## 必须就医": ["如本周已出现危急血压或危险症状，请直接依据 task board 和 heartbeat 升级。"]
+            if issues
+            else ["本周未见新的必须就医级别结论。"],
         }
         follow_up_tasks = [
             self.runtime.build_task(
@@ -596,7 +596,10 @@ class DiabetesControlHub(_ScenarioBase):
         follow_up_tasks.append(
             self.runtime.build_task(
                 title="安排下一次血糖记录",
-                reason=f"糖尿病场景已经为下一次血糖记录排好了 due time：{next_glucose_due.isoformat(timespec='minutes')}。",
+                reason=(
+                    f"糖尿病场景已经为下一次血糖记录排好了 due time："
+                    f"{next_glucose_due.isoformat(timespec='minutes')}。"
+                ),
                 next_step="按空腹或餐后场景补录下一次血糖，并补上餐食/运动背景。",
                 follow_up="到点后若仍未处理，会继续跟进。",
                 priority="low",
@@ -636,7 +639,8 @@ class DiabetesControlHub(_ScenarioBase):
                 "如近期要复查，提前准备最近 1-2 周的连续血糖与体重摘要。",
                 "关注 task board 中的行为计划和 follow-up 项目。",
             ],
-            "## 必须就医": must_seek or ["当前没有触发必须就医级别信号，但如出现低血糖意识障碍、疑似 DKA 等情况应立即升级。"],
+            "## 必须就医": must_seek
+            or ["当前没有触发必须就医级别信号，但如出现低血糖意识障碍、疑似 DKA 等情况应立即升级。"],
         }
         return self.runtime.persist_result(
             filename=f"diabetes-daily-{date_str}.md",
@@ -677,7 +681,9 @@ class DiabetesControlHub(_ScenarioBase):
                 "先阅读本周周报，再确认下周最需要盯紧的餐后高峰或执行障碍。",
                 "如计划复查，提前准备连续血糖和体重摘要。",
             ],
-            "## 必须就医": ["若本周已出现严重低血糖或明显急性恶化，请直接升级到急救/就医。"] if issues else ["本周未见新的必须就医级别结论。"],
+            "## 必须就医": ["若本周已出现严重低血糖或明显急性恶化，请直接升级到急救/就医。"]
+            if issues
+            else ["本周未见新的必须就医级别结论。"],
         }
         follow_up_tasks = [
             self.runtime.build_task(
@@ -817,20 +823,27 @@ class AnnualCheckupAdvisorWorkflow(_ScenarioBase):
         must_seek = []
         for item in high_items:
             must_seek.append(
-                f"{item.get('item', 'Unknown')} 被标记为 {item.get('priority_label', item.get('priority'))}，建议尽快和医生确认。"
+                f"{item.get('item', 'Unknown')} 被标记为"
+                f" {item.get('priority_label', item.get('priority'))}，建议尽快和医生确认。"
             )
         abnormal_summary = []
         for item in high_items[:4] + moderate_items[:4]:
+            unit_str = str(item.get("unit", "")).strip()
+            unit_suffix = f" {unit_str}" if unit_str else ""
             abnormal_summary.append(
-                f"{item.get('item', 'Unknown')}: {item.get('value', '')}{(' ' + str(item.get('unit', '')).strip()) if str(item.get('unit', '')).strip() else ''} [{item.get('priority_label', item.get('priority'))}]"
+                f"{item.get('item', 'Unknown')}: {item.get('value', '')}"
+                f"{unit_suffix} [{item.get('priority_label', item.get('priority'))}]"
             )
         follow_up_tasks = []
         for item in high_items[:3]:
             follow_up_tasks.append(
                 self.runtime.build_task(
                     title=f"确认体检异常 follow-up：{item.get('item', 'Unknown')}",
-                    reason=f"{item.get('item', 'Unknown')} 在本次体检中被标记为 {item.get('priority_label', item.get('priority'))}。",
-                    next_step=f"确认复查时间、科室或医生，并把安排写入 appointments.md。",
+                    reason=(
+                        f"{item.get('item', 'Unknown')} 在本次体检中被标记为"
+                        f" {item.get('priority_label', item.get('priority'))}。"
+                    ),
+                    next_step="确认复查时间、科室或医生，并把安排写入 appointments.md。",
                     follow_up="若今天未确认，接下来几天继续跟进。",
                     priority="high" if item.get("priority") == "critical" else "medium",
                     topic="annual-checkup",
@@ -891,7 +904,9 @@ class AnnualCheckupAdvisorWorkflow(_ScenarioBase):
             "## 趋势": self._read_recent_status_lines("appointments")[:4] or ["等待更多 follow-up 记录。"],
             "## 风险": self._format_issue_lines(issues),
             "## 建议": ["优先关闭最靠近 due date 的体检 follow-up 事项。"],
-            "## 必须就医": ["若体检异常已被标记为 critical，请优先按医生路径尽快处理。"] if issues else ["当前没有新的必须就医级别结论。"],
+            "## 必须就医": ["若体检异常已被标记为 critical，请优先按医生路径尽快处理。"]
+            if issues
+            else ["当前没有新的必须就医级别结论。"],
         }
         return self.runtime.persist_result(
             filename=f"annual-checkup-followup-{self._today()}.md",

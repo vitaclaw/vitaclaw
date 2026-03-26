@@ -85,7 +85,7 @@ The **Pharmacogenomics Agent** integrates AI and multi-omics data to predict ind
 
 **Agent Action**:
 ```bash
-python3 Skills/Precision_Medicine/Pharmacogenomics_Agent/pgx_analyzer.py \
+python3 skills/pharmacogenomics-agent/pgx_analyzer.py \
     --genotype patient_pgx_panel.vcf \
     --medications current_meds.json \
     --guidelines cpic_dpwg \

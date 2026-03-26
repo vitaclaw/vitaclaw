@@ -219,6 +219,8 @@ YYYY-MM-DD to YYYY-MM-DD (N days)
 
 ## Data Persistence
 
+**重要**：每次通过 Python CLI 执行操作（add / log / remove）后，Agent **必须**同步更新 `memory/health/`，确保 heartbeat 和其他 skill 可以读取到最新用药数据。
+
 Follow health-memory write protocol:
 
 1. **Update daily file**: Insert/replace section `## Medications [medication-reminder · HH:MM]`

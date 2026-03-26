@@ -5,11 +5,10 @@ from __future__ import annotations
 
 import re
 from datetime import datetime
-from pathlib import Path
 
-from health_heartbeat import HealthHeartbeat
-from health_memory import HealthMemoryWriter
-from health_timeline_builder import HealthTimelineBuilder
+from .health_heartbeat import HealthHeartbeat
+from .health_memory import HealthMemoryWriter
+from .health_timeline_builder import HealthTimelineBuilder
 
 
 class HealthVisitWorkflow:
@@ -114,9 +113,7 @@ class HealthVisitWorkflow:
     ) -> dict:
         status = self._appointments_status()
         resolved_visit_date = (
-            visit_date
-            or self._extract_iso_date(status.get("next follow-up"))
-            or self._now().date().isoformat()
+            visit_date or self._extract_iso_date(status.get("next follow-up")) or self._now().date().isoformat()
         )
         details = status.get("next follow-up details") or status.get("latest appointment") or "待补充"
         return {
@@ -153,9 +150,7 @@ class HealthVisitWorkflow:
         timeline = self.timeline_builder.build(write=False, max_entries=8)
         lines = []
         for entry in timeline["entries"][:6]:
-            lines.append(
-                f"- {entry['date']} | {entry['type']} | {entry['summary']} | {entry['source']}"
-            )
+            lines.append(f"- {entry['date']} | {entry['type']} | {entry['summary']} | {entry['source']}")
         return lines or ["- 当前没有足够的统一时间轴条目。"]
 
     def _questions(self, issues: list[dict], purpose: str) -> list[str]:
@@ -228,16 +223,16 @@ class HealthVisitWorkflow:
             ),
         ]
 
-        markdown = "\n".join(
-            [
-                f"# Visit Briefing -- {context['visit_date']}",
-                "",
-                *[
-                    "\n".join([heading, "", *(lines or ["- pending"]), ""])
-                    for heading, lines in sections
-                ],
-            ]
-        ).rstrip() + "\n"
+        markdown = (
+            "\n".join(
+                [
+                    f"# Visit Briefing -- {context['visit_date']}",
+                    "",
+                    *["\n".join([heading, "", *(lines or ["- pending"]), ""]) for heading, lines in sections],
+                ]
+            ).rstrip()
+            + "\n"
+        )
 
         path = None
         if write:
@@ -327,16 +322,16 @@ class HealthVisitWorkflow:
             ),
         ]
 
-        markdown = "\n".join(
-            [
-                f"# Visit Follow-up -- {visit_date}",
-                "",
-                *[
-                    "\n".join([heading, "", *(lines or ["- pending"]), ""])
-                    for heading, lines in sections
-                ],
-            ]
-        ).rstrip() + "\n"
+        markdown = (
+            "\n".join(
+                [
+                    f"# Visit Follow-up -- {visit_date}",
+                    "",
+                    *["\n".join([heading, "", *(lines or ["- pending"]), ""]) for heading, lines in sections],
+                ]
+            ).rstrip()
+            + "\n"
+        )
 
         path = None
         if write:

@@ -13,7 +13,6 @@ from dataclasses import dataclass
 from html.parser import HTMLParser
 from pathlib import Path
 
-
 TERM_TRANSLATIONS = {
     "高血压": "hypertension",
     "血压": "blood pressure",
@@ -147,6 +146,50 @@ DEPARTMENT_RULES = [
         "preparation": "准备最近 2 周睡眠、情绪、功能影响和量表分数。",
         "urgency": "routine",
     },
+    {
+        "department": "儿科 / 儿内科",
+        "keywords": [
+            "pediatric",
+            "child",
+            "infant",
+            "baby",
+            "toddler",
+            "儿童",
+            "小孩",
+            "宝宝",
+            "婴儿",
+            "幼儿",
+            "孩子",
+            "发烧",
+            "发热",
+            "fever",
+            "手足口",
+            "小儿",
+            "新生儿",
+        ],
+        "reason": "儿童疾病（发热、感染、发育等）应由儿科专科医生评估和处理。",
+        "preparation": (
+            "准备体温记录、发热时长、伴随症状（咳嗽/呕吐/皮疹/精神状态）、"
+            "年龄月龄、既往病史和疫苗接种情况。"
+        ),
+        "urgency": "routine",
+    },
+    {
+        "department": "发热门诊",
+        "keywords": [
+            "发烧",
+            "发热",
+            "fever",
+            "高热",
+            "高烧",
+            "体温",
+            "感染",
+            "流感",
+        ],
+        "reason": "发热需排查感染源，发热门诊可快速做血常规、流感/新冠筛查等。",
+        "preparation": "准备体温峰值和变化曲线、发热天数、伴随症状（咳嗽/咽痛/腹泻）、接触史和用药情况。",
+        "urgency": "urgent",
+    },
 ]
 
 
@@ -157,6 +200,8 @@ RED_FLAG_RULES = [
     ("severe shortness of breath", "Severe shortness of breath should be escalated to emergency evaluation."),
     ("晕厥", "晕厥/黑矇属于高危信号，应先急诊评估。"),
     ("severe hypoglycemia", "Severe hypoglycemia should be escalated before routine doctor matching."),
+    ("高烧不退", "持续高热应优先到发热门诊或急诊就诊，不宜等普通门诊。"),
+    ("惊厥", "出现惊厥/抽搐应立即急诊救治。"),
 ]
 
 
@@ -407,11 +452,7 @@ class PubMedClient:
                 if (element.text or "").strip()
             )
             journal = article.findtext(".//Journal/Title") or ""
-            year = (
-                article.findtext(".//PubDate/Year")
-                or article.findtext(".//ArticleDate/Year")
-                or ""
-            )
+            year = article.findtext(".//PubDate/Year") or article.findtext(".//ArticleDate/Year") or ""
             authors = []
             for author in article.findall(".//Author"):
                 last = author.findtext("LastName") or ""
@@ -453,7 +494,7 @@ class DoctorEvidenceProfiler:
             source_refs.append(profile_url)
             return html_to_text(html), source_refs
         except Exception as exc:  # pragma: no cover - network path
-            return f"", [f"{profile_url} (fetch failed: {exc.__class__.__name__})"]
+            return "", [f"{profile_url} (fetch failed: {exc.__class__.__name__})"]
 
     def _derive_pubmed_query(self, doctor: dict, patient_terms: list[str]) -> tuple[str | None, str | None]:
         explicit = doctor.get("pubmed_query")
@@ -466,14 +507,12 @@ class DoctorEvidenceProfiler:
 
         base_name = aliases[0]
         specialty_terms = _expand_terms(
-            _flatten_terms(doctor.get("specialties"))
-            + _flatten_terms(doctor.get("department"))
-            + patient_terms
+            _flatten_terms(doctor.get("specialties")) + _flatten_terms(doctor.get("department")) + patient_terms
         )
         search_terms = [term for term in specialty_terms if re.search(r"[A-Za-z]", term)]
-        query = f"\"{base_name}\"[Author]"
+        query = f'"{base_name}"[Author]'
         if search_terms:
-            query += " AND (" + " OR ".join(f"\"{term}\"" for term in search_terms[:4]) + ")"
+            query += " AND (" + " OR ".join(f'"{term}"' for term in search_terms[:4]) + ")"
         return query, None
 
     def profile(
@@ -507,9 +546,7 @@ class DoctorEvidenceProfiler:
             notes.append("本轮要求启用 PubMed，但当前医生资料无法形成可靠查询。")
 
         topic_terms = _expand_terms(
-            _flatten_terms(doctor.get("specialties"))
-            + _flatten_terms(doctor.get("department"))
-            + patient_terms
+            _flatten_terms(doctor.get("specialties")) + _flatten_terms(doctor.get("department")) + patient_terms
         )
         relevant_papers = []
         recent_count = 0
@@ -545,13 +582,9 @@ class DoctorEvidenceProfiler:
         if profile_text:
             highlights.append(profile_text[:220] + ("..." if len(profile_text) > 220 else ""))
         if relevant_papers:
-            highlights.append(
-                f"PubMed 相关论文 {len(relevant_papers)} 篇，近 5 年 {recent_count} 篇。"
-            )
+            highlights.append(f"PubMed 相关论文 {len(relevant_papers)} 篇，近 5 年 {recent_count} 篇。")
         elif papers:
-            highlights.append(
-                f"PubMed 检索到 {len(papers)} 篇公开论文，但与当前患者主题直接匹配有限。"
-            )
+            highlights.append(f"PubMed 检索到 {len(papers)} 篇公开论文，但与当前患者主题直接匹配有限。")
 
         return {
             "doctor_name": doctor.get("name", "Unknown"),
@@ -572,7 +605,9 @@ class DoctorEvidenceProfiler:
 class DoctorFitFinder:
     """Rank public doctor candidates for a given patient profile."""
 
-    def __init__(self, router: DepartmentFitRouter | None = None, evidence_profiler: DoctorEvidenceProfiler | None = None):
+    def __init__(
+        self, router: DepartmentFitRouter | None = None, evidence_profiler: DoctorEvidenceProfiler | None = None
+    ):
         self.router = router or DepartmentFitRouter()
         self.evidence_profiler = evidence_profiler or DoctorEvidenceProfiler()
 
@@ -651,9 +686,7 @@ class DoctorFitFinder:
         signal = evidence_profile.get("evidence_signal", "limited")
         reasons = [f"公开证据画像：{signal}"]
         if evidence_profile.get("relevant_paper_count"):
-            reasons.append(
-                f"与本轮患者主题直接相关论文 {evidence_profile['relevant_paper_count']} 篇"
-            )
+            reasons.append(f"与本轮患者主题直接相关论文 {evidence_profile['relevant_paper_count']} 篇")
         return min(10, score), reasons
 
     def rank(
@@ -697,11 +730,7 @@ class DoctorFitFinder:
                         "evidence": evidence_score,
                     },
                     "reasons": _uniq(
-                        department_reasons
-                        + topic_reasons
-                        + location_reasons
-                        + continuity_reasons
-                        + evidence_reasons
+                        department_reasons + topic_reasons + location_reasons + continuity_reasons + evidence_reasons
                     ),
                     "concerns": _uniq(concerns),
                     "evidence_profile": evidence_profile,

@@ -4,20 +4,14 @@
 from __future__ import annotations
 
 import json
-import sys
 import tempfile
 import unittest
 from datetime import datetime
 from pathlib import Path
 
-
-ROOT = Path(__file__).resolve().parents[1]
-SHARED_DIR = ROOT / "skills" / "_shared"
-sys.path.insert(0, str(SHARED_DIR))
-
-from health_heartbeat import HealthHeartbeat  # noqa: E402
-from health_memory import HealthMemoryWriter  # noqa: E402
-from health_reminder_center import HealthReminderCenter  # noqa: E402
+from skills._shared.health_heartbeat import HealthHeartbeat
+from skills._shared.health_memory import HealthMemoryWriter
+from skills._shared.health_reminder_center import HealthReminderCenter
 
 
 class HealthReminderCenterTest(unittest.TestCase):
@@ -27,7 +21,8 @@ class HealthReminderCenterTest(unittest.TestCase):
         path.write_text(body.strip() + "\n", encoding="utf-8")
 
     def test_quiet_hours_defer_medium_priority_push_but_keep_issue_visible(self):
-        fixed_now = lambda: datetime(2026, 3, 15, 22, 30, 0)
+        def fixed_now():
+            return datetime(2026, 3, 15, 22, 30, 0)
 
         with tempfile.TemporaryDirectory() as memory_dir:
             writer = HealthMemoryWriter(memory_root=memory_dir, now_fn=fixed_now)
@@ -57,9 +52,7 @@ class HealthReminderCenterTest(unittest.TestCase):
 
             result = HealthHeartbeat(memory_dir=memory_dir, now_fn=fixed_now).run(write_report=True)
 
-            due_issue = next(
-                issue for issue in result["issues"] if issue["title"] == "复查/复诊即将到期"
-            )
+            due_issue = next(issue for issue in result["issues"] if issue["title"] == "复查/复诊即将到期")
             self.assertEqual(due_issue["delivery_status"], "deferred")
             self.assertIn("安静时段", due_issue["delivery_note"])
             self.assertEqual(result["push_issues"], [])
@@ -73,7 +66,8 @@ class HealthReminderCenterTest(unittest.TestCase):
             self.assertTrue(any(task["title"] == "复查/复诊即将到期" for task in state["tasks"]))
 
     def test_completed_task_is_silenced_on_later_runs(self):
-        fixed_now = lambda: datetime(2026, 3, 15, 10, 0, 0)
+        def fixed_now():
+            return datetime(2026, 3, 15, 10, 0, 0)
 
         with tempfile.TemporaryDirectory() as memory_dir:
             self._write_item_file(

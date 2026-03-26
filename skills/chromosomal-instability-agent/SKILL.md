@@ -88,7 +88,7 @@ Core genes reflecting CIN phenotype:
 
 **Agent Action**:
 ```bash
-python3 Skills/Oncology/Chromosomal_Instability_Agent/cin_analyzer.py \
+python3 skills/chromosomal-instability-agent/cin_analyzer.py \
     --cnv_segments tumor_cnv.tsv \
     --expression rnaseq_tpm.tsv \
     --mutations somatic.maf \

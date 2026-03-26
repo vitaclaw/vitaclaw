@@ -7,8 +7,8 @@ import re
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from health_memory import HealthMemoryWriter
-from patient_archive_bridge import PatientArchiveBridge
+from .health_memory import HealthMemoryWriter
+from .patient_archive_bridge import PatientArchiveBridge
 
 
 def _parse_table(path: Path) -> tuple[list[str], list[list[str]]]:
@@ -51,6 +51,7 @@ class HealthTimelineBuilder:
         patients_root: str | None = None,
         patient_id: str | None = None,
         now_fn=None,
+        knowledge_graph=None,
     ):
         self._now_fn = now_fn or datetime.now
         self.writer = HealthMemoryWriter(
@@ -65,10 +66,44 @@ class HealthTimelineBuilder:
             patient_id=patient_id,
             now_fn=self._now_fn,
         )
+        self._knowledge_graph = knowledge_graph
         self.output_path = self.writer.files_dir / "health-timeline.md"
 
     def _now(self) -> datetime:
         return self._now_fn()
+
+    def _enrich_with_graph(self, entries: list[dict]) -> None:
+        """Add knowledge graph context to timeline entries where available."""
+        graph = self._knowledge_graph
+        for entry in entries:
+            entry_type = entry.get("type", "").lower()
+            # Try to find related entities from the graph for known concepts
+            concept_map = {
+                "血压": "blood-pressure",
+                "blood pressure": "blood-pressure",
+                "apple health 血压": "blood-pressure",
+                "体重": "weight",
+                "apple health 体重": "weight",
+                "心率": "heart-rate",
+                "apple health 心率": "heart-rate",
+                "血糖": "blood-sugar",
+                "睡眠": "sleep",
+                "apple health 睡眠": "sleep",
+            }
+            concept = None
+            for keyword, cid in concept_map.items():
+                if keyword in entry_type:
+                    concept = cid
+                    break
+            if concept:
+                node = graph.find_node_by_name(concept)
+                if node:
+                    neighbors = graph.query_neighbors(node["id"], depth=1)
+                    related = [
+                        n["name"] for n in neighbors if n.get("type") == "medication" and not n.get("invalid_at")
+                    ]
+                    if related:
+                        entry["graph_context"] = related
 
     def _item_entries(self, days: int) -> list[dict]:
         entries = []
@@ -206,10 +241,14 @@ class HealthTimelineBuilder:
         )
         entries = entries[:max_entries]
 
+        # Optionally enrich entries with knowledge graph context
+        if self._knowledge_graph is not None:
+            self._enrich_with_graph(entries)
+
         lines = [
             f"# Unified Health Timeline -- {self._now().date().isoformat()}",
             "",
-            f"- Sources merged: patient archive, Apple Health, workspace items, digests",
+            "- Sources merged: patient archive, Apple Health, workspace items, digests",
             f"- Entries: {len(entries)}",
             "",
         ]
@@ -222,9 +261,10 @@ class HealthTimelineBuilder:
                 if month_key != current_month:
                     lines.append(f"## {month_key}")
                     current_month = month_key
-                lines.append(
-                    f"- {entry['date']} | {entry['type']} | {entry['summary']} | {entry['source']} | {entry['path']}"
-                )
+                line = f"- {entry['date']} | {entry['type']} | {entry['summary']} | {entry['source']} | {entry['path']}"
+                if entry.get("graph_context"):
+                    line += f" | 关联药物: {', '.join(entry['graph_context'])}"
+                lines.append(line)
 
         markdown = "\n".join(lines).rstrip() + "\n"
         if write:

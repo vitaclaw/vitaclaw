@@ -90,7 +90,7 @@ The **Cytokine Storm Analysis Agent** provides comprehensive AI-driven analysis 
 
 **Agent Action**:
 ```bash
-python3 Skills/Immunology_Vaccines/Cytokine_Storm_Analysis_Agent/crs_analyzer.py \
+python3 skills/cytokine-storm-analysis-agent/crs_analyzer.py \
     --patient_data demographics.json \
     --cytokines cytokine_panel.csv \
     --vitals vital_signs.csv \

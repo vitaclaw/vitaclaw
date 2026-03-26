@@ -11,8 +11,7 @@ import re
 import sys
 from typing import Any
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "_shared"))
-from health_memory import HealthMemoryWriter
+from skills._shared.health_memory import HealthMemoryWriter
 
 
 # ---------------------------------------------------------------------------

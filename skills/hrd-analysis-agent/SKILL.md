@@ -95,7 +95,7 @@ The **HRD Analysis Agent** provides comprehensive analysis of homologous recombi
 
 **Agent Action**:
 ```bash
-python3 Skills/Oncology/HRD_Analysis_Agent/hrd_analyzer.py \
+python3 skills/hrd-analysis-agent/hrd_analyzer.py \
     --cnv_segments tumor_segments.tsv \
     --mutations somatic_variants.maf \
     --germline germline_variants.vcf \

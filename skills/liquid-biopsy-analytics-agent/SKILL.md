@@ -86,7 +86,7 @@ The **Liquid Biopsy Analytics Agent** provides comprehensive AI-driven analysis 
 
 **Agent Action**:
 ```bash
-python3 Skills/Oncology/Liquid_Biopsy_Analytics_Agent/lb_analyzer.py \
+python3 skills/liquid-biopsy-analytics-agent/lb_analyzer.py \
     --ctdna_variants longitudinal_ctdna.vcf \
     --timepoints week0,week4,week8,week12 \
     --tumor_markers cea_values.csv \

@@ -2,3 +2,9 @@
 dist/
 __pycache__/
 *.py[cod]
+.DS_Store
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+-NSConflict.git
+data/

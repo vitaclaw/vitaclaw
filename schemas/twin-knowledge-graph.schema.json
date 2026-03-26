@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VitaClaw Twin Knowledge Graph Schema",
+  "description": "Schema for the personal knowledge graph. Three-layer node model: Episode → Entity → Community. Domain-agnostic for Digital Twin.",
+
+  "definitions": {
+    "node": {
+      "type": "object",
+      "required": ["id", "type", "name", "domain", "created_at", "valid_at"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique node identifier"
+        },
+        "type": {
+          "type": "string",
+          "description": "Node type category",
+          "enum": [
+            "episode",
+            "health_concept", "medication", "condition", "device", "body_system",
+            "preference", "personality_trait", "life_event", "person", "behavioral_pattern",
+            "community"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name"
+        },
+        "domain": {
+          "type": "string",
+          "enum": ["health", "cognitive", "social", "behavioral"],
+          "default": "health"
+        },
+        "layer": {
+          "type": "string",
+          "enum": ["episode", "entity", "community"],
+          "description": "Graphiti-style three-layer classification"
+        },
+        "properties": {
+          "type": "object",
+          "description": "Arbitrary properties specific to node type",
+          "additionalProperties": true
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this node was created in the graph"
+        },
+        "valid_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this fact became true in the real world (Graphiti bi-temporal)"
+        },
+        "invalid_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "When this fact stopped being true (null = still valid)"
+        },
+        "source_record_ids": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "JSONL record IDs that support this node"
+        }
+      },
+      "additionalProperties": true
+    },
+
+    "edge": {
+      "type": "object",
+      "required": ["id", "source", "target", "relation", "created_at"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique edge identifier"
+        },
+        "source": {
+          "type": "string",
+          "description": "Source node ID"
+        },
+        "target": {
+          "type": "string",
+          "description": "Target node ID"
+        },
+        "relation": {
+          "type": "string",
+          "description": "Relationship type",
+          "examples": [
+            "treats", "causes", "monitors", "measured_by",
+            "part_of", "correlates_with", "taken_with",
+            "prefers", "avoids", "related_to"
+          ]
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 1.0,
+          "description": "Edge strength/confidence"
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "valid_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "invalid_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

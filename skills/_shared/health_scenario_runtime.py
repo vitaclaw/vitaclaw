@@ -5,9 +5,8 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from health_memory import HealthMemoryWriter
-from health_reminder_center import HealthReminderCenter
-
+from .health_memory import HealthMemoryWriter
+from .health_reminder_center import HealthReminderCenter
 
 DEFAULT_SECTION_ORDER = [
     "## 记录",
@@ -116,7 +115,9 @@ class HealthScenarioRuntime:
             lines.append("")
             for task in follow_up_tasks:
                 lines.append(
-                    f"- [{task.get('priority', 'medium')}] {task.get('title', 'Untitled')}：{task.get('next_step', 'pending')}"
+                    f"- [{task.get('priority', 'medium')}] "
+                    f"{task.get('title', 'Untitled')}："
+                    f"{task.get('next_step', 'pending')}"
                 )
                 lines.append(f"  如果不处理：{task.get('reason', 'pending')}")
                 lines.append(f"  再次跟进：{task.get('follow_up', 'pending')}")
@@ -173,7 +174,9 @@ class HealthScenarioRuntime:
             task_lines = []
             for task in follow_up_tasks:
                 task_lines.append(
-                    f"[{task.get('priority', 'medium')}] {task.get('title', 'Untitled')}：{task.get('next_step', 'pending')}"
+                    f"[{task.get('priority', 'medium')}] "
+                    f"{task.get('title', 'Untitled')}："
+                    f"{task.get('next_step', 'pending')}"
                 )
                 task_lines.append(f"如果不处理：{task.get('reason', 'pending')}")
                 task_lines.append(f"再次跟进：{task.get('follow_up', 'pending')}")

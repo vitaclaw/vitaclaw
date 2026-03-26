@@ -401,8 +401,8 @@ def main():
     )
     parser.add_argument("--port", type=int, default=8470,
                         help="HTTP server port (default: 8470)")
-    parser.add_argument("--host", default="0.0.0.0",
-                        help="HTTP server bind address (default: 0.0.0.0)")
+    parser.add_argument("--host", default="127.0.0.1",
+                        help="HTTP server bind address (default: 127.0.0.1)")
     parser.add_argument("--data-dir", default=None,
                         help="VitaClaw data directory")
     parser.add_argument("--auth-token", default=None,
@@ -410,7 +410,7 @@ def main():
     parser.add_argument("--feishu-app-id", default=None,
                         help="Feishu app_id (or env FEISHU_APP_ID)")
     parser.add_argument("--feishu-app-secret", default=None,
-                        help="Feishu app_secret (or env FEISHU_APP_SECRET)")
+                        help="Feishu app_secret (env FEISHU_APP_SECRET preferred; avoid passing via CLI)")
     parser.add_argument("--feishu-user-id", default=None,
                         help="Feishu receive user open_id (or env FEISHU_RECEIVE_USER_ID)")
     parser.add_argument("--feishu-receive-id-type", default="open_id",

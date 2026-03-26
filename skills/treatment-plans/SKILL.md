@@ -830,7 +830,7 @@ pdflatex treatment_plan.tex
 Use validation scripts to ensure all required sections are present:
 
 ```bash
-python check_completeness.py my_treatment_plan.tex
+python scripts/check_completeness.py my_treatment_plan.tex
 ```
 
 The script checks for:
@@ -850,7 +850,7 @@ The script checks for:
 Comprehensive validation of treatment plan quality:
 
 ```bash
-python validate_treatment_plan.py my_treatment_plan.tex
+python scripts/validate_treatment_plan.py my_treatment_plan.tex
 ```
 
 Validation includes:
@@ -1033,7 +1033,7 @@ Treatment plans should align with:
 Use the timeline generator script to create visual treatment timelines:
 
 ```bash
-python timeline_generator.py --plan my_treatment_plan.tex --output timeline.pdf
+python scripts/timeline_generator.py --plan my_treatment_plan.tex --output timeline.pdf
 ```
 
 Generates:
@@ -1051,17 +1051,17 @@ Interactive template selection:
 
 ```bash
 cd .claude/skills/treatment-plans/scripts
-python generate_template.py
+python scripts/generate_template.py
 
 # Or specify type directly
-python generate_template.py --type mental_health --output depression_treatment_plan.tex
+python scripts/generate_template.py --type mental_health --output depression_treatment_plan.tex
 ```
 
 ### Validation Workflow
 
 1. **Create treatment plan** using appropriate LaTeX template
-2. **Check completeness**: `python check_completeness.py plan.tex`
-3. **Validate quality**: `python validate_treatment_plan.py plan.tex`
+2. **Check completeness**: `python scripts/check_completeness.py plan.tex`
+3. **Validate quality**: `python scripts/validate_treatment_plan.py plan.tex`
 4. **Review checklist**: Compare against `quality_checklist.md`
 5. **Generate PDF**: `pdflatex plan.tex`
 6. **Review with patient**: Ensure understanding and agreement

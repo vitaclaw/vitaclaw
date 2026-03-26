@@ -98,7 +98,7 @@ The **Tumor Mutational Burden Agent** provides comprehensive TMB analysis for im
 
 **Agent Action**:
 ```bash
-python3 Skills/Oncology/Tumor_Mutational_Burden_Agent/tmb_analyzer.py \
+python3 skills/tumor-mutational-burden-agent/tmb_analyzer.py \
     --mutations tumor_somatic.maf \
     --panel foundation_one \
     --tumor_type nsclc \

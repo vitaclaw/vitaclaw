@@ -87,7 +87,7 @@ The **MRD-EDGE Detection Agent** implements the MRD-EDGE (Enhanced Detection of 
 
 **Agent Action**:
 ```bash
-python3 Skills/Oncology/MRD_EDGE_Detection_Agent/mrd_edge_detect.py \
+python3 skills/mrd-edge-detection-agent/mrd_edge_detect.py \
     --cfdna_bam plasma_cfDNA.bam \
     --tumor_vcf primary_tumor_mutations.vcf \
     --normal_bam matched_normal.bam \

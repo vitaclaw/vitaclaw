@@ -80,7 +80,7 @@ The **Cellular Senescence Agent** provides comprehensive AI-driven analysis of c
 
 **Agent Action**:
 ```bash
-python3 Skills/Longevity_Aging/Cellular_Senescence_Agent/senescence_analyzer.py \
+python3 skills/cellular-senescence-agent/senescence_analyzer.py \
     --rnaseq tissue_expression.tsv \
     --singlecell tissue_scrnaseq.h5ad \
     --signatures fridman_sasp,reactome_senescence \

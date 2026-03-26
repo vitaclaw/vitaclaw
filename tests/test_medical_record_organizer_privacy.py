@@ -4,12 +4,10 @@
 from __future__ import annotations
 
 import importlib.util
-import json
 import sys
 import tempfile
 import unittest
 from pathlib import Path
-
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_PATH = ROOT / "skills" / "medical-record-organizer" / "scripts" / "copy_patient_document.py"

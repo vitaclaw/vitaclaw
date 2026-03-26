@@ -101,7 +101,7 @@ The **MPN Progression Monitor Agent** provides comprehensive monitoring of myelo
 
 **Agent Action**:
 ```bash
-python3 Skills/Hematology/MPN_Progression_Monitor_Agent/mpn_monitor.py \
+python3 skills/mpn-progression-monitor-agent/mpn_monitor.py \
     --patient_id MF_001 \
     --molecular_data serial_mutations.csv \
     --cbc_data serial_cbc.csv \

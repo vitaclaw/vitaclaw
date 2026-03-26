@@ -39,21 +39,21 @@ The **Clinical NLP Skill** converts free-text clinical notes into structured dat
 
 ## Workflow
 
-1.  **Input**: A string of clinical text or a text file.
-2.  **Process**: Tokenizes and matches against patterns/dictionaries.
-3.  **Output**: JSON list of entities with spans and types.
+Agent 自身具备医学 NLP 能力，可直接从临床文本中提取实体。**无需外部 Python 脚本。**
+
+1. **Input**: 用户提供临床文本或文本文件路径
+2. **Process**: Agent 直接阅读文本，识别疾病、药物、手术等医学实体，检测否定表述
+3. **Output**: 以 JSON 格式返回实体列表，包含类型（PROBLEM/MEDICATION/PROCEDURE/TEST）、否定标志、原文位置
 
 ## Example Usage
 
-**User**: "Extract entities from this note."
+**User**: "Extract entities from this note: Patient has diabetes type 2. Prescribed Metformin 500mg. No chest pain."
 
-**Agent Action**:
-```bash
-python3 Skills/Clinical/Clinical_NLP/entity_extractor.py \
-    --text "Patient has diabetes type 2. Prescribed Metformin 500mg. No chest pain." \
-    --output entities.json
+**Agent Action**: 直接分析文本，输出：
+```json
+[
+  {"text": "diabetes type 2", "type": "PROBLEM", "negated": false},
+  {"text": "Metformin 500mg", "type": "MEDICATION", "negated": false},
+  {"text": "chest pain", "type": "PROBLEM", "negated": true}
+]
 ```
-
-```
-
-<!-- AUTHOR_SIGNATURE: 9a7f3c2e-MD-BABU-MIA-2026-MSSM-SECURE -->

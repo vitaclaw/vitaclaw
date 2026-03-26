@@ -81,7 +81,7 @@ The **Tumor Heterogeneity Agent** provides comprehensive analysis of intratumor 
 
 **Agent Action**:
 ```bash
-python3 Skills/Oncology/Tumor_Heterogeneity_Agent/ith_analysis.py \
+python3 skills/tumor-heterogeneity-agent/ith_analysis.py \
     --multi_region_vcfs region1.vcf,region2.vcf,region3.vcf \
     --cnv_segments cnv_calls.seg \
     --purity 0.7,0.65,0.72 \

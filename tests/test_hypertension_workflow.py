@@ -11,7 +11,6 @@ from contextlib import redirect_stdout
 from datetime import datetime
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SKILL_DIR = ROOT / "skills" / "blood-pressure-tracker"
 sys.path.insert(0, str(SKILL_DIR))
@@ -21,7 +20,8 @@ from blood_pressure_tracker import BloodPressureTracker  # noqa: E402
 
 class HypertensionWorkflowTest(unittest.TestCase):
     def test_record_syncs_store_and_memory(self):
-        fixed_now = lambda: datetime(2026, 3, 15, 13, 25, 36)
+        def fixed_now():
+            return datetime(2026, 3, 15, 13, 25, 36)
 
         with tempfile.TemporaryDirectory() as data_dir, tempfile.TemporaryDirectory() as memory_dir:
             tracker = BloodPressureTracker(

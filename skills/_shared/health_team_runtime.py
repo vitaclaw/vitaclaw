@@ -3,34 +3,16 @@
 
 from __future__ import annotations
 
-import sys
 from datetime import datetime
-from pathlib import Path
 
-
-SHARED_DIR = Path(__file__).resolve().parent
-if str(SHARED_DIR) not in sys.path:
-    sys.path.insert(0, str(SHARED_DIR))
-
-from health_memory import HealthMemoryWriter
-from health_operations import HealthOperationsRunner
-
-
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[2]
-
-
-ROOT = _repo_root()
-if str(SHARED_DIR) not in sys.path:
-    sys.path.insert(0, str(SHARED_DIR))
-
-from health_flagship_scenarios import (  # noqa: E402
+from .doctor_match_workflow import DoctorMatchWorkflow
+from .health_flagship_scenarios import (
     AnnualCheckupAdvisorWorkflow,
     DiabetesControlHub,
     HypertensionDailyCopilot,
 )
-from doctor_match_workflow import DoctorMatchWorkflow  # noqa: E402
-
+from .health_memory import HealthMemoryWriter
+from .health_operations import HealthOperationsRunner
 
 ROLE_DEFINITIONS = {
     "health-chief-of-staff": {
@@ -176,9 +158,7 @@ ROUTE_TABLE = {
     "oncology-review": ["health-oncology", "health-research", "health-safety"],
 }
 
-STANDARD_DISCLAIMER = (
-    "仅供长期追踪、准备就医和风险分层使用，不替代医生诊断、处方调整或急救系统。"
-)
+STANDARD_DISCLAIMER = "仅供长期追踪、准备就医和风险分层使用，不替代医生诊断、处方调整或急救系统。"
 
 
 class HealthTeamOrchestrator:
@@ -394,13 +374,15 @@ class HealthTeamOrchestrator:
                     "- lifestyle 角色主要判断执行连续性、诱因和依从性，而不是诊断。",
                     "- 优先把缺失记录转成下一步行为计划。",
                 ],
-                "## 趋势": ["- 行为计划和执行障碍将决定是否需要更强提醒。"] + result.get("sections", {}).get("## 趋势", [])[:2],
+                "## 趋势": ["- 行为计划和执行障碍将决定是否需要更强提醒。"]
+                + result.get("sections", {}).get("## 趋势", [])[:2],
                 "## 风险": result.get("sections", {}).get("## 风险", [])[:2] or ["- 暂无。"],
                 "## 建议": [
                     "- 把执行断点沉淀为 execution barriers。",
                     "- 优先维持低成本、可持续的生活方式动作。",
                 ],
-                "## 必须就医": result.get("sections", {}).get("## 必须就医", [])[:1] or ["- lifestyle 线未新增必须就医信号。"],
+                "## 必须就医": result.get("sections", {}).get("## 必须就医", [])[:1]
+                or ["- lifestyle 线未新增必须就医信号。"],
             }
         if role == "health-safety":
             must_seek = result.get("sections", {}).get("## 必须就医", [])
@@ -455,7 +437,7 @@ class HealthTeamOrchestrator:
         sections = result.get("sections", {})
         return {
             "## 记录": [
-                f"- 单入口：health-chief-of-staff",
+                "- 单入口：health-chief-of-staff",
                 f"- 本轮场景：{scenario}",
                 f"- 后台角色：{', '.join(routed_roles)}",
                 f"- 会话上下文：{context}",
@@ -513,10 +495,7 @@ class HealthTeamOrchestrator:
                 sources=chief_sources,
                 evidence=chief_evidence,
                 recommended_writebacks=result.get("writebacks", []),
-                follow_up=[
-                    task.get("title", "pending")
-                    for task in result.get("follow_up_tasks", [])
-                ],
+                follow_up=[task.get("title", "pending") for task in result.get("follow_up_tasks", [])],
                 disclaimer=STANDARD_DISCLAIMER,
             )
             self.writer.append_dispatch_log(

@@ -4,23 +4,18 @@
 from __future__ import annotations
 
 import json
-import sys
 import tempfile
 import unittest
 from datetime import datetime
 from pathlib import Path
 
-
-ROOT = Path(__file__).resolve().parents[1]
-SHARED_DIR = ROOT / "skills" / "_shared"
-sys.path.insert(0, str(SHARED_DIR))
-
-from patient_archive_bridge import PatientArchiveBridge  # noqa: E402
+from skills._shared.patient_archive_bridge import PatientArchiveBridge
 
 
 class PatientArchiveBridgeTest(unittest.TestCase):
     def test_sync_writes_summary_and_link(self):
-        fixed_now = lambda: datetime(2026, 4, 3, 9, 0, 0)
+        def fixed_now():
+            return datetime(2026, 4, 3, 9, 0, 0)
 
         with tempfile.TemporaryDirectory() as workspace_dir, tempfile.TemporaryDirectory() as patients_dir:
             patient_dir = Path(patients_dir) / "PT-DEMO001"
@@ -56,7 +51,9 @@ class PatientArchiveBridgeTest(unittest.TestCase):
                 + "\n",
                 encoding="utf-8",
             )
-            (patient_dir / "10_原始文件" / "未分类" / "new-report.pdf").write_text("pdf placeholder\n", encoding="utf-8")
+            (patient_dir / "10_原始文件" / "未分类" / "new-report.pdf").write_text(
+                "pdf placeholder\n", encoding="utf-8"
+            )
             (patient_dir / "09_Apple_Health" / "体重变化.md").write_text("# 体重变化\n", encoding="utf-8")
 
             bridge = PatientArchiveBridge(
@@ -81,4 +78,3 @@ class PatientArchiveBridgeTest(unittest.TestCase):
 
             payload = json.loads(link_path.read_text(encoding="utf-8"))
             self.assertEqual(payload["patient_id"], "PT-DEMO001")
-

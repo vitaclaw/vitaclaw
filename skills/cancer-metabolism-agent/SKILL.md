@@ -82,7 +82,7 @@ The **Cancer Metabolism Agent** analyzes tumor metabolic reprogramming to identi
 
 **Agent Action**:
 ```bash
-python3 Skills/Oncology/Cancer_Metabolism_Agent/metabolism_analyzer.py \
+python3 skills/cancer-metabolism-agent/metabolism_analyzer.py \
     --metabolomics tumor_lcms.csv \
     --rnaseq tumor_expression.tsv \
     --tumor_type NSCLC \
