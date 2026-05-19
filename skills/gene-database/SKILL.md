@@ -1,6 +1,12 @@
 ---
 name: gene-database
 description: "Query NCBI Gene via E-utilities/Datasets API. Search by symbol/ID, retrieve gene info (RefSeqs, GO, locations, phenotypes), batch lookups, for gene annotation and functional analysis."
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: genomics
 ---
 
 # Gene Database

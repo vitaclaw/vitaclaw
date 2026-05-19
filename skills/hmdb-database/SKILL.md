@@ -1,6 +1,12 @@
 ---
 name: hmdb-database
 description: "Access Human Metabolome Database (220K+ metabolites). Search by name/ID/structure, retrieve chemical properties, biomarker data, NMR/MS spectra, pathways, for metabolomics and identification."
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: research
 ---
 
 # HMDB Database

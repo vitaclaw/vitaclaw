@@ -3,6 +3,12 @@ name: bio-clinical-databases-hla-typing
 description: Call HLA alleles from NGS data using OptiType, HLA-HD, or arcasHLA for immunogenomics applications. Use when determining HLA genotype for transplant matching, neoantigen prediction, or pharmacogenomic screening.
 tool_type: cli
 primary_tool: OptiType
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: bioinformatics
 ---
 
 ## Version Compatibility

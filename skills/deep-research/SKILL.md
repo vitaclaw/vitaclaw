@@ -1,6 +1,12 @@
 ---
 name: deep-research
 description: Execute autonomous multi-step deep research on any topic. Use when the user asks for comprehensive research, literature reviews, competitive analysis, topic deep-dives, or wants to understand a complex subject from multiple angles. Triggers on "deep research", "research on", "investigate", "literature review", "comprehensive analysis", "what do we know about", "summarize research on".
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: research
 ---
 
 # Deep Research

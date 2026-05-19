@@ -2,6 +2,12 @@
 name: data-stats-analysis
 title: Statistical Analysis (Universal)
 description: Perform statistical tests, hypothesis testing, correlation analysis, and multiple testing corrections using scipy and statsmodels. Works with ANY LLM provider (GPT, Gemini, Claude, etc.).
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: research
 ---
 
 # Statistical Analysis (Universal)

@@ -18,6 +18,10 @@ metadata:
   - treatment
   - mat
   - sobriety
+  openclaw:
+    category: research
+version: 0.1.0
+user-invocable: false
 ---
 
 # Modern Drug Rehab Computer

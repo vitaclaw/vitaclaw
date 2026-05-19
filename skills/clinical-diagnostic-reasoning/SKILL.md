@@ -15,6 +15,10 @@ metadata:
     reason: Diagnostic checklists reduce cognitive bias errors in medical decision-making
   - skill: crisis-detection-intervention-ai
     reason: Crisis detection requires the same bias-aware reasoning used in clinical diagnostics
+  openclaw:
+    category: clinical-research
+version: 0.1.0
+user-invocable: false
 ---
 
 # Clinical Diagnostic Reasoning

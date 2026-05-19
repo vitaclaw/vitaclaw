@@ -16,6 +16,10 @@ metadata:
   - memorial
   - healing
   - loss
+  openclaw:
+    category: research
+version: 0.1.0
+user-invocable: false
 ---
 
 # Grief Companion

@@ -1,6 +1,12 @@
 ---
 name: tooluniverse-gwas-snp-interpretation
 description: Interpret genetic variants (SNPs) from GWAS studies by aggregating evidence from multiple databases (GWAS Catalog, Open Targets Genetics, ClinVar). Retrieves variant annotations, GWAS trait associations, fine-mapping evidence, locus-to-gene predictions, and clinical significance. Use when asked to interpret a SNP by rsID, find disease associations for a variant, assess clinical significance, or answer questions like "What diseases is rs429358 associated with?" or "Interpret rs7903146".
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: research
 ---
 
 # GWAS SNP Interpretation Skill

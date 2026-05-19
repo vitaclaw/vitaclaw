@@ -18,6 +18,10 @@ metadata:
   - shadow
   - dreams
   - individuation
+  openclaw:
+    category: research
+version: 0.1.0
+user-invocable: false
 ---
 
 # Jungian Psychologist

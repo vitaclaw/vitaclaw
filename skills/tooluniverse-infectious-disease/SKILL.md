@@ -1,6 +1,12 @@
 ---
 name: tooluniverse-infectious-disease
 description: Rapid pathogen characterization and drug repurposing analysis for infectious disease outbreaks. Identifies pathogen taxonomy, essential proteins, predicts structures, and screens existing drugs via docking. Use when facing novel pathogens, emerging infections, or needing rapid therapeutic options during outbreaks.
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: research
 ---
 
 # Infectious Disease Outbreak Intelligence

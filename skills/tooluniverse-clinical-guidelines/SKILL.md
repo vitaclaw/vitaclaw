@@ -1,6 +1,12 @@
 ---
 name: tooluniverse-clinical-guidelines
 description: Search and retrieve clinical practice guidelines across 12+ authoritative sources including NICE, WHO, ADA, AHA/ACC, NCCN, SIGN, CPIC, CMA, CTFPHC, GIN, MAGICapp, PubMed, EuropePMC, TRIP, and OpenAlex. Covers disease management, cardiology, oncology, diabetes, pharmacogenomics, and more. Use when users ask about clinical guidelines, treatment recommendations, standard of care, evidence-based medicine, or drug-gene dosing recommendations.
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: research
 ---
 
 # Clinical Guidelines Search & Retrieval

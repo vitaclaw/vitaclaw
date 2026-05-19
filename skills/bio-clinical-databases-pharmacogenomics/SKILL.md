@@ -3,6 +3,12 @@ name: bio-clinical-databases-pharmacogenomics
 description: Query PharmGKB and CPIC for drug-gene interactions, pharmacogenomic annotations, and dosing guidelines. Use when predicting drug response from genetic variants or implementing clinical pharmacogenomics.
 tool_type: python
 primary_tool: requests
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: bioinformatics
 ---
 
 ## Version Compatibility

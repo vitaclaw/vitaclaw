@@ -3,6 +3,12 @@ name: bio-immunoinformatics-immunogenicity-scoring
 description: Score and prioritize neoantigens and epitopes for immunogenicity using multi-factor models combining MHC binding, processing, expression, and sequence features. Rank candidates for vaccine design. Use when prioritizing epitopes for vaccine development or identifying the most immunogenic neoantigens.
 tool_type: python
 primary_tool: mhcflurry
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: bioinformatics
 ---
 
 ## Version Compatibility

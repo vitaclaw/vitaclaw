@@ -3,7 +3,12 @@ name: monarch-database
 description: Query the Monarch Initiative knowledge graph for disease-gene-phenotype associations across species. Integrates OMIM, ORPHANET, HPO, ClinVar, and model organism databases. Use for rare disease gene discovery, phenotype-to-gene mapping, cross-species disease modeling, and HPO term lookup.
 license: CC0-1.0
 metadata:
-    skill-author: Kuan-lin Huang
+  skill-author: Kuan-lin Huang
+  openclaw:
+    category: research
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
 ---
 
 # Monarch Initiative Database

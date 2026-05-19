@@ -1,6 +1,12 @@
 ---
 name: tooluniverse-disease-research
 description: Generate comprehensive disease research reports using 100+ ToolUniverse tools. Creates a detailed markdown report file and progressively updates it with findings from 10 research dimensions. All information includes source references. Use when users ask about diseases, syndromes, or need systematic disease analysis.
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: research
 ---
 
 # ToolUniverse Disease Research

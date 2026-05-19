@@ -16,6 +16,10 @@ metadata:
   - planning
   - neurodivergent
   - executive-function
+  openclaw:
+    category: research
+version: 0.1.0
+user-invocable: false
 ---
 
 # ADHD Daily Planner

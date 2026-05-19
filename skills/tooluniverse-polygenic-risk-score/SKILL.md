@@ -1,6 +1,12 @@
 ---
 name: tooluniverse-polygenic-risk-score
 description: Build and interpret polygenic risk scores (PRS) for complex diseases using GWAS summary statistics. Calculates genetic risk profiles, interprets PRS percentiles, and assesses disease predisposition across conditions including type 2 diabetes, coronary artery disease, and Alzheimer's disease. Use when asked to calculate polygenic risk scores, interpret genetic risk for complex diseases, build custom PRS from GWAS data, or answer questions like "What is my genetic predisposition to breast cancer?"
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: research
 ---
 
 # Polygenic Risk Score (PRS) Builder
@@ -394,4 +400,3 @@ PRS is a rapidly evolving field. Guidelines and best practices will continue to 
 - FDA does not currently regulate PRS (as of 2024)
 - Some countries restrict direct-to-consumer genetic risk reporting
 - Check local regulations before clinical implementation
-

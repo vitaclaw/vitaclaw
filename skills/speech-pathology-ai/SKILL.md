@@ -17,6 +17,10 @@ metadata:
   - articulation
   - voice
   - aac
+  openclaw:
+    category: research
+version: 0.1.0
+user-invocable: false
 ---
 
 # Speech-Language Pathology AI Expert

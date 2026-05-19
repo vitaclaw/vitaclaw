@@ -4,6 +4,11 @@ description: "Convert files and office documents to Markdown. Supports PDF, DOCX
 allowed-tools: [Read, Write, Edit, Bash]
 license: MIT
 source: https://github.com/microsoft/markitdown
+version: 0.1.0
+user-invocable: false
+metadata:
+  openclaw:
+    category: research
 ---
 
 # MarkItDown - File to Markdown Conversion
@@ -483,4 +488,3 @@ print(result.text_content)
 - **OpenRouter Models**: https://openrouter.ai/models
 - **MCP Server**: markitdown-mcp (for Claude Desktop integration)
 - **Plugin Development**: See `packages/markitdown-sample-plugin`
-

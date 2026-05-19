@@ -1,6 +1,12 @@
 ---
 name: tooluniverse-literature-deep-research
 description: Conduct comprehensive literature research with target disambiguation, evidence grading, and structured theme extraction. Creates a detailed report with mandatory completeness checklist, biological model synthesis, and testable hypotheses. For biological targets, resolves official IDs (Ensembl/UniProt), synonyms, naming collisions, and gathers expression/pathway context before literature search. Default deliverable is a report file; for single factoid questions, uses a fast verification mode and may include an inline answer. Use when users need thorough literature reviews, target profiles, or to verify specific claims from the literature.
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: research
 ---
 
 # Literature Deep Research Strategy (Enhanced)

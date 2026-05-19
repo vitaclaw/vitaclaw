@@ -1,6 +1,12 @@
 ---
 name: prior-auth-review-skill
 description: Automate payer review of prior authorization (PA) requests. This skill should be used when users say "Review this PA request", "Process prior authorization for [procedure]", "Assess medical necessity", "Generate PA decision", or when processing clinical documentation for coverage policy validation and authorization decisions.
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: research
 ---
 
 # Prior Authorization Review Skill
@@ -357,4 +363,3 @@ Before completing workflow, verify:
 - Creates provider notification letter
 - Documents complete audit trail
 - **Output:** `waypoints/decision.json` and notification letter
-

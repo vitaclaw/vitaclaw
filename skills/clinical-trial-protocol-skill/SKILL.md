@@ -1,6 +1,12 @@
 ---
 name: clinical-trial-protocol-skill
 description: Generate clinical trial protocols for medical devices or drugs. This skill should be used when users say "Create a clinical trial protocol", "Generate protocol for [device/drug]", "Help me design a clinical study", "Research similar trials for [intervention]", or when developing FDA submission documentation for investigational products.
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: clinical-research
 ---
 
 # Clinical Trial Protocol Skill
@@ -504,5 +510,4 @@ When this skill is invoked:
    - **Research Only:** Display research summary location and offer to continue with full protocol
    - **Full Protocol:** Congratulate user, display protocol location and next steps
    - Remind user of disclaimers
-
 

@@ -8,6 +8,12 @@ description: >
   transactions, batch operations, or search pagination. Covers FHIR R4 resource structures,
   required fields, value sets (status codes, gender, intent), coding systems (LOINC, SNOMED,
   RxNorm, ICD-10), and OperationOutcome error handling.
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: research
 ---
 
 # FHIR Developer Skill

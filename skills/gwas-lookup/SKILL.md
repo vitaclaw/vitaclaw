@@ -4,6 +4,7 @@ description: Federated variant lookup across 9 genomic databases — GWAS Catalo
 version: 0.1.0
 metadata:
   openclaw:
+    category: research
     requires:
       bins:
         - python3
@@ -20,6 +21,8 @@ metadata:
       - kind: pip
         package: matplotlib
         bins: []
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
 ---
 
 # 🔍 GWAS Lookup

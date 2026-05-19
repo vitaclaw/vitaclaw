@@ -2,6 +2,11 @@
 name: clinical-decision-support
 description: "Generate professional clinical decision support (CDS) documents for pharmaceutical and clinical research settings, including patient cohort analyses (biomarker-stratified with outcomes) and treatment recommendation reports (evidence-based guidelines with decision algorithms). Supports GRADE evidence grading, statistical analysis (hazard ratios, survival curves, waterfall plots), biomarker integration, and regulatory compliance. Outputs publication-ready LaTeX/PDF format optimized for drug development, clinical research, and evidence synthesis."
 allowed-tools: [Read, Write, Edit, Bash]
+version: 0.1.0
+user-invocable: false
+metadata:
+  openclaw:
+    category: clinical-research
 ---
 
 # Clinical Decision Support Documents
@@ -501,4 +506,3 @@ See the `scripts/` directory for analysis and visualization tools:
 - `calculate_statistics.py` - Hazard ratios, Cox regression, log-rank tests, Fisher's exact
 - `validate_cds_document.py` - Quality and compliance checks (HIPAA, statistical reporting standards)
 - `grade_evidence.py` - Automated GRADE assessment helper for treatment recommendations
-

@@ -3,6 +3,12 @@ name: bio-clinical-databases-clinvar-lookup
 description: Query ClinVar for variant pathogenicity classifications, review status, and disease associations via REST API or local VCF. Use when determining clinical significance of variants for diagnostic or research purposes.
 tool_type: python
 primary_tool: requests
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: bioinformatics
 ---
 
 ## Version Compatibility

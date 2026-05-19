@@ -3,6 +3,12 @@ name: bio-clinical-databases-polygenic-risk
 description: Calculate polygenic risk scores using PRSice-2, LDpred2, or PRS-CS from GWAS summary statistics. Use when predicting disease risk from genome-wide genetic variants.
 tool_type: mixed
 primary_tool: PRSice-2
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: bioinformatics
 ---
 
 ## Version Compatibility

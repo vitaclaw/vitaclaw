@@ -3,6 +3,12 @@ name: bio-clinical-databases-variant-prioritization
 description: Filter and prioritize variants by pathogenicity, population frequency, and clinical evidence for rare disease analysis. Use when identifying candidate disease-causing variants from exome or genome sequencing.
 tool_type: python
 primary_tool: pandas
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: bioinformatics
 ---
 
 ## Version Compatibility

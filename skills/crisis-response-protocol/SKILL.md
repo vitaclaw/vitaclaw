@@ -16,6 +16,10 @@ metadata:
     reason: Community moderators need crisis response protocols for at-risk member interactions
   - skill: hipaa-compliance
     reason: Crisis responses involving health data must comply with HIPAA privacy requirements
+  openclaw:
+    category: research
+version: 0.1.0
+user-invocable: false
 ---
 
 # Crisis Response Protocol

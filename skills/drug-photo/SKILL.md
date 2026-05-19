@@ -7,6 +7,7 @@ license: MIT
 tags: [pharmacogenomics, computer-vision, drug-identification, dosage-guidance]
 metadata:
   openclaw:
+    category: research
     requires:
       bins:
         - python3
@@ -22,6 +23,8 @@ metadata:
       - medication photo
       - pill photo
       - drug image
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
 ---
 
 # 📸 Drug Photo

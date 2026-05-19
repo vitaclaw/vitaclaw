@@ -19,6 +19,10 @@ metadata:
     reason: Relapse crisis signals require the same NLP detection patterns as general crisis detection
   - skill: clinical-diagnostic-reasoning
     reason: Bias-aware clinical reasoning improves accuracy of crisis signal classification
+  openclaw:
+    category: research
+version: 0.1.0
+user-invocable: false
 ---
 
 # Crisis Detection & Intervention AI

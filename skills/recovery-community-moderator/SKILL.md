@@ -19,6 +19,10 @@ metadata:
     reason: Moderation decisions are informed by recovery education principles and harm reduction
   - skill: sober-addict-protector
     reason: Daily sobriety protection patterns complement community-level moderation
+  openclaw:
+    category: research
+version: 0.1.0
+user-invocable: false
 ---
 
 # Recovery Community Moderator

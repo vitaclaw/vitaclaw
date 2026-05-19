@@ -1,3 +1,14 @@
+---
+name: food-database-query
+description: 食物数据库查询技能 — auto-onboarded skill. Refine description before promoting to health_core.
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: research
+---
+
 # 食物数据库查询技能
 
 **技能名称**: Food Database Query

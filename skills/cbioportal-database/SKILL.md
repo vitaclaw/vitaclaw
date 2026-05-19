@@ -3,7 +3,12 @@ name: cbioportal-database
 description: Query cBioPortal for cancer genomics data including somatic mutations, copy number alterations, gene expression, and survival data across hundreds of cancer studies. Essential for cancer target validation, oncogene/tumor suppressor analysis, and patient-level genomic profiling.
 license: LGPL-3.0
 metadata:
-    skill-author: Kuan-lin Huang
+  skill-author: Kuan-lin Huang
+  openclaw:
+    category: research
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
 ---
 
 # cBioPortal Database

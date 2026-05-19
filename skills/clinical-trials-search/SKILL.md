@@ -9,6 +9,12 @@ keywords:
   - trial-outcomes
   - semantic-search
 license: MIT
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: clinical-research
 ---
 
 

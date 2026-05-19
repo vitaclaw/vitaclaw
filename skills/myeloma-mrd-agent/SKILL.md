@@ -1,3 +1,14 @@
+---
+name: myeloma-mrd-agent
+description: COPYRIGHT NOTICE — auto-onboarded skill. Refine description before promoting to health_core.
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: research
+---
+
 <!--
 # COPYRIGHT NOTICE
 # This file is part of the "Universal Biomedical Skills" project.

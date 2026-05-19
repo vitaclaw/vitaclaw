@@ -3,6 +3,12 @@ name: bio-methylation-based-detection
 description: Analyzes cfDNA methylation patterns for cancer detection using cfMeDIP-seq or bisulfite sequencing with MethylDackel. Identifies cancer-specific methylation signatures and performs tissue-of-origin deconvolution. Use when using methylation biomarkers for early cancer detection or minimal residual disease.
 tool_type: python
 primary_tool: MethylDackel
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: bioinformatics
 ---
 
 ## Version Compatibility

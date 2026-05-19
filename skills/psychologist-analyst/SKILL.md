@@ -7,6 +7,11 @@ description: |
   decision-making biases, mental health, and individual differences.
   Use when: Behavioral patterns, decision-making, group behavior, mental health, leadership, persuasion, trauma, development.
   Evaluates: Cognitive processes, emotional responses, motivations, biases, group dynamics, personality, mental states.
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: research
 ---
 
 # Psychologist Analyst Skill

@@ -1,6 +1,12 @@
 ---
 name: tooluniverse-drug-drug-interaction
 description: Comprehensive drug-drug interaction (DDI) prediction and risk assessment. Analyzes interaction mechanisms (CYP450, transporters, pharmacodynamic), severity classification, clinical evidence grading, and provides management strategies. Supports single drug pairs, polypharmacy analysis (3+ drugs), and alternative drug recommendations. Use when users ask about drug interactions, medication safety, polypharmacy risks, or need DDI assessment for clinical decision support.
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: research
 ---
 
 # Drug-Drug Interaction Prediction & Risk Assessment

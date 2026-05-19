@@ -3,6 +3,12 @@ name: bio-immunoinformatics-neoantigen-prediction
 description: Identify tumor neoantigens from somatic mutations using pVACtools for personalized cancer immunotherapy. Predict mutant peptides that bind patient HLA and may elicit T-cell responses. Use when identifying vaccine targets or checkpoint inhibitor response biomarkers from tumor sequencing data.
 tool_type: python
 primary_tool: pVACtools
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: bioinformatics
 ---
 
 ## Version Compatibility

@@ -3,6 +3,12 @@ name: bio-clinical-databases-somatic-signatures
 description: Extract and analyze mutational signatures from somatic variants using SigProfiler or MutationalPatterns to characterize mutagenic processes. Use when identifying DNA damage mechanisms or etiology in cancer genomes.
 tool_type: mixed
 primary_tool: SigProfilerExtractor
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: bioinformatics
 ---
 
 ## Version Compatibility

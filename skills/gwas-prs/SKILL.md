@@ -4,6 +4,7 @@ description: Calculate polygenic risk scores from DTC genetic data using the PGS
 version: 0.1.0
 metadata:
   openclaw:
+    category: research
     requires:
       bins:
         - python3
@@ -17,6 +18,8 @@ metadata:
       - kind: uv
         package: requests
         bins: []
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
 ---
 
 # Polygenic Risk Score Calculator (GWAS-PRS)

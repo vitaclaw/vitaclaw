@@ -7,6 +7,7 @@ license: MIT
 tags: [pharmacogenomics, CPIC, DTC-genetics, precision-medicine]
 metadata:
   openclaw:
+    category: research
     requires:
       bins:
         - python3
@@ -25,6 +26,8 @@ metadata:
       - CYP2C19
       - warfarin
       - CPIC
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
 ---
 
 # 💊 PharmGx Reporter

@@ -2,13 +2,13 @@
 name: patiently-ai
 description: Patiently AI simplifies medical documents for patients. Takes doctor's letters, test results, prescriptions, discharge summaries, and clinical notes and explains them in clear, personalised language. Built by PharmaTools.AI.
 metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "🩺",
-        "homepage": "https://pharmatools.ai",
-      },
-  }
+  openclaw:
+    emoji: "🩺"
+    homepage: https://pharmatools.ai
+    category: research
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
 ---
 
 # Patiently AI

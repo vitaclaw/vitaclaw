@@ -1,3 +1,14 @@
+---
+name: nutrigx_advisor
+description: NutriGx Advisor — Personalised Nutrition from Genetic Data — auto-onboarded skill. Refine description before promoting to health_core.
+version: 0.1.0
+user-invocable: false
+allowed-tools: [Read, Grep, Glob, Bash, Write, Edit, WebFetch, WebSearch]
+metadata:
+  openclaw:
+    category: research
+---
+
 # NutriGx Advisor — Personalised Nutrition from Genetic Data
 
 **Skill ID**: `nutrigx-advisor`  
