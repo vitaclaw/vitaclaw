@@ -29,7 +29,6 @@ from consent_manager import ConsentManager  # noqa: E402
 from cross_skill_reader import CrossSkillReader  # noqa: E402
 from twin_identity import TwinIdentity  # noqa: E402
 
-
 # OMOP concept IDs for common VitaClaw concepts (simplified mapping)
 CONCEPT_MAP = {
     "blood-pressure": {"observation_concept_id": 4152194, "unit": "mmHg"},

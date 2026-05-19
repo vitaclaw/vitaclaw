@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import csv
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from .health_importer_base import HealthImporterBase
@@ -349,12 +349,12 @@ class XiaomiHealthImporter(HealthImporterBase):
         """
         ts_str = ts_str.strip()
         if not ts_str:
-            return datetime.now(timezone.utc).isoformat(timespec="seconds")
+            return datetime.now(UTC).isoformat(timespec="seconds")
 
         # Check for epoch (all digits)
         if ts_str.isdigit() and len(ts_str) >= 10:
             epoch_seconds = int(ts_str) / 1000 if len(ts_str) > 10 else int(ts_str)
-            dt = datetime.fromtimestamp(epoch_seconds, tz=timezone.utc)
+            dt = datetime.fromtimestamp(epoch_seconds, tz=UTC)
             return dt.isoformat(timespec="seconds")
 
         # Replace space separator with T

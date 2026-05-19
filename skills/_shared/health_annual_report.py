@@ -22,13 +22,13 @@ if _SHARED_DIR not in sys.path:
     sys.path.insert(0, _SHARED_DIR)
 
 try:
-    from .cross_skill_reader import CrossSkillReader
     from .correlation_engine import CorrelationEngine
+    from .cross_skill_reader import CrossSkillReader
     from .health_chart_engine import HealthChartEngine
     from .health_memory import HealthMemoryWriter
 except ImportError:
-    from cross_skill_reader import CrossSkillReader  # noqa: E402
     from correlation_engine import CorrelationEngine  # noqa: E402
+    from cross_skill_reader import CrossSkillReader  # noqa: E402
     from health_chart_engine import HealthChartEngine  # noqa: E402
     from health_memory import HealthMemoryWriter  # noqa: E402
 

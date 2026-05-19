@@ -9,7 +9,6 @@ from pathlib import Path
 
 from skill_catalog import repo_root
 
-
 BADGES_MARKER = "README_BADGES"
 OVERVIEW_MARKER = "README_OVERVIEW"
 CATALOG_MARKER = "README_CATALOG"

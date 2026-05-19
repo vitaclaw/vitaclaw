@@ -15,14 +15,13 @@ from __future__ import annotations
 
 import argparse
 import sys
-from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SHARED_DIR = ROOT / "skills" / "_shared"
 sys.path.insert(0, str(SHARED_DIR))
 
-from memory_lifecycle import HealthFact, MemoryLifecycle  # noqa: E402
+from memory_lifecycle import MemoryLifecycle  # noqa: E402
 
 
 def refine_memory(

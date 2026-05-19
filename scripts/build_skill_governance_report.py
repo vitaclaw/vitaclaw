@@ -4,15 +4,12 @@
 from __future__ import annotations
 
 import argparse
-import json
 import re
 import subprocess
-import sys
 from datetime import datetime
 from pathlib import Path
 
 from skill_catalog import build_manifest_records, manifest_summary, repo_root, write_json
-
 
 # ---------------------------------------------------------------------------
 # Quality scoring

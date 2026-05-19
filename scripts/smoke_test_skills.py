@@ -12,7 +12,6 @@ from shutil import which
 
 from skill_catalog import build_manifest_records, repo_root, write_json
 
-
 CORE_HELP_COMMANDS = {
     "blood-pressure-tracker": [
         "python3",

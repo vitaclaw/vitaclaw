@@ -12,9 +12,10 @@ import base64
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from .cross_skill_reader import CrossSkillReader
+
 # ── Imports (package-style for relative import compat) ──────────
 from .health_chart_engine import HealthChartEngine
-from .cross_skill_reader import CrossSkillReader
 from .health_heartbeat import HealthHeartbeat
 from .health_memory import HealthMemoryWriter
 
@@ -389,7 +390,7 @@ class HealthVisitSummary:
                 with open(path, "rb") as f:
                     data = base64.b64encode(f.read()).decode("ascii")
                 result[name] = f"data:image/png;base64,{data}"
-            except (OSError, IOError):
+            except OSError:
                 pass
         return result
 
@@ -528,7 +529,7 @@ class HealthVisitSummary:
                 with open(path, "rb") as f:
                     encoded = base64.b64encode(f.read()).decode("ascii")
                 base64_charts[name] = f"data:image/png;base64,{encoded}"
-            except (OSError, IOError):
+            except OSError:
                 pass
 
         if Template is not None:

@@ -9,21 +9,16 @@ _shared/.
 from __future__ import annotations
 
 import argparse
-import json
 import re
-import sys
 from pathlib import Path
 
 from skill_catalog import (
     REQUIRED_FRONTMATTER_KEYS,
     build_manifest_records,
-    iter_skill_dirs,
     manifest_summary,
     repo_root,
-    validate_frontmatter,
     write_json,
 )
-
 
 # ---------------------------------------------------------------------------
 # Import direction validation

@@ -6,11 +6,10 @@ from __future__ import annotations
 import sys
 import tempfile
 import zipfile
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from .health_data_store import HealthDataStore
-
 
 # Mapping from canonical record type to the skill name that owns the data directory.
 # Per D-08: heart_rate -> heart-rate-tracker, steps -> step-tracker, etc.
@@ -188,7 +187,7 @@ class HealthImporterBase:
         imported = 0
         skipped_dupes = 0
         by_type: dict[str, int] = {}
-        import_timestamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        import_timestamp = datetime.now(UTC).isoformat(timespec="seconds")
 
         # Group records by type for efficient dedup
         records_by_type: dict[str, list[dict]] = {}
@@ -243,7 +242,7 @@ class HealthImporterBase:
     def _normalize_timestamp(self, ts_str: str, tz_offset: str | None = None) -> str:
         """Normalize timestamp to ISO 8601 with timezone per Pitfall 4."""
         if not ts_str:
-            return datetime.now(timezone.utc).isoformat(timespec="seconds")
+            return datetime.now(UTC).isoformat(timespec="seconds")
 
         # If already has timezone info, return as-is
         if "+" in ts_str[10:] or ts_str.endswith("Z"):

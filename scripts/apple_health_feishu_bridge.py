@@ -16,17 +16,13 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import hmac
 import json
 import os
 import sys
-import time
 from datetime import datetime
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
-from typing import Any
 from urllib.request import Request, urlopen
-from urllib.error import URLError
 
 ROOT = Path(__file__).resolve().parents[1]
 SHARED_DIR = ROOT / "skills" / "_shared"
@@ -139,7 +135,7 @@ def _process_health_payload(payload: dict, data_dir: str | None = None) -> dict:
                     "source": "apple_health",
                     "device": device,
                 },
-                note=f"Auto-sync from Apple Health via iOS Shortcut",
+                note="Auto-sync from Apple Health via iOS Shortcut",
                 timestamp=date_str,
             )
             records_written.append({"type": "bp_reading", "id": rec["id"]})
@@ -428,7 +424,7 @@ def main():
         # 自动生成一个 auth token
         auth_token = hashlib.sha256(os.urandom(32)).hexdigest()[:32]
         print(f"[INFO] Auto-generated auth token: {auth_token}")
-        print(f"[INFO] Add this to your iOS Shortcut 'X-Auth-Token' header")
+        print("[INFO] Add this to your iOS Shortcut 'X-Auth-Token' header")
 
     server = HealthBridgeServer(
         (args.host, args.port),
@@ -442,12 +438,12 @@ def main():
     )
 
     print(f"[INFO] VitaClaw Health Bridge started on {args.host}:{args.port}")
-    print(f"[INFO] Endpoint: POST /api/health-sync")
-    print(f"[INFO] Health check: GET /health")
+    print("[INFO] Endpoint: POST /api/health-sync")
+    print("[INFO] Health check: GET /health")
     if feishu_app_id:
         print(f"[INFO] Feishu notification: enabled → {feishu_receive_id}")
     else:
-        print(f"[WARN] Feishu notification: disabled (no --feishu-app-id)")
+        print("[WARN] Feishu notification: disabled (no --feishu-app-id)")
     print()
 
     try:

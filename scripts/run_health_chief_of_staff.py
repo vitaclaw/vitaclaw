@@ -9,18 +9,17 @@ import os
 import sys
 from pathlib import Path
 
-
 ROOT = os.path.dirname(os.path.dirname(__file__))
 SHARED_DIR = os.path.join(ROOT, "skills", "_shared")
 if SHARED_DIR not in sys.path:
     sys.path.insert(0, SHARED_DIR)
 
-from health_team_runtime import HealthTeamOrchestrator  # noqa: E402
 from doctor_profile_harvester import (  # noqa: E402
     DoctorProfileHarvester,
     load_sources_file,
     merge_doctor_candidates,
 )
+from health_team_runtime import HealthTeamOrchestrator  # noqa: E402
 
 
 def _parse_packages(raw: str | None) -> list[str]:

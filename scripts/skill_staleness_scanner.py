@@ -17,7 +17,6 @@ from pathlib import Path
 
 from skill_catalog import iter_skill_dirs, read_text, repo_root, split_frontmatter
 
-
 # ---------------------------------------------------------------------------
 # Stop words (common English + Chinese function words)
 # ---------------------------------------------------------------------------

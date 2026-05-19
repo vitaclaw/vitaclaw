@@ -9,7 +9,6 @@ import os
 import sys
 from pathlib import Path
 
-
 ROOT = os.path.dirname(os.path.dirname(__file__))
 SHARED_DIR = os.path.join(ROOT, "skills", "_shared")
 if SHARED_DIR not in sys.path:
