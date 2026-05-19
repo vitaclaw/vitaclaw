@@ -29,11 +29,24 @@
           loadMemoryInPublicThreads: false,
           qmdEnabled: false,
         },
+        // OpenClaw 2026.5.x: tune embedding indexing concurrency for local Ollama/CPU hosts.
+        // Default to one inline request at a time so long-running heartbeat indexing
+        // never timeout-storms a single-GPU dev box. Bump only if you run a beefy Ollama node.
+        remote: {
+          nonBatchConcurrency: 1,
+        },
       },
       sandbox: {
         mode: "non-main",
         scope: "agent",
       },
+    },
+
+    // OpenClaw 2026.5.x: opt-in symlink containment relaxation. Vitaclaw users sometimes
+    // symlink `~/.openclaw/skills/vitaclaw -> ~/repos/vitaclaw/skills` for hot reload.
+    // Listing the workspace root explicitly preserves root-containment for all other paths.
+    skillsLoad: {
+      allowSymlinkTargets: ["~/repos", "~/code", "~/work"],
     },
 
     list: [
@@ -107,6 +120,9 @@
           emoji: "🔬",
         },
         heartbeat: { every: "0m" },
+        // OpenClaw 2026.5.19: this role does literature/guideline lookup only;
+        // never reads MEMORY.md or patient archives. Lean local model is sufficient.
+        experimental: { localModelLean: true },
       },
       {
         id: "health-mental",
@@ -127,6 +143,8 @@
           emoji: "🏠",
         },
         heartbeat: { every: "6h" },
+        // Sandboxed family-care extension; lean local model is sufficient.
+        experimental: { localModelLean: true },
       },
       {
         id: "health-oncology",
