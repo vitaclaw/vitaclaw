@@ -1077,8 +1077,9 @@ class CorrelationEngineTest(unittest.TestCase):
             sleep_store = HealthDataStore("sleep-analyzer", data_dir=tmp_dir)
             now = datetime.now()
 
-            # Create inversely correlated data: high BP ↔ low sleep
-            for i in range(10):
+            # Create inversely correlated data: high BP ↔ low sleep.
+            # Use ≥14 samples to clear CorrelationEngine.is_significant() threshold.
+            for i in range(20):
                 day = (now - timedelta(days=i)).strftime("%Y-%m-%dT08:00:00")
                 bp_store.append("bp", {"sys": 140 - i * 2, "dia": 90 - i}, timestamp=day)
                 sleep_store.append("sleep_session", {"score": 60 + i * 3}, timestamp=day)

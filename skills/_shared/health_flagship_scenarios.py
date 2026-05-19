@@ -27,10 +27,25 @@ for path in (
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))
 
-from blood_pressure_tracker import BloodPressureTracker  # noqa: E402
-from checkup_report_interpreter import CheckupReportInterpreter  # noqa: E402
-from chronic_condition_monitor import ChronicConditionMonitor  # noqa: E402
-from weekly_health_digest import WeeklyHealthDigest  # noqa: E402
+
+def _load_blood_pressure_tracker():
+    from blood_pressure_tracker import BloodPressureTracker
+    return BloodPressureTracker
+
+
+def _load_checkup_report_interpreter():
+    from checkup_report_interpreter import CheckupReportInterpreter
+    return CheckupReportInterpreter
+
+
+def _load_chronic_condition_monitor():
+    from chronic_condition_monitor import ChronicConditionMonitor
+    return ChronicConditionMonitor
+
+
+def _load_weekly_health_digest():
+    from weekly_health_digest import WeeklyHealthDigest
+    return WeeklyHealthDigest
 
 
 class _ScenarioBase:
@@ -185,6 +200,8 @@ class _ScenarioBase:
 class HypertensionDailyCopilot(_ScenarioBase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        BloodPressureTracker = _load_blood_pressure_tracker()
+        WeeklyHealthDigest = _load_weekly_health_digest()
         self.tracker = BloodPressureTracker(
             data_dir=self.data_dir,
             memory_dir=str(self.writer.base_dir),
@@ -480,6 +497,8 @@ class HypertensionDailyCopilot(_ScenarioBase):
 class DiabetesControlHub(_ScenarioBase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        ChronicConditionMonitor = _load_chronic_condition_monitor()
+        WeeklyHealthDigest = _load_weekly_health_digest()
         self.monitor = ChronicConditionMonitor(
             data_dir=self.data_dir,
             memory_dir=str(self.writer.base_dir),
@@ -741,6 +760,7 @@ class DiabetesControlHub(_ScenarioBase):
 class AnnualCheckupAdvisorWorkflow(_ScenarioBase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        CheckupReportInterpreter = _load_checkup_report_interpreter()
         self.interpreter = CheckupReportInterpreter(
             memory_dir=str(self.writer.base_dir),
             now_fn=self._now_fn,

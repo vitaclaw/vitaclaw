@@ -1,14 +1,16 @@
 ---
 name: medical-document-ocr
-description: Extract structured health data from Chinese medical document photos/PDFs
+description: Extract structured health data from Chinese medical document photos/PDFs (体检/检验/门诊/处方) with table + free-text parsing, concept resolution, and JSONL output.
 version: 1.1.0
 user-invocable: true
 allowed-tools: [Bash, Read, Write, Edit]
 metadata:
-  category: health-records
-  domain: health
-  input: image/PDF of Chinese medical document
-  output: structured health data records
+  openclaw:
+    emoji: "📄"
+    category: health-records
+    domain: health
+    input: image/PDF of Chinese medical document
+    output: structured health data records
 ---
 
 # Medical Document OCR

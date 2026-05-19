@@ -9,7 +9,6 @@ from typing import Any
 
 import yaml
 
-
 REQUIRED_FRONTMATTER_KEYS = [
     "name",
     "description",
@@ -92,6 +91,8 @@ def iter_skill_dirs(include_shared: bool = False) -> list[Path]:
     dirs = []
     for path in sorted(skills_root().iterdir()):
         if not path.is_dir():
+            continue
+        if path.name.startswith(".") or path.name.startswith("__"):
             continue
         if not include_shared and path.name == "_shared":
             continue
@@ -360,6 +361,14 @@ def validate_frontmatter(frontmatter: dict[str, Any] | None) -> list[str]:
     for key in REQUIRED_FRONTMATTER_KEYS:
         if key not in frontmatter:
             errors.append(f"missing:{key}")
+
+    # OpenClaw 2026.5.19+ quick validation: reject empty / whitespace-only
+    # name and description before the runtime would. Vitaclaw enforces the
+    # same contract so authors get a fast local signal.
+    for key in ("name", "description"):
+        value = frontmatter.get(key)
+        if isinstance(value, str) and (not value.strip() or len(value.strip()) < 10 and key == "description"):
+            errors.append(f"invalid:{key}:empty-or-too-short")
 
     metadata = frontmatter.get("metadata")
     if metadata is None:

@@ -7,6 +7,7 @@ that validate pipeline logic, not OCR accuracy.
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 import shutil
@@ -15,6 +16,8 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
+
+_HAS_PADDLEOCR = importlib.util.find_spec("paddleocr") is not None
 
 ROOT = Path(__file__).resolve().parents[1]
 SHARED_DIR = ROOT / "skills" / "_shared"
@@ -72,6 +75,7 @@ class PrepareInputTest(unittest.TestCase):
             pipeline._prepare_input("/fake/file.xyz")
 
 
+@unittest.skipUnless(_HAS_PADDLEOCR, "paddleocr is an optional [ocr] dep; tests rely on patching paddleocr.PaddleOCR")
 class ClassifyDocumentTest(unittest.TestCase):
     """Test OCRPipeline._classify_document with mocked OCR output."""
 

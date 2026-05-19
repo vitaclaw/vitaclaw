@@ -8,7 +8,10 @@ Legacy per-concept methods preserved as thin wrappers.
 
 from __future__ import annotations
 
-from .health_data_store import HealthDataStore
+try:
+    from .health_data_store import HealthDataStore
+except ImportError:
+    from health_data_store import HealthDataStore  # type: ignore[no-redef]
 
 
 class CrossSkillReader:
@@ -37,7 +40,10 @@ class CrossSkillReader:
         """Lazy-load ConceptResolver to avoid import cost when not needed."""
         if self._resolver is None:
             try:
-                from .concept_resolver import ConceptResolver
+                try:
+                    from .concept_resolver import ConceptResolver
+                except ImportError:
+                    from concept_resolver import ConceptResolver  # type: ignore[no-redef]
 
                 self._resolver = ConceptResolver()
             except Exception:
@@ -138,7 +144,10 @@ class CrossSkillReader:
         """Lazy-load HealthKnowledgeGraph."""
         if not hasattr(self, "_graph"):
             try:
-                from .health_knowledge_graph import HealthKnowledgeGraph
+                try:
+                    from .health_knowledge_graph import HealthKnowledgeGraph
+                except ImportError:
+                    from health_knowledge_graph import HealthKnowledgeGraph  # type: ignore[no-redef]
 
                 self._graph = HealthKnowledgeGraph(data_dir=self.data_dir)
             except Exception:
@@ -149,7 +158,10 @@ class CrossSkillReader:
         """Lazy-load CorrelationEngine."""
         if not hasattr(self, "_correlation_engine"):
             try:
-                from .correlation_engine import CorrelationEngine
+                try:
+                    from .correlation_engine import CorrelationEngine
+                except ImportError:
+                    from correlation_engine import CorrelationEngine  # type: ignore[no-redef]
 
                 self._correlation_engine = CorrelationEngine(data_dir=self.data_dir)
             except Exception:
